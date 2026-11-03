@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: 26
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm test
+
+      # Builds from the content commit pinned in content.lock, exactly as the
+      # Cloudflare Pages build does.
+      - run: npm run build
+
+  deploy:
+    permissions:
+      contents: read
+    needs: [check]
+    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
+    uses: matt-riley/matt-riley-ci/.github/workflows/request-app-deploy.yml@e802c1e932579d1e840f6dd4f8316458d1f96983 # v4
+    with:
+      dispatch-app-id: ${{ vars.INFRA_DISPATCH_APP_ID }}
+      app: pi-extensions
+    secrets:
+      INFRA_DISPATCH_PRIVATE_KEY: ${{ secrets.INFRA_DISPATCH_PRIVATE_KEY }}

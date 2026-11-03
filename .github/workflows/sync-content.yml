@@ -1,0 +1,61 @@
+name: Sync content
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-content
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    permissions:
+      contents: write
+      actions: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Resolve pi-extensions main
+        id: content
+        run: |
+          set -euo pipefail
+          sha=$(git ls-remote https://github.com/matt-riley/pi-extensions refs/heads/main | cut -f1)
+          if [[ ! "$sha" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "Could not resolve pi-extensions main" >&2
+            exit 1
+          fi
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+          echo "pi-extensions main is $sha"
+
+      - name: Update content lock
+        id: lock
+        env:
+          SHA: ${{ steps.content.outputs.sha }}
+        run: |
+          set -euo pipefail
+          current=$(tr -d '[:space:]' < content.lock)
+          if [ "$current" = "$SHA" ]; then
+            echo "Content is current at $SHA."
+            exit 0
+          fi
+          printf '%s\n' "$SHA" > content.lock
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add content.lock
+          git commit -m "chore(content): sync pi-extensions ${SHA:0:7}"
+          git push
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      # GITHUB_TOKEN pushes do not trigger push workflows. Explicit dispatch is
+      # supported and also recovers a previous sync whose CI request failed.
+      - name: Test and deploy synced main
+        if: steps.lock.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run ci.yml --repo "$GITHUB_REPOSITORY" --ref main
