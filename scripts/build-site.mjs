@@ -4,15 +4,14 @@
 
 import { execFileSync } from "node:child_process";
 import { existsSync, statSync } from "node:fs";
-import { copyFile, mkdir, mkdtemp, readdir, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { Marked } from "marked";
 import { firstHeading, parseFrontmatter, stripFrontmatter } from "./site/frontmatter.mjs";
-import { escapeHtml, renderLanding, renderNotFound, renderPage } from "./site/template.mjs";
+import { CONTENT_REPO, escapeHtml, renderLanding, renderNotFound, renderPage } from "./site/template.mjs";
 
-const CONTENT_REPO = "matt-riley/pi-extensions";
 const CONTENT_URL = `https://github.com/${CONTENT_REPO}.git`;
 const SITE_ROOT = fileURLToPath(new URL("..", import.meta.url));
 const COMMIT = /^[0-9a-f]{40}$/;
@@ -46,44 +45,34 @@ async function readJson(file) {
   return JSON.parse(await readFile(file, "utf8"));
 }
 
-async function listDirectories(dir) {
+async function list(dir, keep) {
   const entries = await readdir(dir, { withFileTypes: true });
   return entries
-    .filter((entry) => entry.isDirectory())
+    .filter(keep)
     .map((entry) => entry.name)
     .sort();
 }
 
-async function listMarkdown(dir) {
-  const entries = await readdir(dir, { withFileTypes: true });
-  return entries
-    .filter((entry) => entry.isFile() && entry.name.endsWith(".md"))
-    .map((entry) => entry.name)
-    .sort();
-}
+const listDirectories = (dir) => list(dir, (entry) => entry.isDirectory());
+const listMarkdown = (dir) => list(dir, (entry) => entry.isFile() && entry.name.endsWith(".md"));
+const isText = (value) => typeof value === "string" && value.trim() !== "";
+
+// Every page's output file is derived from its URL: /a/b/ -> a/b/index.html.
+const makePage = (source, url, fields) => ({ source, url, out: `${url.slice(1)}index.html`, ...fields });
 
 export async function discover(contentDir) {
   const manifest = await readJson(path.join(contentDir, "package.json"));
-  const pages = [];
-  const pageBySource = new Map();
-  const add = (page) => {
-    pages.push(page);
-    pageBySource.set(page.source, page.url);
-  };
+  const read = (source) => readFile(path.join(contentDir, source), "utf8");
   const headingOrThrow = async (source) => {
-    const title = firstHeading(await readFile(path.join(contentDir, source), "utf8"));
+    const title = firstHeading(await read(source));
     if (!title) throw new Error(`${source}: missing an H1 title`);
     return title;
   };
 
-  const gettingStarted = {
-    source: "README.md",
-    url: "/getting-started/",
-    out: "getting-started/index.html",
+  const gettingStarted = makePage("README.md", "/getting-started/", {
     title: await headingOrThrow("README.md"),
     description: "Install and run the pi-extensions collection",
-  };
-  add(gettingStarted);
+  });
 
   const extensions = [];
   for (const dir of await listDirectories(path.join(contentDir, "packages"))) {
@@ -92,77 +81,54 @@ export async function discover(contentDir) {
       throw new Error(`${source}: every packages/ directory needs a README.md`);
     }
     const meta = await readJson(path.join(contentDir, `packages/${dir}/package.json`));
-    const described = typeof meta.description === "string" && meta.description.trim() !== "";
-    if (typeof meta.name !== "string" || meta.name.trim() === "" || !described) {
+    if (!isText(meta.name) || !isText(meta.description)) {
       throw new Error(`packages/${dir}/package.json: missing name or description`);
     }
-    const page = {
-      source,
-      url: `/extensions/${dir}/`,
-      out: `extensions/${dir}/index.html`,
-      label: meta.name,
-      title: await headingOrThrow(source),
-      description: meta.description,
-    };
-    extensions.push(page);
-    add(page);
+    extensions.push(
+      makePage(source, `/extensions/${dir}/`, {
+        label: meta.name,
+        title: await headingOrThrow(source),
+        description: meta.description,
+      }),
+    );
   }
 
   const prompts = [];
   for (const file of await listMarkdown(path.join(contentDir, "prompts"))) {
     const source = `prompts/${file}`;
-    const slug = file.replace(/\.md$/, "");
-    const { description } = parseFrontmatter(await readFile(path.join(contentDir, source), "utf8"));
+    const { description } = parseFrontmatter(await read(source));
     if (!description) throw new Error(`${source}: missing a frontmatter description`);
-    const page = {
-      source,
-      url: `/prompts/${slug}/`,
-      out: `prompts/${slug}/index.html`,
-      label: `/${slug}`,
-      title: description,
-      description,
-    };
-    prompts.push(page);
-    add(page);
+    const slug = file.replace(/\.md$/, "");
+    prompts.push(
+      makePage(source, `/prompts/${slug}/`, { label: `/${slug}`, title: description, description }),
+    );
   }
 
   const skills = [];
   for (const dir of await listDirectories(path.join(contentDir, ".agents/skills"))) {
     const source = `.agents/skills/${dir}/SKILL.md`;
     if (!existsSync(path.join(contentDir, source))) continue;
-    const { name, description } = parseFrontmatter(
-      await readFile(path.join(contentDir, source), "utf8"),
-    );
+    const { name, description } = parseFrontmatter(await read(source));
     const label = name || dir;
-    const page = {
-      source,
-      url: `/skills/${label}/`,
-      out: `skills/${label}/index.html`,
-      label,
-      title: await headingOrThrow(source),
-      description,
-    };
-    skills.push(page);
-    add(page);
+    skills.push(
+      makePage(source, `/skills/${label}/`, {
+        label,
+        title: await headingOrThrow(source),
+        description,
+      }),
+    );
   }
 
   const guides = [];
   for (const file of await listMarkdown(path.join(contentDir, "docs"))) {
     const source = `docs/${file}`;
-    const slug = file.replace(/\.md$/, "");
     const title = await headingOrThrow(source);
-    const page = {
-      source,
-      url: `/guides/${slug}/`,
-      out: `guides/${slug}/index.html`,
-      label: title,
-      title,
-      description: title,
-    };
-    guides.push(page);
-    add(page);
+    const slug = file.replace(/\.md$/, "");
+    guides.push(makePage(source, `/guides/${slug}/`, { label: title, title, description: title }));
   }
 
+  // Taken before sorting so pages are built in directory order.
+  const pages = [gettingStarted, ...extensions, ...prompts, ...skills, ...guides];
   const byLabel = (left, right) => left.label.localeCompare(right.label);
   return {
     description: typeof manifest.description === "string" ? manifest.description : "",
@@ -172,22 +138,17 @@ export async function discover(contentDir) {
     skills: skills.sort(byLabel),
     guides: guides.sort(byLabel),
     pages,
-    pageBySource,
+    pageBySource: new Map(pages.map((page) => [page.source, page.url])),
   };
-}
-
-function splitTarget(value) {
-  const hash = value.indexOf("#");
-  const beforeHash = hash === -1 ? value : value.slice(0, hash);
-  return [beforeHash.split("?")[0], hash === -1 ? "" : value.slice(hash)];
 }
 
 export function rewriteHref(href, from, { pageBySource, contentDir, contentSha }) {
   const value = String(href ?? "").trim();
-  if (value === "" || value.startsWith("#")) return value;
-  if (value.startsWith("/")) return value;
-  if (/^[a-z][a-z0-9+.-]*:/i.test(value) || value.startsWith("//")) return value;
-  const [target, anchor] = splitTarget(value);
+  // Empty, fragment-only, root-relative, protocol-relative and absolute URLs stay as written.
+  if (value === "" || /^([#/]|[a-z][a-z0-9+.-]*:)/i.test(value)) return value;
+  const hash = value.indexOf("#");
+  const anchor = hash === -1 ? "" : value.slice(hash);
+  const target = (hash === -1 ? value : value.slice(0, hash)).split("?")[0];
   if (target === "") return value;
   const resolved = path.posix.normalize(
     path.posix.join(path.posix.dirname(from), target.replace(/\/+$/, "")),
@@ -201,16 +162,15 @@ export function rewriteHref(href, from, { pageBySource, contentDir, contentSha }
 }
 
 function renderMarkdown(markdown, rewrite, title) {
+  const titleAttribute = (token) => (token.title ? ` title="${escapeHtml(token.title)}"` : "");
   const marked = new Marked({
     renderer: {
       link(token) {
         const label = this.parser.parseInline(token.tokens);
-        const titleAttribute = token.title ? ` title="${escapeHtml(token.title)}"` : "";
-        return `<a href="${escapeHtml(rewrite(token.href))}"${titleAttribute}>${label}</a>`;
+        return `<a href="${escapeHtml(rewrite(token.href))}"${titleAttribute(token)}>${label}</a>`;
       },
       image(token) {
-        const titleAttribute = token.title ? ` title="${escapeHtml(token.title)}"` : "";
-        return `<img src="${escapeHtml(rewrite(token.href))}" alt="${escapeHtml(token.text ?? "")}"${titleAttribute}>`;
+        return `<img src="${escapeHtml(rewrite(token.href))}" alt="${escapeHtml(token.text)}"${titleAttribute(token)}>`;
       },
     },
   });
@@ -231,10 +191,9 @@ export async function build({ source, root = SITE_ROOT, out } = {}) {
       siteSha: commitOf(root) ?? process.env.GITHUB_SHA ?? "local",
     };
     await rm(out, { recursive: true, force: true });
-    await mkdir(out, { recursive: true });
-    const write = async (file, html) => {
+    const write = async (file, data) => {
       await mkdir(path.dirname(path.join(out, file)), { recursive: true });
-      await writeFile(path.join(out, file), html);
+      await writeFile(path.join(out, file), data);
     };
     for (const page of model.pages) {
       const markdown = await readFile(path.join(content.dir, page.source), "utf8");
@@ -258,11 +217,7 @@ export async function build({ source, root = SITE_ROOT, out } = {}) {
     }
     await write("index.html", renderLanding({ model, build: built }));
     await write("404.html", renderNotFound({ model, build: built }));
-    await mkdir(path.join(out, "assets"), { recursive: true });
-    await copyFile(
-      fileURLToPath(new URL("./site/style.css", import.meta.url)),
-      path.join(out, "assets/style.css"),
-    );
+    await write("assets/style.css", await readFile(new URL("./site/style.css", import.meta.url)));
     return { ...built, urls: model.pages.map((page) => page.url) };
   } finally {
     if (!source) await rm(content.dir, { recursive: true, force: true });

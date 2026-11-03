@@ -5,54 +5,48 @@
 
 function unquote(value) {
   const trimmed = value.trim();
-  if (trimmed.length >= 2 && trimmed.startsWith('"') && trimmed.endsWith('"')) {
-    return trimmed.slice(1, -1).replaceAll('\\n', "\n").replaceAll('\\"', '"');
-  }
-  if (trimmed.length >= 2 && trimmed.startsWith("'") && trimmed.endsWith("'")) {
-    return trimmed.slice(1, -1).replaceAll("''", "'");
-  }
+  const quote = trimmed[0];
+  if (trimmed.length < 2 || trimmed.at(-1) !== quote) return trimmed;
+  if (quote === '"') return trimmed.slice(1, -1).replaceAll("\\n", "\n").replaceAll('\\"', '"');
+  if (quote === "'") return trimmed.slice(1, -1).replaceAll("''", "'");
   return trimmed;
+}
+
+// Splits Markdown into its frontmatter block (without fences) and the body.
+function splitFrontmatter(text) {
+  const normalized = String(text ?? "")
+    .replace(/^﻿/, "")
+    .replace(/\r\n?/g, "\n");
+  const end = normalized.startsWith("---\n") ? normalized.indexOf("\n---", 4) : -1;
+  if (end === -1) return { header: "", body: normalized };
+  return { header: normalized.slice(4, end), body: normalized.slice(end + 4).replace(/^\n+/, "") };
 }
 
 export function parseFrontmatter(text) {
   const result = { name: "", description: "" };
-  const normalized = String(text ?? "")
-    .replace(/^\uFEFF/, "")
-    .replace(/\r\n?/g, "\n");
-  if (!normalized.startsWith("---\n")) return result;
-  const end = normalized.indexOf("\n---", 4);
-  if (end === -1) return result;
-  const lines = normalized.slice(4, end).split("\n");
-  for (let index = 0; index < lines.length; index += 1) {
-    const match = /^(name|description):\s*(.*)$/.exec(lines[index]);
+  const lines = splitFrontmatter(text).header.split("\n");
+  while (lines.length > 0) {
+    const match = /^(name|description):\s*(.*)$/.exec(lines.shift());
     if (!match) continue;
     const [, key, rawValue] = match;
     const value = rawValue.trim();
-    if (value === ">" || value === "|" || value === ">-" || value === "|-") {
-      const collected = [];
-      while (
-        index + 1 < lines.length &&
-        (lines[index + 1].trim() === "" || /^\s+\S/.test(lines[index + 1]))
-      ) {
-        collected.push(lines[index + 1].trim());
-        index += 1;
-      }
-      result[key] = value.startsWith("|")
-        ? collected.join("\n").trim()
-        : collected.filter(Boolean).join(" ").trim();
+    if (!/^[>|]-?$/.test(value)) {
+      result[key] = unquote(value);
       continue;
     }
-    result[key] = unquote(value);
+    const block = [];
+    while (lines.length > 0 && (lines[0].trim() === "" || /^\s+\S/.test(lines[0]))) {
+      block.push(lines.shift().trim());
+    }
+    result[key] = value.startsWith("|")
+      ? block.join("\n").trim()
+      : block.filter(Boolean).join(" ").trim();
   }
   return result;
 }
 
 export function stripFrontmatter(markdown) {
-  const normalized = String(markdown ?? "").replace(/\r\n?/g, "\n");
-  if (!normalized.startsWith("---\n")) return normalized;
-  const end = normalized.indexOf("\n---", 4);
-  if (end === -1) return normalized;
-  return normalized.slice(end + 4).replace(/^\n+/, "");
+  return splitFrontmatter(markdown).body;
 }
 
 export function firstHeading(markdown) {

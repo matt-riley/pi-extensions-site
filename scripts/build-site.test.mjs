@@ -40,13 +40,8 @@ async function fixture(t) {
 }
 
 async function htmlFiles(dir) {
-  const files = [];
-  for (const entry of await readdir(dir, { withFileTypes: true })) {
-    const full = path.join(dir, entry.name);
-    if (entry.isDirectory()) files.push(...(await htmlFiles(full)));
-    else if (entry.name.endsWith(".html")) files.push(full);
-  }
-  return files;
+  const entries = await readdir(dir, { recursive: true });
+  return entries.filter((entry) => entry.endsWith(".html")).map((entry) => path.join(dir, entry));
 }
 
 test("every packages/ directory becomes a page and a landing card", async (t) => {

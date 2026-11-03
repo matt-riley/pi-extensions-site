@@ -1,7 +1,7 @@
 // HTML shell and fragments for the generated documentation site.
 
 const SITE_REPO = "matt-riley/pi-extensions-site";
-const CONTENT_REPO = "matt-riley/pi-extensions";
+export const CONTENT_REPO = "matt-riley/pi-extensions";
 const SITE_NAME = "pi-extensions";
 const FAVICON =
   "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#129513;</text></svg>";
@@ -32,7 +32,7 @@ ${entries}
       </section>`;
 }
 
-export function renderSidebar(model, current) {
+function renderSidebar(model, current) {
   const groups = [
     ["Extensions", model.extensions],
     ["Prompts", model.prompts],
@@ -57,10 +57,10 @@ function footer({ contentSha, siteSha }) {
       ${commit(SITE_REPO, siteSha, "site")}`;
 }
 
-function renderShell({ model, current, title, description, content, build }) {
+export function renderPage({ model, current, title, description, content, build }) {
   const pageTitle = title === SITE_NAME ? SITE_NAME : `${title} — ${SITE_NAME}`;
   // The landing page and 404 already link everywhere, so they skip the sidebar.
-  const sidebar = current === "/" || current === "/404" ? "" : `    ${renderSidebar(model, current).trimStart()}\n`;
+  const sidebar = current === "/" || current === "/404" ? "" : `${renderSidebar(model, current)}\n`;
   return `<!doctype html>
 <html lang="en">
   <head>
@@ -87,10 +87,6 @@ ${footer(build)}
   </body>
 </html>
 `;
-}
-
-export function renderPage({ model, current, title, description, content, build }) {
-  return renderShell({ model, current, title, description, content, build });
 }
 
 export function renderLanding({ model, build }) {
@@ -128,7 +124,7 @@ ${cards}
 ${guides}
         </ul>
       </section>`;
-  return renderShell({
+  return renderPage({
     model,
     current: "/",
     title: SITE_NAME,
@@ -141,7 +137,7 @@ ${guides}
 export function renderNotFound({ model, build }) {
   const content = `      <h1>Page not found</h1>
       <p>That page does not exist. Start from the <a href="/">extension index</a>.</p>`;
-  return renderShell({
+  return renderPage({
     model,
     current: "/404",
     title: "Page not found",
