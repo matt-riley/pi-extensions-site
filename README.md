@@ -9,8 +9,10 @@ skill changes the site with no index to maintain.
 
 ## What gets published
 
-| Source in `pi-extensions` | Page |
+| Source in `pi-extensions` | Used for |
 | --- | --- |
+| Root `package.json` description | Homepage introduction and metadata |
+| `packages/*/package.json` names and descriptions | Extension cards, navigation labels and metadata |
 | `README.md` | `/getting-started/` |
 | `packages/*/README.md` | `/extensions/<dir>/` |
 | `prompts/*.md` | `/prompts/<file>/` |
@@ -19,7 +21,12 @@ skill changes the site with no index to maintain.
 
 Relative links between those files become site links; links to anything else (source files,
 directories) point at the pinned commit on GitHub; external links are left alone. The landing page
-is a card grid of extensions, sorted by package name.
+is a card grid of extensions, sorted by package name. Markdown headings get unique
+anchor IDs, so links to sections work on the site too.
+
+Edit the upstream Markdown and package descriptions to change the writing; do not edit `dist/`.
+Prompts and skills also guide the running agent, so their wording and frontmatter are operational
+resources, not just website copy.
 
 ## Content pinning
 
@@ -35,6 +42,8 @@ npm ci
 npm test                       # generator contract tests
 npm run build                  # writes dist/ from the commit in content.lock
 npm run build -- --source ../pi-extensions   # or from a local checkout
+node .pi/verify/site-content.mjs ../pi-extensions 49  # preview + full-content link/anchor check
+node .pi/verify/content-scope.mjs ../pi-extensions 69455e7  # editorial scope against its base
 ```
 
 There is no dev server: `dist/` is plain HTML with one stylesheet, so `open dist/index.html` or any
