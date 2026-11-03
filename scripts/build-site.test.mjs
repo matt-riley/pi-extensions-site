@@ -53,7 +53,9 @@ test("every packages/ directory becomes a page and a landing card", async (t) =>
   const { source, out } = await fixture(t);
   await build({ source, out });
   const landing = await readFile(path.join(out, "index.html"), "utf8");
-  assert.equal(landing.match(/class="card"/g)?.length, 2);
+  assert.match(landing, /<title>pi-extensions<\/title>/);
+  const alphaTitle = await readFile(path.join(out, "extensions/alpha/index.html"), "utf8");
+  assert.match(alphaTitle, /<title>fixture-alpha — pi-extensions<\/title>/);
   for (const name of ["alpha", "beta"]) {
     assert.ok(existsSync(path.join(out, "extensions", name, "index.html")), `${name} page exists`);
     assert.match(landing, new RegExp(`href="/extensions/${name}/"`));

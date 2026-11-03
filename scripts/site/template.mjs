@@ -58,6 +58,7 @@ function footer({ contentSha, siteSha }) {
 }
 
 function renderShell({ model, current, title, description, content, build }) {
+  const pageTitle = title === SITE_NAME ? SITE_NAME : `${title} — ${SITE_NAME}`;
   // The landing page and 404 already link everywhere, so they skip the sidebar.
   const sidebar = current === "/" || current === "/404" ? "" : `    ${renderSidebar(model, current).trimStart()}\n`;
   return `<!doctype html>
@@ -65,7 +66,7 @@ function renderShell({ model, current, title, description, content, build }) {
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>${escapeHtml(title)} — ${SITE_NAME}</title>
+    <title>${escapeHtml(pageTitle)}</title>
     <meta name="description" content="${escapeHtml(description)}" />
     <link rel="icon" href="${FAVICON}" />
     <link rel="stylesheet" href="/assets/style.css" />
