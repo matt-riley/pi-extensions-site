@@ -163,8 +163,19 @@ export function rewriteHref(href, from, { pageBySource, contentDir, contentSha }
 
 function renderMarkdown(markdown, rewrite, title) {
   const titleAttribute = (token) => (token.title ? ` title="${escapeHtml(token.title)}"` : "");
+  const headingIds = new Set();
   const marked = new Marked({
     renderer: {
+      heading(token) {
+        const text = this.parser.parseInline(token.tokens, this.parser.textRenderer);
+        const base = text.toLowerCase()
+          .replace(/<[^>]*>|[^\p{L}\p{M}\p{N}_ -]/gu, "")
+          .replaceAll(" ", "-") || "section";
+        let id = base;
+        for (let suffix = 1; headingIds.has(id); suffix += 1) id = `${base}-${suffix}`;
+        headingIds.add(id);
+        return `<h${token.depth} id="${escapeHtml(id)}">${this.parser.parseInline(token.tokens)}</h${token.depth}>\n`;
+      },
       link(token) {
         const label = this.parser.parseInline(token.tokens);
         return `<a href="${escapeHtml(rewrite(token.href))}"${titleAttribute(token)}>${label}</a>`;

@@ -106,7 +106,9 @@ export function renderLanding({ model, build }) {
   const content = `      <section class="hero">
         <h1>${SITE_NAME}</h1>
         <p>${escapeHtml(model.description)}</p>
-        <pre><code>git clone https://github.com/${CONTENT_REPO} ~/.pi/agent/extensions/pi-extensions</code></pre>
+        <pre><code>git clone https://github.com/${CONTENT_REPO} ~/.pi/agent/extensions/pi-extensions
+cd ~/.pi/agent/extensions/pi-extensions &amp;&amp; npm install</code></pre>
+        <p>Then run <code>/reload</code> in pi. See Getting started for prompt and skill setup.</p>
         <p class="hero-links">
           <a class="button" href="/getting-started/">Getting started</a>
           <a class="button ghost" href="https://github.com/${CONTENT_REPO}">Source</a>
