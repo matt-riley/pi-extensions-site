@@ -120,6 +120,40 @@ test("frontmatter is stripped, tables render and prompts get a heading", async (
   assert.match(skill, /href="\/skills\/z-skill\/" aria-current="page"/);
 });
 
+test("section links have unique heading targets, including formatted headings", async (t) => {
+  const { source, out } = await fixture(t);
+  await write(source, "packages/alpha/README.md", ALPHA + `
+## Install
+
+[Jump to install](#install).
+
+## Find \`retry\` in [Café](../../README.md)
+
+## Install
+
+## Install-1
+`);
+  await build({ source, out });
+  const alpha = await readFile(path.join(out, "extensions/alpha/index.html"), "utf8");
+  assert.match(alpha, /href="#install"/);
+  assert.match(alpha, /<h2 id="install">Install<\/h2>/);
+  assert.match(alpha, /<h2 id="find-retry-in-café">/);
+  assert.match(alpha, /<h2 id="install-1">Install<\/h2>/);
+  assert.match(alpha, /<h2 id="install-1-1">Install-1<\/h2>/);
+  const ids = [...alpha.matchAll(/<h[1-6] id="([^"]+)"/g)].map((match) => match[1]);
+  assert.equal(ids.length, 5);
+  assert.equal(new Set(ids).size, ids.length);
+});
+
+test("homepage shows the full install steps before reload", async (t) => {
+  const { source, out } = await fixture(t);
+  await build({ source, out });
+  const landing = await readFile(path.join(out, "index.html"), "utf8");
+  assert.match(landing, /git clone https:\/\/github.com\/matt-riley\/pi-extensions/);
+  assert.match(landing, /cd ~\/\.pi\/agent\/extensions\/pi-extensions &amp;&amp; npm install/);
+  assert.match(landing, /<code>\/reload<\/code>/);
+});
+
 test("a package directory without a README fails the build", async (t) => {
   const { source, out } = await fixture(t);
   await write(source, "packages/delta/package.json", JSON.stringify({ name: "fixture-delta", description: "Delta." }));
