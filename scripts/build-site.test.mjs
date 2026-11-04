@@ -165,3 +165,31 @@ test("an unpinned content.lock fails before any clone", async (t) => {
   await write(root, "content.lock", "not-a-sha\n");
   await assert.rejects(build({ root, out: path.join(root, "dist") }), /content\.lock/);
 });
+
+test("every page has a Markdown copy listed in llms.txt", async (t) => {
+  const { source, out } = await fixture(t);
+  const result = await build({ source, out });
+  const llms = await readFile(path.join(out, "llms.txt"), "utf8");
+  assert.match(llms, /^# pi-extensions\n\n> Fixture collection\.\n/);
+  assert.match(llms, /^## Extensions$/m);
+  for (const url of result.urls) {
+    const copy = path.join(out, url.slice(1), "index.md");
+    assert.ok(existsSync(copy), `${url} has a Markdown copy`);
+    assert.match(await readFile(copy, "utf8"), /^# /, `${url} copy starts with a title`);
+    assert.ok(llms.includes(`(https://pi-extensions.mattriley.tools${url}index.md)`), `llms.txt lists ${url}`);
+  }
+  assert.match(llms, /- \[fixture-alpha\]\(https:\/\/pi-extensions\.mattriley\.tools\/extensions\/alpha\/index\.md\): Alpha does things\./);
+});
+
+test("Markdown copies drop frontmatter and point links at other copies", async (t) => {
+  const { source, out } = await fixture(t);
+  await build({ source, out });
+  const alpha = await readFile(path.join(out, "extensions/alpha/index.md"), "utf8");
+  assert.match(alpha, /\[beta\]\(\/extensions\/beta\/index\.md\)/);
+  assert.match(alpha, /\(https:\/\/github\.com\/matt-riley\/pi-extensions\/tree\/[^)]+\/packages\/alpha\/playbooks\)/);
+  assert.match(alpha, /\(https:\/\/example\.com\/docs\)/);
+  const prompt = await readFile(path.join(out, "prompts/thing/index.md"), "utf8");
+  assert.equal(prompt, "# Do the thing\n\nRun it.\n");
+  const skill = await readFile(path.join(out, "skills/z-skill/index.md"), "utf8");
+  assert.doesNotMatch(skill, /description:/);
+});

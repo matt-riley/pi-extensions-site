@@ -24,6 +24,12 @@ directories) point at the pinned commit on GitHub; external links are left alone
 is a card grid of extensions, sorted by package name. Markdown headings get unique
 anchor IDs, so links to sections work on the site too.
 
+Every page also gets a plain-Markdown copy at `<page>/index.md` (frontmatter removed, links to
+other pages pointing at their copies), and `/llms.txt` indexes those copies in the
+[llmstxt.org](https://llmstxt.org/) format so agents can read the docs cheaply. Both are generated
+by `scripts/site/llms.mjs` from the same model as the HTML, and the build fails if a page has no
+copy or is missing from `llms.txt`.
+
 Edit the upstream Markdown and package descriptions to change the writing; do not edit `dist/`.
 Prompts and skills also guide the running agent, so their wording and frontmatter are operational
 resources, not just website copy.
