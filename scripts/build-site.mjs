@@ -10,6 +10,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { Marked } from "marked";
 import { firstHeading, parseFrontmatter, stripFrontmatter } from "./site/frontmatter.mjs";
+import { checkLlmsCoverage, markdownOut, renderLlmsTxt, renderMarkdownCopy } from "./site/llms.mjs";
 import { CONTENT_REPO, escapeHtml, renderLanding, renderNotFound, renderPage } from "./site/template.mjs";
 
 const CONTENT_URL = `https://github.com/${CONTENT_REPO}.git`;
@@ -206,6 +207,8 @@ export async function build({ source, root = SITE_ROOT, out } = {}) {
       await mkdir(path.dirname(path.join(out, file)), { recursive: true });
       await writeFile(path.join(out, file), data);
     };
+    const pageUrls = new Set(model.pages.map((page) => page.url));
+    const markdownCopies = new Set();
     for (const page of model.pages) {
       const markdown = await readFile(path.join(content.dir, page.source), "utf8");
       const rewrite = (href) =>
@@ -225,7 +228,12 @@ export async function build({ source, root = SITE_ROOT, out } = {}) {
           build: built,
         }),
       );
+      await write(markdownOut(page.url), renderMarkdownCopy(markdown, page.title, rewrite, pageUrls));
+      markdownCopies.add(markdownOut(page.url));
     }
+    const llmsTxt = renderLlmsTxt(model);
+    checkLlmsCoverage(model, llmsTxt, markdownCopies);
+    await write("llms.txt", llmsTxt);
     await write("index.html", renderLanding({ model, build: built }));
     await write("404.html", renderNotFound({ model, build: built }));
     await write("assets/style.css", await readFile(new URL("./site/style.css", import.meta.url)));
