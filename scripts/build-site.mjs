@@ -8,10 +8,11 @@ import { mkdir, mkdtemp, readdir, readFile, rm, writeFile } from "node:fs/promis
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { Marked } from "marked";
+import { lexer, Marked, Parser, TextRenderer } from "marked";
 import { firstHeading, parseFrontmatter, stripFrontmatter } from "./site/frontmatter.mjs";
 import { checkLlmsCoverage, markdownOut, renderLlmsTxt, renderMarkdownCopy } from "./site/llms.mjs";
 import { CONTENT_REPO, escapeHtml, renderLanding, renderNotFound, renderPage } from "./site/template.mjs";
+import { ROBOTS_TXT, renderMarkdownHeaders, renderSitemap } from "./site/seo.mjs";
 
 const CONTENT_URL = `https://github.com/${CONTENT_REPO}.git`;
 const SITE_ROOT = fileURLToPath(new URL("..", import.meta.url));
@@ -60,6 +61,19 @@ const isText = (value) => typeof value === "string" && value.trim() !== "";
 
 // Every page's output file is derived from its URL: /a/b/ -> a/b/index.html.
 const makePage = (source, url, fields) => ({ source, url, out: `${url.slice(1)}index.html`, ...fields });
+
+// Use existing prose for search snippets; code blocks, lists and quotations are not summaries.
+function guideDescription(markdown, fallback) {
+  const paragraph = lexer(stripFrontmatter(markdown)).find((token) => token.type === "paragraph");
+  if (!paragraph) return fallback;
+  const renderer = new TextRenderer();
+  renderer.html = () => "";
+  renderer.br = () => " ";
+  const text = Parser.parseInline(paragraph.tokens, { renderer });
+  const entities = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " " };
+  return text.replace(/&(amp|lt|gt|quot|apos|nbsp);/g, (_, name) => entities[name])
+    .replace(/\s+/g, " ").trim() || fallback;
+}
 
 export async function discover(contentDir) {
   const manifest = await readJson(path.join(contentDir, "package.json"));
@@ -125,7 +139,9 @@ export async function discover(contentDir) {
     const source = `docs/${file}`;
     const title = await headingOrThrow(source);
     const slug = file.replace(/\.md$/, "");
-    guides.push(makePage(source, `/guides/${slug}/`, { label: title, title, description: title }));
+    guides.push(makePage(source, `/guides/${slug}/`, {
+      label: title, title, description: guideDescription(await read(source), title),
+    }));
   }
 
   // Taken before sorting so pages are built in directory order.
@@ -234,6 +250,9 @@ export async function build({ source, root = SITE_ROOT, out } = {}) {
     const llmsTxt = renderLlmsTxt(model);
     checkLlmsCoverage(model, llmsTxt, markdownCopies);
     await write("llms.txt", llmsTxt);
+    await write("sitemap.xml", renderSitemap(model));
+    await write("robots.txt", ROBOTS_TXT);
+    await write("_headers", renderMarkdownHeaders(model));
     await write("index.html", renderLanding({ model, build: built }));
     await write("404.html", renderNotFound({ model, build: built }));
     await write("assets/style.css", await readFile(new URL("./site/style.css", import.meta.url)));

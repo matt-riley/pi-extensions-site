@@ -17,7 +17,7 @@ skill changes the site with no index to maintain.
 | `packages/*/README.md` | `/extensions/<dir>/` |
 | `prompts/*.md` | `/prompts/<file>/` |
 | `.agents/skills/*/SKILL.md` | `/skills/<name>/` |
-| `docs/*.md` | `/guides/<file>/` |
+| `docs/*.md` H1 and first prose paragraph | Guide titles and descriptions at `/guides/<file>/` |
 
 Relative links between those files become site links; links to anything else (source files,
 directories) point at the pinned commit on GitHub; external links are left alone. The landing page
@@ -34,6 +34,24 @@ Edit the upstream Markdown and package descriptions to change the writing; do no
 Prompts and skills also guide the running agent, so their wording and frontmatter are operational
 resources, not just website copy.
 
+## Search and sharing metadata
+
+The generator emits absolute, trailing-slash canonical URLs and Open Graph/Twitter
+summary metadata for the homepage and every documentation page. They share the production
+origin in `scripts/site/template.mjs` with the Markdown index and crawl artifacts.
+Descriptions come from the sources above; guides use the first top-level prose paragraph
+with inline formatting removed (or the title if none exists). No upstream writing is changed.
+
+`sitemap.xml` lists the homepage and all discovered HTML pages, and `robots.txt` advertises it
+without blocking access. The 404 is marked `noindex` and has no canonical. Markdown copies
+remain accessible to agents: Cloudflare Pages applies the generated `_headers` file's HTTP
+`Link: <HTML URL>; rel="canonical"` headers to consolidate them with their HTML counterparts.
+These headers are not applied by a basic local file server.
+
+The sitemap excludes Markdown copies and the 404. It does not invent modification dates,
+crawl frequencies or priorities. All artifacts come from the same pinned content model,
+with no hand-maintained URL inventory.
+
 ## Content pinning
 
 `content.lock` holds the `pi-extensions` commit that gets published, so a build is reproducible and
@@ -48,7 +66,8 @@ npm ci
 npm test                       # generator contract tests
 npm run build                  # writes dist/ from the commit in content.lock
 npm run build -- --source ../pi-extensions   # or from a local checkout
-node .pi/verify/site-content.mjs ../pi-extensions 49  # preview + full-content link/anchor check
+node .pi/verify/site-content.mjs ../pi-extensions 55  # preview + full-content link/anchor check
+node .pi/verify/seo.mjs          # audit existing dist/ metadata, sitemap, headers and URLs
 node .pi/verify/content-scope.mjs ../pi-extensions 69455e7  # editorial scope against its base
 ```
 

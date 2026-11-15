@@ -2,6 +2,7 @@
 
 const SITE_REPO = "matt-riley/pi-extensions-site";
 export const CONTENT_REPO = "matt-riley/pi-extensions";
+export const SITE_URL = "https://pi-extensions.mattriley.tools";
 const SITE_NAME = "pi-extensions";
 // One π drawn as three strokes: the brand mark, the favicon and the hero watermark.
 const PI_PATHS =
@@ -86,8 +87,20 @@ function footer({ contentSha, siteSha }) {
       ${commit(SITE_REPO, siteSha, "site")}`;
 }
 
-export function renderPage({ model, current, title, description, content, build }) {
+export function renderPage({ model, current, title, description, content, build, indexable = true }) {
   const pageTitle = title === SITE_NAME ? SITE_NAME : `${title} — ${SITE_NAME}`;
+  const canonical = escapeHtml(SITE_URL + current);
+  const metadata = indexable
+    ? `<link rel="canonical" href="${canonical}" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="${SITE_NAME}" />
+    <meta property="og:url" content="${canonical}" />
+    <meta property="og:title" content="${escapeHtml(pageTitle)}" />
+    <meta property="og:description" content="${escapeHtml(description)}" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="${escapeHtml(pageTitle)}" />
+    <meta name="twitter:description" content="${escapeHtml(description)}" />`
+    : '<meta name="robots" content="noindex" />';
   // The landing page and 404 already link everywhere, so they skip the sidebar.
   const sidebar = current === "/" || current === "/404" ? "" : `${renderSidebar(model, current)}\n`;
   return `<!doctype html>
@@ -97,6 +110,7 @@ export function renderPage({ model, current, title, description, content, build 
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>${escapeHtml(pageTitle)}</title>
     <meta name="description" content="${escapeHtml(description)}" />
+    ${metadata}
     <link rel="icon" href="${FAVICON}" />
     <link rel="stylesheet" href="/assets/style.css" />
   </head>
@@ -200,6 +214,7 @@ export function renderNotFound({ model, build }) {
     model,
     current: "/404",
     title: "Page not found",
+    indexable: false,
     description: "That page does not exist.",
     content,
     build,

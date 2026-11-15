@@ -70,6 +70,98 @@ test("every packages/ directory becomes a page and a landing card", async (t) =>
   assert.ok(existsSync(path.join(out, "prompts/thing/index.html")));
 });
 
+test("HTML pages share absolute canonical and social metadata, but errors are noindex", async (t) => {
+  const { source, out } = await fixture(t);
+  await write(source, "packages/alpha/package.json", JSON.stringify({
+    name: "fixture-alpha", description: 'Use "alpha" & <beta> safely.',
+  }));
+  const result = await build({ source, out });
+  const origin = "https://pi-extensions.mattriley.tools";
+  for (const url of ["/", ...result.urls]) {
+    const html = await readFile(path.join(out, url.slice(1), "index.html"), "utf8");
+    const canonical = origin + url;
+    assert.deepEqual([...html.matchAll(/<link rel="canonical" href="([^"]+)" \/>/g)].map((m) => m[1]), [canonical]);
+    const title = /<title>(.*?)<\/title>/.exec(html)[1];
+    const description = /<meta name="description" content="([^"]+)" \/>/.exec(html)[1];
+    assert.ok(description.length > 0);
+    assert.ok(html.includes(`<meta property="og:url" content="${canonical}" />`));
+    assert.ok(html.includes(`<meta property="og:title" content="${title}" />`));
+    assert.ok(html.includes(`<meta property="og:description" content="${description}" />`));
+    assert.match(html, /<meta property="og:type" content="website" \/>/);
+    assert.match(html, /<meta property="og:site_name" content="pi-extensions" \/>/);
+    assert.match(html, /<meta name="twitter:card" content="summary" \/>/);
+    assert.ok(html.includes(`<meta name="twitter:title" content="${title}" />`));
+    assert.ok(html.includes(`<meta name="twitter:description" content="${description}" />`));
+    assert.doesNotMatch(html, /noindex/);
+  }
+  const alpha = await readFile(path.join(out, "extensions/alpha/index.html"), "utf8");
+  assert.match(alpha, /content="Use &quot;alpha&quot; &amp; &lt;beta&gt; safely\."/);
+  const notFound = await readFile(path.join(out, "404.html"), "utf8");
+  assert.match(notFound, /<meta name="robots" content="noindex" \/>/);
+  assert.doesNotMatch(notFound, /rel="canonical"|property="og:|name="twitter:/);
+});
+
+test("crawl artifacts cover only canonical HTML pages and consolidate Markdown copies", async (t) => {
+  const { source, out } = await fixture(t);
+  await write(source, "docs/a&b.md", "# A and B\n\nA guide with an ampersand in its URL.\n");
+  await build({ source, out });
+  const expected = [
+    "/", "/getting-started/", "/extensions/alpha/", "/extensions/beta/",
+    "/prompts/thing/", "/skills/z-skill/", "/guides/a&b/", "/guides/guide/",
+  ].map((url) => "https://pi-extensions.mattriley.tools" + url);
+  const sitemap = await readFile(path.join(out, "sitemap.xml"), "utf8");
+  assert.match(sitemap, /^<\?xml version="1.0" encoding="UTF-8"\?>/);
+  assert.match(sitemap, /<urlset xmlns="http:\/\/www.sitemaps.org\/schemas\/sitemap\/0.9">/);
+  assert.deepEqual([...sitemap.matchAll(/<loc>(.*?)<\/loc>/g)].map((m) => m[1]), expected.map((url) => url.replaceAll("&", "&amp;")));
+  assert.doesNotMatch(sitemap, /404|index\.md|lastmod|priority|changefreq/);
+  assert.equal(await readFile(path.join(out, "robots.txt"), "utf8"),
+    "User-agent: *\nAllow: /\n\nSitemap: https://pi-extensions.mattriley.tools/sitemap.xml\n");
+  const headers = await readFile(path.join(out, "_headers"), "utf8");
+  const blocks = headers.trim().split("\n\n");
+  assert.equal(blocks.length, 7);
+  for (const url of expected.slice(1)) {
+    const pathname = new URL(url).pathname;
+    assert.ok(blocks.includes(`${pathname}index.md\n  Link: <${url}>; rel="canonical"`), url);
+  }
+  assert.doesNotMatch(headers, /Disallow|noindex/);
+  await build({ source, out });
+  assert.equal(await readFile(path.join(out, "sitemap.xml"), "utf8"), sitemap, "rebuild is deterministic");
+  assert.equal(await readFile(path.join(out, "_headers"), "utf8"), headers);
+  await rm(path.join(source, "packages/beta"), { recursive: true });
+  await build({ source, out });
+  assert.doesNotMatch(await readFile(path.join(out, "sitemap.xml"), "utf8"), /extensions\/beta/);
+  assert.doesNotMatch(await readFile(path.join(out, "_headers"), "utf8"), /extensions\/beta/);
+  assert.ok(!existsSync(path.join(out, "extensions/beta/index.html")));
+});
+
+test("guide descriptions use the first prose paragraph, not headings or operational frontmatter", async (t) => {
+  const { source, out } = await fixture(t);
+  await write(source, "docs/guide.md", [
+    "---", "description: Not the public introduction", "---",
+    "# Guide page", "", "## Overview", "",
+    "```js", '"not a summary"', "```", "",
+    "> A quotation, not the introduction.", "",
+    'Learn **safe** [setup](../README.md) with `/plan` &amp; &#x50;i.  ',
+    'Keep <em>control</em> of "changes".', "",
+    "A later paragraph should not enter the description.", "",
+  ].join("\n"));
+  await write(source, "docs/empty.md", "# Empty guide\n\n## No prose yet\n");
+  await build({ source, out });
+  const guide = await readFile(path.join(out, "guides/guide/index.html"), "utf8");
+  assert.match(guide, /<meta name="description" content="Learn safe setup with \/plan &amp; Pi\. Keep control of &quot;changes&quot;\." \/>/);
+  assert.doesNotMatch(guide, /<meta[^>]+content="[^"]*(?:Not the public|not a summary|A quotation|A later)/);
+  const empty = await readFile(path.join(out, "guides/empty/index.html"), "utf8");
+  assert.match(empty, /<meta name="description" content="Empty guide" \/>/);
+  const llms = await readFile(path.join(out, "llms.txt"), "utf8");
+  assert.match(llms, /: Learn safe setup with \/plan & Pi\. Keep control of "changes"\./);
+  const alpha = await readFile(path.join(out, "extensions/alpha/index.html"), "utf8");
+  assert.match(alpha, /name="description" content="Alpha does things\."/);
+  const prompt = await readFile(path.join(out, "prompts/thing/index.html"), "utf8");
+  assert.match(prompt, /name="description" content="Do the thing"/);
+  const skill = await readFile(path.join(out, "skills/z-skill/index.html"), "utf8");
+  assert.match(skill, /name="description" content="The z skill"/);
+});
+
 test("relative links become site pages or content repository URLs", async (t) => {
   const { source, out } = await fixture(t);
   const result = await build({ source, out });

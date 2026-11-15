@@ -3,7 +3,7 @@
 
 import { stripFrontmatter } from "./frontmatter.mjs";
 
-export const SITE_URL = "https://pi-extensions.mattriley.tools";
+import { SITE_URL } from "./template.mjs";
 
 // Every page's Markdown copy is derived from its URL: /a/b/ -> a/b/index.md.
 export const markdownOut = (url) => `${url.slice(1)}index.md`;
