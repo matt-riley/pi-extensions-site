@@ -4,7 +4,8 @@ import { mkdir, mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promis
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
-import { build } from "./build-site.mjs";
+import { build, discover, rewriteHref } from "./build-site.mjs";
+import { renderLanding, renderPage } from "./site/template.mjs";
 
 const ALPHA = `# fixture-alpha
 
@@ -284,4 +285,254 @@ test("Markdown copies drop frontmatter and point links at other copies", async (
   assert.equal(prompt, "# Do the thing\n\nRun it.\n");
   const skill = await readFile(path.join(out, "skills/z-skill/index.md"), "utf8");
   assert.doesNotMatch(skill, /description:/);
+});
+
+test("page titles remain unique when README.md uses # pi-extensions and llms.txt labels Getting started", async (t) => {
+  const { source, out } = await fixture(t);
+  await write(source, "README.md", "# pi-extensions\n\nStart with [alpha](./packages/alpha/README.md).\n");
+  const result = await build({ source, out });
+  const titles = [];
+  for (const url of ["/", ...result.urls]) {
+    const html = await readFile(path.join(out, url.slice(1), "index.html"), "utf8");
+    titles.push(/<title>(.*?)<\/title>/.exec(html)[1]);
+  }
+  assert.equal(new Set(titles).size, titles.length, "all HTML page titles are unique");
+  const gettingStarted = await readFile(path.join(out, "getting-started/index.html"), "utf8");
+  assert.match(gettingStarted, /<title>Getting started — pi-extensions<\/title>/);
+  const llms = await readFile(path.join(out, "llms.txt"), "utf8");
+  assert.match(
+    llms,
+    /- \[Getting started\]\(https:\/\/pi-extensions\.mattriley\.tools\/getting-started\/index\.md\): Install and run the pi-extensions collection/,
+  );
+});
+
+test("landing page, 404, sidebar accessibility, and alternate markdown metadata are complete", async (t) => {
+  const { source, out } = await fixture(t);
+  await write(source, ".agents/skills/no-desc/SKILL.md", "---\nname: no-desc\n---\n\n# Fallback Skill Title\n\nBody.\n");
+  const result = await build({ source, out });
+
+  const landing = await readFile(path.join(out, "index.html"), "utf8");
+  for (const id of ["extensions", "prompts", "skills", "guides"]) {
+    assert.match(landing, new RegExp(`<section class="index" id="${id}">`));
+    assert.match(landing, new RegExp(`href="#${id}"`));
+  }
+  assert.match(landing, /href="\/prompts\/thing\/"/);
+  assert.match(landing, /href="\/skills\/z-skill\/"/);
+  assert.doesNotMatch(landing, /rel="alternate" type="text\/markdown"/);
+
+  const notFound = await readFile(path.join(out, "404.html"), "utf8");
+  for (const href of ["/", "/getting-started/", "/#extensions", "/#prompts", "/#skills", "/#guides"]) {
+    assert.ok(notFound.includes(`href="${href}"`), `404 links to ${href}`);
+  }
+  assert.doesNotMatch(notFound, /rel="alternate" type="text\/markdown"/);
+
+  for (const file of await htmlFiles(out)) {
+    const html = await readFile(file, "utf8");
+    assert.match(html, /<body>\s*<a class="skip-link" href="#main-content">Skip to content<\/a>/);
+    assert.match(html, /<main class="content" id="main-content">/);
+    assert.match(html, /<a href="\/llms\.txt">llms\.txt<\/a>/);
+  }
+
+  for (const url of result.urls) {
+    const html = await readFile(path.join(out, url.slice(1), "index.html"), "utf8");
+    assert.ok(
+      html.includes(`<link rel="alternate" type="text/markdown" href="https://pi-extensions.mattriley.tools${url}index.md" />`),
+      `${url} advertises its markdown alternate`,
+    );
+    assert.match(html, /<input class="nav-toggle" type="checkbox" id="nav-toggle" \/>/);
+    assert.match(html, /<label class="nav-toggle-label" for="nav-toggle">Browse the docs<\/label>/);
+    assert.match(html, /<section class="nav-group nav-group-prose">/);
+  }
+
+  const noDescSkill = await readFile(path.join(out, "skills/no-desc/index.html"), "utf8");
+  assert.match(noDescSkill, /<meta name="description" content="Fallback Skill Title" \/>/);
+  const llms = await readFile(path.join(out, "llms.txt"), "utf8");
+  assert.match(llms, /- \[no-desc\]\(https:\/\/pi-extensions\.mattriley\.tools\/skills\/no-desc\/index\.md\): Fallback Skill Title/);
+});
+
+test("relative images rewrite to raw.githubusercontent.com, directory links to pages, and unsafe schemes are blocked", async (t) => {
+  const { source, out } = await fixture(t);
+  await write(
+    source,
+    "packages/alpha/README.md",
+    ALPHA + [
+      "",
+      "![Architecture](./assets/diagram.png)",
+      "See [beta dir](../beta) and [beta slash](../beta/) and [skill dir](../../.agents/skills/z-skill).",
+      "Unsafe: [js](javascript:alert(1)), [vb](vbscript:msgbox(1)), [data](data:text/html,<script>).",
+    ].join("\n"),
+  );
+  await build({ source, out });
+
+  const alphaHtml = await readFile(path.join(out, "extensions/alpha/index.html"), "utf8");
+  assert.match(
+    alphaHtml,
+    /<img src="https:\/\/raw\.githubusercontent\.com\/matt-riley\/pi-extensions\/local\/packages\/alpha\/assets\/diagram\.png" alt="Architecture">/,
+  );
+  assert.match(alphaHtml, /<a href="\/extensions\/beta\/">beta dir<\/a>/);
+  assert.match(alphaHtml, /<a href="\/extensions\/beta\/">beta slash<\/a>/);
+  assert.match(alphaHtml, /<a href="\/skills\/z-skill\/">skill dir<\/a>/);
+  assert.match(alphaHtml, /<a href="#">js<\/a>, <a href="#">vb<\/a>, <a href="#">data<\/a>/);
+  assert.doesNotMatch(alphaHtml, /<a [^>]*href="(?:javascript|vbscript|data):/i);
+
+  const alphaMd = await readFile(path.join(out, "extensions/alpha/index.md"), "utf8");
+  assert.match(alphaMd, /\[beta dir\]\(\/extensions\/beta\/index\.md\)/);
+  assert.match(alphaMd, /\[skill dir\]\(\/skills\/z-skill\/index\.md\)/);
+
+  const model = await discover(source);
+  const ctx = { pageBySource: model.pageBySource, contentDir: source, contentSha: "abc1234" };
+  assert.equal(
+    rewriteHref("./assets/diagram.png", "packages/alpha/README.md", { ...ctx, image: true }),
+    "https://raw.githubusercontent.com/matt-riley/pi-extensions/abc1234/packages/alpha/assets/diagram.png",
+  );
+  assert.equal(
+    rewriteHref("./assets/diagram.png", "packages/alpha/README.md", ctx),
+    "https://github.com/matt-riley/pi-extensions/blob/abc1234/packages/alpha/assets/diagram.png",
+  );
+  assert.equal(rewriteHref("../beta#options", "packages/alpha/README.md", ctx), "/extensions/beta/#options");
+  assert.equal(rewriteHref("JavaScript:alert(1)", "packages/alpha/README.md", ctx), "#");
+  assert.equal(rewriteHref("vbscript:foo", "packages/alpha/README.md", ctx), "#");
+  assert.equal(rewriteHref("data:image/svg+xml,<svg/>", "packages/alpha/README.md", ctx), "#");
+});
+
+test("heading slugs preserve code-span placeholders, strip inline HTML, and avoid template ID collisions", async (t) => {
+  const { source, out } = await fixture(t);
+  await write(
+    source,
+    "packages/alpha/README.md",
+    ALPHA + [
+      "",
+      "## Run `/skill-search <task>`",
+      "",
+      "## Hello <span>world</span>",
+      "",
+      "## nav-toggle",
+      "",
+      "## main-content",
+      "",
+      "## extensions",
+    ].join("\n"),
+  );
+  await build({ source, out });
+  const alpha = await readFile(path.join(out, "extensions/alpha/index.html"), "utf8");
+  assert.match(alpha, /<h2 id="run-skill-search-task">Run <code>\/skill-search &lt;task&gt;<\/code><\/h2>/);
+  assert.match(alpha, /<h2 id="hello-world">Hello <span>world<\/span><\/h2>/);
+  assert.match(alpha, /<h2 id="nav-toggle-1">nav-toggle<\/h2>/);
+  assert.match(alpha, /<h2 id="main-content-1">main-content<\/h2>/);
+  assert.match(alpha, /<h2 id="extensions-1">extensions<\/h2>/);
+
+  const ids = [...alpha.matchAll(/ id="([^"]+)"/g)].map((m) => m[1]);
+  assert.equal(new Set(ids).size, ids.length, "all id attributes on the page are unique");
+});
+
+test("every internal #anchor link resolves to an actual id in the target HTML", async (t) => {
+  const { source, out } = await fixture(t);
+  await write(
+    source,
+    "packages/alpha/README.md",
+    ALPHA + "\n## Install\n\n[Local](#install) and [Beta usage](../beta/README.md#usage).\n",
+  );
+  await write(source, "packages/beta/README.md", "# fixture-beta\n\n## Usage\n\nUse it.\n");
+  await build({ source, out });
+
+  for (const file of await htmlFiles(out)) {
+    const html = await readFile(file, "utf8");
+    for (const [, rawHref] of html.matchAll(/href="([^"]+)"/g)) {
+      const href = rawHref.replaceAll("&amp;", "&");
+      if (!href.includes("#")) continue;
+      if (!href.startsWith("/") && !href.startsWith("#")) continue;
+      const [clean, fragment] = href.split("#");
+      if (!fragment) continue;
+      const targetFile = clean === ""
+        ? file
+        : path.join(out, clean === "/" ? "index.html" : path.join(clean.slice(1), clean.endsWith("/") ? "index.html" : ""));
+      const targetHtml = await readFile(targetFile, "utf8");
+      const targetIds = new Set([...targetHtml.matchAll(/ id="([^"]+)"/g)].map((m) => m[1].replaceAll("&amp;", "&")));
+      assert.ok(targetIds.has(fragment), `${path.relative(out, file)} link ${href} targets missing #${fragment}`);
+    }
+  }
+});
+
+test("guideDescription decodes &#39; and caps paragraphs exceeding 160 characters", async (t) => {
+  const { source, out } = await fixture(t);
+  const firstSentence = "First concise sentence about extensions.";
+  const longSecond = "Second sentence pushes the paragraph well beyond the one hundred and sixty character meta description budget to force sentence selection.";
+  await write(source, "docs/sentence.md", `# Sentence guide\n\nIt&#39;s great. ${firstSentence} ${longSecond}\n`);
+
+  const unbroken = Array.from({ length: 30 }, (_, i) => `word${i}`).join(" ");
+  await write(source, "docs/truncated.md", `# Truncated guide\n\n${unbroken}\n`);
+
+  await build({ source, out });
+
+  const sentenceHtml = await readFile(path.join(out, "guides/sentence/index.html"), "utf8");
+  assert.match(sentenceHtml, /<meta name="description" content="It's great\." \/>/);
+
+  const truncatedHtml = await readFile(path.join(out, "guides/truncated/index.html"), "utf8");
+  const desc = /<meta name="description" content="([^"]+)" \/>/.exec(truncatedHtml)[1];
+  assert.ok(desc.length <= 160, `expected <= 160 chars, got ${desc.length}`);
+  assert.match(desc, /^word0 .*word\d+…$/);
+});
+
+test("footer renders commit links when SHAs are not local", async (t) => {
+  const { source } = await fixture(t);
+  const model = await discover(source);
+  const buildInfo = {
+    contentSha: "0123456789abcdef0123456789abcdef01234567",
+    siteSha: "fedcba9876543210fedcba9876543210fedcba98",
+  };
+  const pageHtml = renderPage({
+    model,
+    current: "/getting-started/",
+    title: "Getting started",
+    description: "Desc",
+    content: "<p>Hello</p>",
+    build: buildInfo,
+  });
+  const landingHtml = renderLanding({ model, build: buildInfo });
+  for (const html of [pageHtml, landingHtml]) {
+    assert.match(
+      html,
+      /<a href="https:\/\/github\.com\/matt-riley\/pi-extensions\/commit\/0123456789abcdef0123456789abcdef01234567">pi-extensions@0123456<\/a>/,
+    );
+    assert.match(
+      html,
+      /<a href="https:\/\/github\.com\/matt-riley\/pi-extensions-site\/commit\/fedcba9876543210fedcba9876543210fedcba98">site@fedcba9<\/a>/,
+    );
+  }
+});
+
+test("discover and build report clear errors for invalid inputs and clean up failed clones", async (t) => {
+  const missingOut = await fixture(t);
+  await assert.rejects(build({ source: missingOut.source }), /output directory/);
+
+  const missingH1 = await fixture(t);
+  await write(missingH1.source, "docs/guide.md", "No H1 heading here.\n");
+  await assert.rejects(discover(missingH1.source), /docs\/guide\.md: missing an H1 title/);
+
+  const missingReadmeH1 = await fixture(t);
+  await write(missingReadmeH1.source, "README.md", "Plain intro without H1.\n");
+  await assert.rejects(discover(missingReadmeH1.source), /README\.md: missing an H1 title/);
+
+  const missingPkgMeta = await fixture(t);
+  await write(missingPkgMeta.source, "packages/alpha/package.json", JSON.stringify({ name: "fixture-alpha", description: "  " }));
+  await assert.rejects(discover(missingPkgMeta.source), /packages\/alpha\/package\.json: missing name or description/);
+
+  const missingPkgName = await fixture(t);
+  await write(missingPkgName.source, "packages/alpha/package.json", JSON.stringify({ description: "Valid" }));
+  await assert.rejects(discover(missingPkgName.source), /packages\/alpha\/package\.json: missing name or description/);
+
+  const missingPromptDesc = await fixture(t);
+  await write(missingPromptDesc.source, "prompts/thing.md", "---\nargument-hint: \"[x]\"\n---\nRun it.\n");
+  await assert.rejects(discover(missingPromptDesc.source), /prompts\/thing\.md: missing a frontmatter description/);
+
+  const duplicateUrl = await fixture(t);
+  await write(duplicateUrl.source, ".agents/skills/other-skill/SKILL.md", "---\nname: z-skill\ndescription: Duplicate\n---\n\n# Dup\n");
+  await assert.rejects(discover(duplicateUrl.source), /Duplicate page URL \/skills\/z-skill\//);
+
+  const failedClone = await fixture(t);
+  await write(failedClone.root, "content.lock", `${"0".repeat(40)}\n`);
+  const beforeTmp = new Set((await readdir(tmpdir())).filter((name) => name.startsWith("pi-extensions-content-")));
+  await assert.rejects(build({ root: failedClone.root, out: failedClone.out }));
+  const afterTmp = (await readdir(tmpdir())).filter((name) => name.startsWith("pi-extensions-content-") && !beforeTmp.has(name));
+  assert.deepEqual(afterTmp, [], "failed cloneContent cleans up temp directory");
 });
