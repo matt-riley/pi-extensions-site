@@ -63,6 +63,7 @@ body {
   flex-direction: column;
   margin: 0;
   min-height: 100vh;
+  overflow-x: clip;
   background:
     radial-gradient(60rem 28rem at 85% -8rem, var(--glow), transparent 70%),
     var(--bg);
@@ -98,6 +99,22 @@ svg {
   stroke: currentColor;
   stroke-linecap: round;
   stroke-linejoin: round;
+}
+
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 1rem;
+  z-index: 10;
+  padding: 0.5rem 0.9rem;
+  border-radius: 0.4rem;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font: 600 0.85rem/1.4 var(--mono);
+}
+
+.skip-link:focus-visible {
+  top: 0.5rem;
 }
 
 /* Top bar */
@@ -163,6 +180,7 @@ svg {
 
 .repo::after {
   content: " ↗";
+  content: " ↗" / "";
 }
 
 .repo:hover {
@@ -203,9 +221,7 @@ svg {
 }
 
 .nav-toggle {
-  position: absolute;
-  opacity: 0;
-  pointer-events: none;
+  display: none;
 }
 
 .nav-toggle-label {
@@ -258,6 +274,7 @@ svg {
   font-size: 0.8rem;
 }
 
+.nav-group-prose a,
 .nav-group:last-child a {
   font-family: var(--sans);
   font-size: 0.86rem;
@@ -327,6 +344,7 @@ svg {
 .content h2[id]::before,
 .content h3[id]::before {
   content: "##";
+  content: "##" / "";
   position: absolute;
   right: 100%;
   margin-right: 0.6rem;
@@ -345,6 +363,7 @@ svg {
 
 .content h3[id]::before {
   content: "###";
+  content: "###" / "";
   opacity: 0.35;
 }
 
@@ -425,11 +444,9 @@ svg {
 }
 
 .content table {
-  display: block;
   width: 100%;
   margin: 1.25rem 0;
   border-collapse: collapse;
-  overflow: auto;
   font-size: 0.92rem;
 }
 
@@ -477,6 +494,7 @@ svg {
 .hero {
   position: relative;
   padding: clamp(3rem, 9vw, 6.5rem) 0 clamp(2.5rem, 6vw, 4.5rem);
+  overflow-x: clip;
   isolation: isolate;
 }
 
@@ -516,7 +534,7 @@ svg {
 
 .hero h1 {
   margin: 0;
-  font: 700 clamp(2.5rem, 9.6vw, 7.4rem) / 0.95 var(--mono);
+  font: 700 clamp(1.85rem, 9.2vw, 7.4rem) / 0.95 var(--mono);
   letter-spacing: -0.065em;
   white-space: nowrap;
 }
@@ -574,6 +592,7 @@ svg {
 
 .button::after {
   content: " →";
+  content: " →" / "";
 }
 
 .button:hover {
@@ -590,6 +609,7 @@ svg {
 
 .button.ghost::after {
   content: " ↗";
+  content: " ↗" / "";
 }
 
 .button.ghost:hover {
@@ -748,6 +768,7 @@ svg {
 /* Index number, then an arrow that slides in on hover. */
 .card a::before {
   content: counter(card, decimal-leading-zero);
+  content: counter(card, decimal-leading-zero) / "";
   display: block;
   margin-bottom: 1.4rem;
   color: var(--muted);
@@ -758,6 +779,7 @@ svg {
 
 .card a::after {
   content: "→";
+  content: "→" / "";
   position: absolute;
   top: 0.85rem;
   right: 1.1rem;
@@ -830,6 +852,7 @@ svg {
 
 .links a::after {
   content: "→";
+  content: "→" / "";
   color: var(--muted);
   font-family: var(--mono);
   transition: color 0.15s;
@@ -918,6 +941,13 @@ svg {
     overflow: visible;
   }
 
+  .nav-toggle {
+    display: block;
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
   .nav-toggle-label {
     display: flex;
     justify-content: space-between;
@@ -933,6 +963,7 @@ svg {
 
   .nav-toggle-label::after {
     content: "+";
+    content: "+" / "";
     color: var(--accent);
     font-size: 1.1rem;
     line-height: 1;
@@ -940,6 +971,7 @@ svg {
 
   .nav-toggle:checked + .nav-toggle-label::after {
     content: "−";
+    content: "−" / "";
   }
 
   .nav-toggle:focus-visible + .nav-toggle-label {
@@ -959,6 +991,11 @@ svg {
   .content h2[id]::before,
   .content h3[id]::before {
     display: none;
+  }
+
+  .content table {
+    display: block;
+    overflow-x: auto;
   }
 
   .hero-body {
@@ -993,6 +1030,13 @@ svg {
 }
 
 /* The hung heading markers need a real margin to sit in. */
+@media (max-width: 1380px) {
+  .shell.wide .content h2[id]::before,
+  .shell.wide .content h3[id]::before {
+    display: none;
+  }
+}
+
 @media (min-width: 901px) and (max-width: 1100px) {
   .content h2[id]::before,
   .content h3[id]::before {
