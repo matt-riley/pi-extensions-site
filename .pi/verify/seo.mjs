@@ -17,6 +17,9 @@ assert.ok(htmlFiles.length > 2, "no content pages to audit");
 const pages = new Map();
 const canonicalUrls = [];
 const markdownCanonicals = new Map();
+const titles = [];
+const nonGettingStartedTitles = [];
+let gettingStartedTitle = null;
 const one = (html, pattern, file) => {
   const matches = [...html.matchAll(pattern)];
   assert.equal(matches.length, 1, `${file}: expected one ${pattern}`);
@@ -38,20 +41,38 @@ for (const file of htmlFiles) {
   assert.equal(canonical, expected, `${file}: wrong canonical`);
   canonicalUrls.push(canonical);
   assert.doesNotMatch(html, /noindex/);
-  const title = one(html, /<title>(.*?)<\/title>/g, file);
-  const description = one(html, /<meta name="description" content="([^"]+)" \/>/g, file);
+  const title = decode(one(html, /<title>(.*?)<\/title>/g, file));
+  assert.ok(title.trim(), `${file}: empty title`);
+  const pathname = new URL(canonical).pathname;
+  titles.push(title);
+  if (pathname === "/getting-started/") {
+    gettingStartedTitle = title;
+  } else {
+    nonGettingStartedTitles.push(title);
+  }
+  const description = decode(one(html, /<meta name="description" content="([^"]*)" \/>/g, file));
   assert.ok(description.trim(), `${file}: empty description`);
+  assert.ok(description.length <= 360, `${file}: description exceeds 360 chars (${description.length})`);
   for (const [key, value] of [
-    ["og:url", canonical], ["og:title", decode(title)], ["og:description", decode(description)],
+    ["og:url", canonical], ["og:title", title], ["og:description", description],
     ["og:type", "website"], ["og:site_name", "pi-extensions"],
-    ["twitter:card", "summary"], ["twitter:title", decode(title)], ["twitter:description", decode(description)],
+    ["twitter:card", "summary"], ["twitter:title", title], ["twitter:description", description],
   ]) {
     const attribute = key.startsWith("og:") ? "property" : "name";
     assert.equal(decode(one(html, new RegExp(`<meta ${attribute}="${key}" content="([^"]+)" />`, "g"), file)), value);
   }
   if (file !== "index.html") {
-    markdownCanonicals.set(new URL(canonical).pathname + "index.md", canonical);
+    markdownCanonicals.set(pathname + "index.md", canonical);
   }
+}
+
+assert.equal(
+  new Set(nonGettingStartedTitles).size,
+  nonGettingStartedTitles.length,
+  "duplicate <title> across non-/getting-started/ pages",
+);
+if (gettingStartedTitle !== null && gettingStartedTitle !== "pi-extensions") {
+  assert.equal(new Set(titles).size, titles.length, "duplicate <title> across indexable pages");
 }
 
 const sitemap = await read("sitemap.xml");

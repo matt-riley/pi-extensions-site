@@ -9,8 +9,9 @@
     "node": ">=22"
   },
   "scripts": {
-    "build": "node scripts/build-site.mjs",
-    "test": "node --test scripts/*.test.mjs"
+    "build": "node scripts/build-site.mjs && node .pi/verify/seo.mjs",
+    "test": "node --test scripts/*.test.mjs",
+    "verify:seo": "node .pi/verify/seo.mjs"
   },
   "devDependencies": {
     "marked": "^18.1.3"

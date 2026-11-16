@@ -21,6 +21,11 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: "26"
+          cache: npm
+
       - name: Resolve pi-extensions main
         id: content
         run: |
@@ -45,6 +50,9 @@ jobs:
             exit 0
           fi
           printf '%s\n' "$SHA" > content.lock
+          npm ci
+          npm test
+          npm run build
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add content.lock
@@ -55,7 +63,20 @@ jobs:
       # GITHUB_TOKEN pushes do not trigger push workflows. Explicit dispatch is
       # supported and also recovers a previous sync whose CI request failed.
       - name: Test and deploy synced main
-        if: steps.lock.outputs.changed == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh workflow run ci.yml --repo "$GITHUB_REPOSITORY" --ref main
+          CHANGED: ${{ steps.lock.outputs.changed }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          set -euo pipefail
+          if [ "$CHANGED" = "true" ] || [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            gh workflow run ci.yml --repo "$GITHUB_REPOSITORY" --ref main
+            exit 0
+          fi
+          runs=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow ci.yml --commit "$(git rev-parse HEAD)" --json databaseId --jq 'length')
+          if [ "$runs" = "0" ]; then
+            echo "No ci.yml run found for $(git rev-parse HEAD); dispatching ci.yml."
+            gh workflow run ci.yml --repo "$GITHUB_REPOSITORY" --ref main
+          else
+            echo "ci.yml already ran for $(git rev-parse HEAD)."
+          fi
