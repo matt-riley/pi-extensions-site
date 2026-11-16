@@ -36,11 +36,16 @@ async function cloneContent(root) {
     throw new Error(`content.lock must hold one 40-character commit SHA, found ${JSON.stringify(lock)}`);
   }
   const dir = await mkdtemp(path.join(tmpdir(), "pi-extensions-content-"));
-  git(["init", "--quiet", dir]);
-  git(["-C", dir, "remote", "add", "origin", CONTENT_URL]);
-  git(["-C", dir, "fetch", "--quiet", "--depth", "1", "origin", lock]);
-  git(["-C", dir, "checkout", "--quiet", "--detach", "FETCH_HEAD"]);
-  return { dir, sha: lock };
+  try {
+    git(["init", "--quiet", dir]);
+    git(["-C", dir, "remote", "add", "origin", CONTENT_URL]);
+    git(["-C", dir, "fetch", "--quiet", "--depth", "1", "origin", lock]);
+    git(["-C", dir, "checkout", "--quiet", "--detach", "FETCH_HEAD"]);
+    return { dir, sha: lock };
+  } catch (err) {
+    await rm(dir, { recursive: true, force: true });
+    throw err;
+  }
 }
 
 async function readJson(file) {
@@ -70,9 +75,15 @@ function guideDescription(markdown, fallback) {
   renderer.html = () => "";
   renderer.br = () => " ";
   const text = Parser.parseInline(paragraph.tokens, { renderer });
-  const entities = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " " };
-  return text.replace(/&(amp|lt|gt|quot|apos|nbsp);/g, (_, name) => entities[name])
-    .replace(/\s+/g, " ").trim() || fallback;
+  const entities = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", "#39": "'", nbsp: " " };
+  const clean = text.replace(/&(amp|lt|gt|quot|apos|#39|nbsp);/g, (_, name) => entities[name])
+    .replace(/\s+/g, " ").trim();
+  if (!clean) return fallback;
+  if (clean.length <= 160) return clean;
+  const sentenceEnd = clean.indexOf(". ");
+  if (sentenceEnd !== -1 && sentenceEnd + 1 <= 160) return clean.slice(0, sentenceEnd + 1);
+  const space = clean.slice(0, 160).lastIndexOf(" ");
+  return `${space > 0 ? clean.slice(0, space) : clean.slice(0, 159)}…`;
 }
 
 export async function discover(contentDir) {
@@ -84,11 +95,14 @@ export async function discover(contentDir) {
     return title;
   };
 
+  const readmeTitle = await headingOrThrow("README.md");
   const gettingStarted = makePage("README.md", "/getting-started/", {
-    title: await headingOrThrow("README.md"),
+    label: "Getting started",
+    title: readmeTitle === "pi-extensions" ? "Getting started" : readmeTitle,
     description: "Install and run the pi-extensions collection",
   });
 
+  const directoryUrls = [];
   const extensions = [];
   for (const dir of await listDirectories(path.join(contentDir, "packages"))) {
     const source = `packages/${dir}/README.md`;
@@ -99,8 +113,10 @@ export async function discover(contentDir) {
     if (!isText(meta.name) || !isText(meta.description)) {
       throw new Error(`packages/${dir}/package.json: missing name or description`);
     }
+    const url = `/extensions/${dir}/`;
+    directoryUrls.push([`packages/${dir}`, url]);
     extensions.push(
-      makePage(source, `/extensions/${dir}/`, {
+      makePage(source, url, {
         label: meta.name,
         title: await headingOrThrow(source),
         description: meta.description,
@@ -125,11 +141,14 @@ export async function discover(contentDir) {
     if (!existsSync(path.join(contentDir, source))) continue;
     const { name, description } = parseFrontmatter(await read(source));
     const label = name || dir;
+    const title = await headingOrThrow(source);
+    const url = `/skills/${label}/`;
+    directoryUrls.push([`.agents/skills/${dir}`, url]);
     skills.push(
-      makePage(source, `/skills/${label}/`, {
+      makePage(source, url, {
         label,
-        title: await headingOrThrow(source),
-        description,
+        title,
+        description: description || title,
       }),
     );
   }
@@ -146,6 +165,17 @@ export async function discover(contentDir) {
 
   // Taken before sorting so pages are built in directory order.
   const pages = [gettingStarted, ...extensions, ...prompts, ...skills, ...guides];
+  const seenUrls = new Map();
+  for (const page of pages) {
+    const existing = seenUrls.get(page.url);
+    if (existing) {
+      throw new Error(`Duplicate page URL ${page.url}: ${existing.source} and ${page.source}`);
+    }
+    seenUrls.set(page.url, page);
+  }
+  const pageBySource = new Map(pages.map((page) => [page.source, page.url]));
+  for (const [sourceDir, url] of directoryUrls) pageBySource.set(sourceDir, url);
+
   const byLabel = (left, right) => left.label.localeCompare(right.label);
   return {
     description: typeof manifest.description === "string" ? manifest.description : "",
@@ -155,12 +185,13 @@ export async function discover(contentDir) {
     skills: skills.sort(byLabel),
     guides: guides.sort(byLabel),
     pages,
-    pageBySource: new Map(pages.map((page) => [page.source, page.url])),
+    pageBySource,
   };
 }
 
-export function rewriteHref(href, from, { pageBySource, contentDir, contentSha }) {
+export function rewriteHref(href, from, { pageBySource, contentDir, contentSha, image = false }) {
   const value = String(href ?? "").trim();
+  if (/^(javascript|vbscript|data):/i.test(value.replace(/[\u0000-\u001f\u007f]+/g, ""))) return "#";
   // Empty, fragment-only, root-relative, protocol-relative and absolute URLs stay as written.
   if (value === "" || /^([#/]|[a-z][a-z0-9+.-]*:)/i.test(value)) return value;
   const hash = value.indexOf("#");
@@ -170,23 +201,30 @@ export function rewriteHref(href, from, { pageBySource, contentDir, contentSha }
   const resolved = path.posix.normalize(
     path.posix.join(path.posix.dirname(from), target.replace(/\/+$/, "")),
   );
-  const page = pageBySource.get(resolved);
-  if (page) return `${page}${anchor}`;
+  if (!image) {
+    const page = pageBySource.get(resolved);
+    if (page) return `${page}${anchor}`;
+  }
   if (resolved.startsWith("..")) return value;
   const absolute = path.join(contentDir, resolved);
   const kind = existsSync(absolute) && statSync(absolute).isDirectory() ? "tree" : "blob";
+  if (image && kind === "blob") {
+    return `https://raw.githubusercontent.com/${CONTENT_REPO}/${contentSha}/${resolved}${anchor}`;
+  }
   return `https://github.com/${CONTENT_REPO}/${kind}/${contentSha}/${resolved}${anchor}`;
 }
 
 function renderMarkdown(markdown, rewrite, title) {
   const titleAttribute = (token) => (token.title ? ` title="${escapeHtml(token.title)}"` : "");
-  const headingIds = new Set();
+  const headingIds = new Set(["nav-toggle", "main-content", "extensions", "prompts", "skills", "guides"]);
+  const headingTextRenderer = new TextRenderer();
+  headingTextRenderer.html = () => "";
   const marked = new Marked({
     renderer: {
       heading(token) {
-        const text = this.parser.parseInline(token.tokens, this.parser.textRenderer);
+        const text = Parser.parseInline(token.tokens, { renderer: headingTextRenderer });
         const base = text.toLowerCase()
-          .replace(/<[^>]*>|[^\p{L}\p{M}\p{N}_ -]/gu, "")
+          .replace(/[^\p{L}\p{M}\p{N}_ -]/gu, "")
           .replaceAll(" ", "-") || "section";
         let id = base;
         for (let suffix = 1; headingIds.has(id); suffix += 1) id = `${base}-${suffix}`;
@@ -198,13 +236,13 @@ function renderMarkdown(markdown, rewrite, title) {
         return `<a href="${escapeHtml(rewrite(token.href))}"${titleAttribute(token)}>${label}</a>`;
       },
       image(token) {
-        return `<img src="${escapeHtml(rewrite(token.href))}" alt="${escapeHtml(token.text)}"${titleAttribute(token)}>`;
+        return `<img src="${escapeHtml(rewrite(token.href, { image: true }))}" alt="${escapeHtml(token.text)}"${titleAttribute(token)}>`;
       },
     },
   });
   const body = stripFrontmatter(markdown);
   const html = marked.parse(body).trimEnd();
-  return body.trimStart().startsWith("# ") ? html : `<h1>${escapeHtml(title)}</h1>\n${html}`;
+  return /^#\s+/.test(body.trimStart()) ? html : `<h1>${escapeHtml(title)}</h1>\n${html}`;
 }
 
 export async function build({ source, root = SITE_ROOT, out } = {}) {
@@ -227,11 +265,12 @@ export async function build({ source, root = SITE_ROOT, out } = {}) {
     const markdownCopies = new Set();
     for (const page of model.pages) {
       const markdown = await readFile(path.join(content.dir, page.source), "utf8");
-      const rewrite = (href) =>
+      const rewrite = (href, options) =>
         rewriteHref(href, page.source, {
           pageBySource: model.pageBySource,
           contentDir: content.dir,
           contentSha: content.sha,
+          ...options,
         });
       await write(
         page.out,

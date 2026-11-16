@@ -49,7 +49,8 @@ function navGroup(title, items, current) {
   const entries = items
     .map((item) => `        <li>${link(item.url, item.label, current)}</li>`)
     .join("\n");
-  return `      <section class="nav-group">
+  const proseClass = title === "Guides" ? " nav-group-prose" : "";
+  return `      <section class="nav-group${proseClass}">
         <h2>${escapeHtml(title)}</h2>
         <ul>
 ${entries}
@@ -69,8 +70,8 @@ function renderSidebar(model, current) {
     .join("\n");
   // The checkbox opens the navigation on narrow screens without any script.
   return `    <div class="sidebar">
-      <input class="nav-toggle" type="checkbox" id="nav-toggle" aria-label="Show documentation navigation" />
-      <label class="nav-toggle-label" for="nav-toggle" aria-hidden="true">Browse the docs</label>
+      <input class="nav-toggle" type="checkbox" id="nav-toggle" />
+      <label class="nav-toggle-label" for="nav-toggle">Browse the docs</label>
       <nav class="nav" aria-label="Documentation">
         <p class="nav-home">${link(model.gettingStarted.url, "Getting started", current)}</p>
 ${groups}
@@ -84,14 +85,17 @@ function footer({ contentSha, siteSha }) {
       ? `${label}@local`
       : `<a href="https://github.com/${repo}/commit/${escapeHtml(sha)}">${label}@${escapeHtml(sha.slice(0, 7))}</a>`;
   return `      Content from ${commit(CONTENT_REPO, contentSha, "pi-extensions")} · built by
-      ${commit(SITE_REPO, siteSha, "site")}`;
+      ${commit(SITE_REPO, siteSha, "site")} · <a href="/llms.txt">llms.txt</a>`;
 }
 
 export function renderPage({ model, current, title, description, content, build, indexable = true }) {
-  const pageTitle = title === SITE_NAME ? SITE_NAME : `${title} — ${SITE_NAME}`;
+  const pageTitle = current === "/" ? SITE_NAME : `${title} — ${SITE_NAME}`;
   const canonical = escapeHtml(SITE_URL + current);
+  const alternate = indexable && current !== "/"
+    ? `\n    <link rel="alternate" type="text/markdown" href="${escapeHtml(`${SITE_URL}${current}index.md`)}" />`
+    : "";
   const metadata = indexable
-    ? `<link rel="canonical" href="${canonical}" />
+    ? `<link rel="canonical" href="${canonical}" />${alternate}
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="${SITE_NAME}" />
     <meta property="og:url" content="${canonical}" />
@@ -115,12 +119,13 @@ export function renderPage({ model, current, title, description, content, build,
     <link rel="stylesheet" href="/assets/style.css" />
   </head>
   <body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
     <header class="topbar">
       <a class="brand" href="/">${piMark("brand-mark")}<span><b>pi</b>-extensions</span></a>
       <a class="repo" href="https://github.com/${CONTENT_REPO}">GitHub</a>
     </header>
     <div class="shell${sidebar ? "" : " wide"}">
-${sidebar}      <main class="content">
+${sidebar}      <main class="content" id="main-content">
 ${content}
       </main>
     </div>
@@ -151,10 +156,17 @@ export function renderLanding({ model, build }) {
         </li>`,
     )
     .join("\n");
-  const guides = model.guides
-    .map((guide) => `        <li>${link(guide.url, guide.title)}</li>`)
-    .join("\n");
-  const count = (items, noun) => `<li><b>${items.length}</b> ${noun}${items.length === 1 ? "" : "s"}</li>`;
+  const linkList = (items, getLabel) =>
+    items.length === 0
+      ? ""
+      : `\n${items.map((item) => `        <li>${link(item.url, getLabel(item))}</li>`).join("\n")}`;
+  const linkSection = (id, heading, items, getLabel) => `      <section class="index" id="${id}">
+        <h2>${heading} <span class="tally">${items.length}</span></h2>
+        <ul class="links">${linkList(items, getLabel)}
+        </ul>
+      </section>`;
+  const count = (items, noun, id) =>
+    `<li><a href="#${id}"><b>${items.length}</b> ${noun}${items.length === 1 ? "" : "s"}</a></li>`;
   const content = `      <section class="hero">
         <p class="hero-digits" aria-hidden="true"><b>3.14159</b>${PI_DECIMALS.slice(5)}</p>
         ${piMark("hero-mark")}
@@ -167,10 +179,10 @@ export function renderLanding({ model, build }) {
               <a class="button ghost" href="https://github.com/${CONTENT_REPO}">Source</a>
             </p>
             <ul class="stats">
-              ${count(model.extensions, "extension")}
-              ${count(model.prompts, "prompt")}
-              ${count(model.skills, "skill")}
-              ${count(model.guides, "guide")}
+              ${count(model.extensions, "extension", "extensions")}
+              ${count(model.prompts, "prompt", "prompts")}
+              ${count(model.skills, "skill", "skills")}
+              ${count(model.guides, "guide", "guides")}
             </ul>
           </div>
           <div class="terminal">
@@ -182,18 +194,15 @@ export function renderLanding({ model, build }) {
           </div>
         </div>
       </section>
-      <section class="index">
+      <section class="index" id="extensions">
         <h2>Extensions <span class="tally">${model.extensions.length}</span></h2>
         <ul class="cards">
 ${cards}
         </ul>
       </section>
-      <section class="index">
-        <h2>Guides <span class="tally">${model.guides.length}</span></h2>
-        <ul class="links">
-${guides}
-        </ul>
-      </section>`;
+${linkSection("prompts", "Prompts", model.prompts, (prompt) => `${prompt.label} — ${prompt.title}`)}
+${linkSection("skills", "Skills", model.skills, (skill) => (skill.title && skill.title !== skill.label ? `${skill.label} — ${skill.title}` : skill.label))}
+${linkSection("guides", "Guides", model.guides, (guide) => guide.title)}`;
   return renderPage({
     model,
     current: "/",
@@ -208,7 +217,15 @@ export function renderNotFound({ model, build }) {
   const content = `      <section class="notfound">
         <p class="notfound-code" aria-hidden="true">4${piMark("notfound-mark")}4</p>
         <h1>Page not found</h1>
-        <p>That page does not exist. Start from the <a href="/">extension index</a>.</p>
+        <p>That page does not exist. Try one of these starting points:</p>
+        <ul class="links">
+          <li><a href="/">Home</a></li>
+          <li><a href="/getting-started/">Getting started</a></li>
+          <li><a href="/#extensions">Extensions (${model.extensions.length})</a></li>
+          <li><a href="/#prompts">Prompts (${model.prompts.length})</a></li>
+          <li><a href="/#skills">Skills (${model.skills.length})</a></li>
+          <li><a href="/#guides">Guides (${model.guides.length})</a></li>
+        </ul>
       </section>`;
   return renderPage({
     model,
