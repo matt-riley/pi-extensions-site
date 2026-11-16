@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Build a content checkout and check the actual published pages, not test fixtures.
-// Usage: node .pi/verify/site-content.mjs ../pi-extensions 49
+// Usage: node .pi/verify/site-content.mjs ../pi-extensions [55]
 import assert from "node:assert/strict";
 import { readFile, readdir, stat } from "node:fs/promises";
 import path from "node:path";
@@ -9,15 +9,20 @@ import { build } from "../../scripts/build-site.mjs";
 
 const root = fileURLToPath(new URL("../../", import.meta.url));
 const source = process.argv[2];
-const expectedPages = Number(process.argv[3]);
-assert.ok(source && Number.isInteger(expectedPages) && expectedPages > 0,
-  "usage: node .pi/verify/site-content.mjs <source-checkout> <expected-content-pages>");
+const hasExpected = process.argv[3] !== undefined;
+const expectedPages = hasExpected ? Number(process.argv[3]) : null;
+assert.ok(source && (!hasExpected || (Number.isInteger(expectedPages) && expectedPages > 0)),
+  "usage: node .pi/verify/site-content.mjs <source-checkout> [expected-content-pages]");
 
 const out = path.join(root, "dist");
 const result = await build({ source, out });
-assert.equal(result.urls.length, expectedPages, "unexpected content page count");
+if (hasExpected) {
+  assert.equal(result.urls.length, expectedPages, "unexpected content page count");
+} else {
+  assert.ok(result.urls.length > 0, "expected at least one content page");
+}
 const files = (await readdir(out, { recursive: true })).filter((file) => file.endsWith(".html"));
-assert.equal(files.length, expectedPages + 2, "content pages plus homepage and 404");
+assert.equal(files.length, result.urls.length + 2, "content pages plus homepage and 404");
 const pages = new Map();
 for (const file of files) {
   const html = await readFile(path.join(out, file), "utf8");

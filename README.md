@@ -64,10 +64,10 @@ a re-run of an old site revision renders the same docs. The `Sync content` workf
 ```sh
 npm ci
 npm test                       # generator contract tests
-npm run build                  # writes dist/ from the commit in content.lock
-npm run build -- --source ../pi-extensions   # or from a local checkout
-node .pi/verify/site-content.mjs ../pi-extensions 55  # preview + full-content link/anchor check
-node .pi/verify/seo.mjs          # audit existing dist/ metadata, sitemap, headers and URLs
+npm run build                  # writes dist/ from content.lock and runs SEO verification
+PI_EXTENSIONS_SOURCE=../pi-extensions npm run build  # or build + verify from a local checkout
+node .pi/verify/site-content.mjs ../pi-extensions     # preview + full-content link/anchor check (optional count)
+npm run verify:seo             # audit existing dist/ metadata, sitemap, headers and URLs
 node .pi/verify/content-scope.mjs ../pi-extensions 69455e7  # editorial scope against its base
 ```
 
