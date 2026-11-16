@@ -9,7 +9,26 @@ import { SITE_URL } from "./template.mjs";
 export const markdownOut = (url) => `${url.slice(1)}index.md`;
 export const markdownUrl = (url) => `${url}index.md`;
 
-// Rewrite inline link and image targets, skipping fenced and inline code.
+const CODE_SPAN_OR_FENCE =
+  /^[ \t]{0,3}(?<bf>`{3,})[^`\n]*(?:\n[\s\S]*?(?:^[ \t]{0,3}\k<bf>`*[ \t]*$|(?![\s\S]))|(?![\s\S]))|^[ \t]{0,3}(?<tf>~{3,})[^\n]*(?:\n[\s\S]*?(?:^[ \t]{0,3}\k<tf>~*[ \t]*$|(?![\s\S]))|(?![\s\S]))|(?<!`)(?<ticks>`+)(?!`)[^\n]*?(?<!`)\k<ticks>(?!`)/gm;
+
+const INLINE_LINK = /(\]\()(<[^>\n]*>|(?:[^()\s]+|\([^()\s]*\))+)/g;
+const REF_DEF =
+  /^([ \t]{0,3}\[[^\]^][^\]]*\]:[ \t]*)(<[^>\n]*>|\S+)(?=[ \t]*(?:$|(?:"(?:\\[\s\S]|[^"\\])*"|'(?:\\[\s\S]|[^'\\])*'|\((?:\\[\s\S]|[^)\\])*\))[ \t]*$))/gm;
+
+// Transform non-code segments of Markdown while skipping fenced blocks and inline code spans.
+function mapOutsideCode(text, transform) {
+  let out = "";
+  let last = 0;
+  for (const match of text.matchAll(CODE_SPAN_OR_FENCE)) {
+    out += transform(text.slice(last, match.index), last);
+    out += match[0];
+    last = match.index + match[0].length;
+  }
+  return out + transform(text.slice(last), last);
+}
+
+// Rewrite inline link, image, and reference-style link targets, skipping fenced and inline code.
 // `rewrite` maps a source-relative href to a site URL; links to pages then
 // point at their Markdown copy so an agent can keep reading Markdown.
 export function renderMarkdownCopy(markdown, title, rewrite, pageUrls) {
@@ -19,18 +38,19 @@ export function renderMarkdownCopy(markdown, title, rewrite, pageUrls) {
     const bare = hash === -1 ? target : target.slice(0, hash);
     return pageUrls.has(bare) ? markdownUrl(bare) + (hash === -1 ? "" : target.slice(hash)) : target;
   };
+  const rewriteDestination = (href) =>
+    href.startsWith("<") ? `<${toMarkdown(href.slice(1, -1))}>` : toMarkdown(href);
+
   const body = stripFrontmatter(markdown).trimStart();
-  const parts = body.split(/(^```[\s\S]*?^```[^\n]*$|`[^`\n]*`)/m);
-  const text = parts
-    .map((part, index) =>
-      index % 2 === 1
-        ? part
-        : part.replace(/(\]\()(<[^>]*>|[^)\s]+)/g, (_, open, href) =>
-            href.startsWith("<") ? `${open}<${toMarkdown(href.slice(1, -1))}>` : `${open}${toMarkdown(href)}`,
-          ),
-    )
-    .join("");
-  const titled = text.startsWith("# ") ? text : `# ${title}\n\n${text}`;
+  const text = mapOutsideCode(body, (segment, baseOffset) => {
+    const atLineStart = baseOffset === 0 || body[baseOffset - 1] === "\n";
+    return segment
+      .replace(INLINE_LINK, (_, open, href) => `${open}${rewriteDestination(href)}`)
+      .replace(REF_DEF, (full, prefix, href, offset) =>
+        offset === 0 && !atLineStart ? full : `${prefix}${rewriteDestination(href)}`,
+      );
+  });
+  const titled = /^#\s+/.test(text) ? text : `# ${title}\n\n${text}`;
   return `${titled.trimEnd()}\n`;
 }
 
