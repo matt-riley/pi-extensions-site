@@ -1,0 +1,25 @@
+WEBVTT
+
+1
+00:00:00.400 --> 00:00:05.920
+You can edit a file in another terminal while
+the agent still remembers an earlier version.
+
+2
+00:00:07.400 --> 00:00:09.498
+The file changes between turns.
+
+3
+00:00:09.498 --> 00:00:14.778
+When you ask about it again, Drift adds
+this note to the model’s instructions.
+
+4
+00:00:14.778 --> 00:00:18.840
+The agent re-reads the helper
+and sees the updated greeting.
+
+5
+00:00:31.167 --> 00:00:36.927
+The agent can work from the latest file when the
+session knows which old reads need to be refreshed.

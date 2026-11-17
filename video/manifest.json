@@ -320,6 +320,66 @@
         "key": "videos/extensions/watch-pr/f1f916de2f.jpg",
         "bytes": 52311
       }
+    },
+    "/extensions/drift/": {
+      "captions": "video/captions/extensions/drift.en.vtt",
+      "seconds": 37.766667,
+      "recorded": {
+        "content_sha": "5ad29da99d9e7fb42b4c37c609ecfe69d9424930",
+        "package_tree": "4ca931d2a73891b68d7b1c01d38207c46af773a2"
+      },
+      "webm": {
+        "key": "videos/extensions/drift/af3e749177.webm",
+        "bytes": 1254022
+      },
+      "mp4": {
+        "key": "videos/extensions/drift/e000aa7525.mp4",
+        "bytes": 1112813
+      },
+      "poster": {
+        "key": "videos/extensions/drift/b132f46892.jpg",
+        "bytes": 49076
+      }
+    },
+    "/extensions/diagnosis-nudge/": {
+      "captions": "video/captions/extensions/diagnosis-nudge.en.vtt",
+      "seconds": 32.9,
+      "recorded": {
+        "content_sha": "5ad29da99d9e7fb42b4c37c609ecfe69d9424930",
+        "package_tree": "09afea8f671d5230a2a429e96517adb69d6263db"
+      },
+      "webm": {
+        "key": "videos/extensions/diagnosis-nudge/a95f6ca7b8.webm",
+        "bytes": 1213752
+      },
+      "mp4": {
+        "key": "videos/extensions/diagnosis-nudge/08099bc2a2.mp4",
+        "bytes": 1209836
+      },
+      "poster": {
+        "key": "videos/extensions/diagnosis-nudge/a90cda912a.jpg",
+        "bytes": 58201
+      }
+    },
+    "/extensions/deslop/": {
+      "captions": "video/captions/extensions/deslop.en.vtt",
+      "seconds": 34.766667,
+      "recorded": {
+        "content_sha": "5ad29da99d9e7fb42b4c37c609ecfe69d9424930",
+        "package_tree": "31e401148f280eb62f9094fbdef236cb9607f2d9"
+      },
+      "webm": {
+        "key": "videos/extensions/deslop/ec1310b6e4.webm",
+        "bytes": 1323503
+      },
+      "mp4": {
+        "key": "videos/extensions/deslop/f3dbd8def3.mp4",
+        "bytes": 1149728
+      },
+      "poster": {
+        "key": "videos/extensions/deslop/dd1ff94a25.jpg",
+        "bytes": 52053
+      }
     }
   }
 }

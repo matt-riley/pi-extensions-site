@@ -1,0 +1,49 @@
+{
+  "title": "Deslop",
+  "line": "Flag formulaic wording when the agent edits prose.",
+  "terminalTitle": "pi — greet",
+  "beats": [
+    {
+      "cue": "prompt",
+      "caption": "The first draft adds a filler phrase."
+    },
+    {
+      "cue": "nudge",
+      "caption": "Deslop flags the wording on the write result.",
+      "label": "pi-deslop"
+    },
+    {
+      "cue": "rewrite",
+      "caption": "The rewrite keeps the description and drops the filler."
+    }
+  ],
+  "aside": {
+    "from": "nudge",
+    "to": "rewrite",
+    "kicker": "pi-deslop",
+    "title": "What the model sees",
+    "note": "Captured from the write result. This take uses the local pattern check."
+  },
+  "takeaway": {
+    "title": "Keep the claim",
+    "line": "A wording check can help make the same point more directly."
+  },
+  "notes": "TypeSafe is switched off in this fixture so the scene demonstrates the built-in pattern check.",
+  "narration": {
+    "title": {
+      "text": "A short piece of documentation can get padded with phrases that add very little.",
+      "generation_id": "LVvjQHRXmOLvQpCHSZWU",
+      "request_id": "Kxd3Dx3953f60BKtaBA5"
+    },
+    "scene": {
+      "text": "The agent writes the description. Deslop’s local check flags a filler phrase in the write result. The agent keeps what the sentence says and drops the words that delayed it.",
+      "generation_id": "32MGUzeNg0U22foOfgG3",
+      "request_id": "fhB27R86Y6fRD6Y2WryL"
+    },
+    "takeaway": {
+      "text": "Keep the wording that helps the reader. When a phrase adds nothing to the claim, the shorter sentence is easier to use.",
+      "generation_id": "bbDvysXIlvHUgGvtOuy7",
+      "request_id": "jN6EJU5HQEIj0D78IloH"
+    }
+  }
+}

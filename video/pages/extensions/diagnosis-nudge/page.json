@@ -1,0 +1,48 @@
+{
+  "title": "Diagnosis nudge",
+  "line": "Check what caused a failure before editing.",
+  "terminalTitle": "pi — greet",
+  "beats": [
+    {
+      "cue": "prompt",
+      "caption": "The greeting test fails."
+    },
+    {
+      "cue": "nudge",
+      "caption": "The reminder asks the model to check its diagnosis.",
+      "label": "pi-diagnosis-nudge"
+    },
+    {
+      "cue": "read",
+      "caption": "The agent reads the helper to check the premise."
+    }
+  ],
+  "aside": {
+    "from": "nudge",
+    "to": "read",
+    "kicker": "pi-diagnosis-nudge",
+    "title": "What the model sees",
+    "note": "Captured from the failed tool result."
+  },
+  "takeaway": {
+    "title": "Look at the cause",
+    "line": "One observation can narrow down why the check failed."
+  },
+  "narration": {
+    "title": {
+      "text": "A failing test tells you something is wrong. You still need to find out what caused it.",
+      "generation_id": "58dzKREG1IQaxDltb0og",
+      "request_id": "ksA01Kob5BUe0GVO6TkF"
+    },
+    "scene": {
+      "text": "The shout test fails. Diagnosis nudge adds a reminder to the result, asking for evidence behind the suspected cause. The agent reads the helper and sees it ignores the option the test passes.",
+      "generation_id": "wDUW2l0AQsIO4qsg1cO7",
+      "request_id": "LLhNMt5Hvcv5eXzhe3pG"
+    },
+    "takeaway": {
+      "text": "Check the cause before you edit. That gives you a reason to expect your next change to help.",
+      "generation_id": "7ZPvAIWkaae7HeTLrMRL",
+      "request_id": "w9cpmrMkiJUpsLH51N2P"
+    }
+  }
+}
