@@ -1,0 +1,10 @@
+{
+  "duration": 21.81,
+  "cues": {
+    "prompt": 1,
+    "planning": 4.19,
+    "question": 6.69,
+    "plan": 12.53,
+    "approve": 18.31
+  }
+}

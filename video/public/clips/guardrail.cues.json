@@ -1,0 +1,10 @@
+{
+  "duration": 16.58,
+  "cues": {
+    "prompt": 1,
+    "working": 3.27,
+    "dialog": 7.27,
+    "deny": 11.02,
+    "summary": 12.58
+  }
+}

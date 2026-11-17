@@ -1,0 +1,12 @@
+{
+  "build": 10.96,
+  "close": 4,
+  "cold-open": 9.76,
+  "done-gate": 12.4,
+  "loop": 10.64,
+  "plan": 15.04,
+  "review": 12.32,
+  "ring": 14.08,
+  "ship": 13.76,
+  "title": 2.64
+}

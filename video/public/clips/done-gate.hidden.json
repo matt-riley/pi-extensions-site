@@ -1,0 +1,4 @@
+{
+  "role": "user",
+  "text": "Done check: 1 file(s) changed after the last verification run (examples/shout.js). Before reporting done, run `.pi/verify` and exercise the changed behavior, or say plainly why verification does not apply. Then close with your explanation of the work plus one line to name the check that reached the changed code and what it showed, not a report about this reminder. Verification status: unknown."
+}
