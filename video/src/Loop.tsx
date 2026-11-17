@@ -1,4 +1,5 @@
 import { AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
+import { GUARDS, RING_FIRST, RING_STEP } from "./guards";
 import { theme } from "./theme";
 
 // Shots 3 and 9 share one picture: the five commands you type in a row, and a ring of guards you
@@ -17,14 +18,6 @@ const xOf = (i: number) => 960 + (i - 2) * SPACING;
 
 const RING = { x: 120, y: 290, w: 1680, h: 380, r: 190 };
 
-export const GUARDS = [
-  { name: "guardrail", line: "Risky commands wait for you." },
-  { name: "done-gate", line: "No “done” without a check." },
-  { name: "diagnosis-nudge", line: "Same check fails twice? Edits pause until it looks again." },
-  { name: "drift", line: "You edited a file? The agent re-reads it." },
-  { name: "deslop", line: "Prose it writes gets checked for filler." },
-  { name: "router", line: "Hard tasks go to a stronger model." },
-];
 // Three guards sit on the ring's top edge, three on the bottom.
 const guardAt = (i: number) => ({
   x: 960 + ((i % 3) - 1) * 520,
@@ -214,8 +207,8 @@ export function GuardRing() {
   const frame = useCurrentFrame();
   const { fps, durationInFrames } = useVideoConfig();
   const t = frame / fps;
-  const STEP = 2;
-  const FIRST = 0.8;
+  const STEP = RING_STEP;
+  const FIRST = RING_FIRST;
   const active = Math.floor((t - FIRST) / STEP);
   const finale = active >= GUARDS.length;
   const enter = s(frame, fps, 0);

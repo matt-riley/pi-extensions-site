@@ -737,6 +737,32 @@ svg {
   letter-spacing: 0;
 }
 
+/* Landing: intro video */
+
+.intro-video {
+  max-width: 72rem;
+  margin: 0;
+}
+
+.intro-video video {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  background: var(--term-bg);
+  box-shadow: var(--shadow);
+}
+
+.intro-video figcaption {
+  margin-top: 0.75rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+
 .cards {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));

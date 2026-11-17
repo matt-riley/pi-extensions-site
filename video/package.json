@@ -8,7 +8,9 @@
     "cues": "node scripts/cues.mjs",
     "vo": "node scripts/vo-durations.mjs",
     "studio": "remotion studio src/index.ts",
-    "render": "remotion render src/index.ts Intro out/intro.mp4"
+    "render": "remotion render src/index.ts Intro out/intro.mp4",
+    "captions": "node scripts/captions.ts",
+    "web": "node scripts/captions.ts && sh scripts/encode-web.sh"
   },
   "dependencies": {
     "@remotion/cli": "4.0.540",

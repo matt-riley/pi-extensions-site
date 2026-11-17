@@ -1,10 +1,10 @@
-import buildCues from "../public/clips/build.cues.json";
-import doneGateCues from "../public/clips/done-gate.cues.json";
-import doneGateHidden from "../public/clips/done-gate.hidden.json";
-import guardrailCues from "../public/clips/guardrail.cues.json";
-import planCues from "../public/clips/plan.cues.json";
-import reviewCues from "../public/clips/review.cues.json";
-import shipCues from "../public/clips/ship.cues.json";
+import buildCues from "../public/clips/build.cues.json" with { type: "json" };
+import doneGateCues from "../public/clips/done-gate.cues.json" with { type: "json" };
+import doneGateHidden from "../public/clips/done-gate.hidden.json" with { type: "json" };
+import guardrailCues from "../public/clips/guardrail.cues.json" with { type: "json" };
+import planCues from "../public/clips/plan.cues.json" with { type: "json" };
+import reviewCues from "../public/clips/review.cues.json" with { type: "json" };
+import shipCues from "../public/clips/ship.cues.json" with { type: "json" };
 
 // A highlight is a rectangle in the clip's own pixels (1600x900, as the tapes render it).
 // Rectangles were read off each clip's contact sheet (scripts/sheet.mjs); re-check them when a

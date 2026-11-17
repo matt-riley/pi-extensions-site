@@ -217,6 +217,6 @@ command `git clone … ~/.pi/agent/extensions/pi-extensions`, kicker
 ## Open decisions
 
 - ~~**Voiceover:**~~ Done: ElevenLabs, Maya, one line per shot (`vo/script.json`); captions stay.
-- **Placement on the site:** homepage above the card grid, or `/getting-started/` only?
+- ~~**Placement on the site:**~~ Homepage, between the hero and the extension cards.
 - **Shot 1 cold open:** keep starting on the guardrail dialog, or open on the title as the
   current cut does?

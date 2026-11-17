@@ -11,7 +11,14 @@ import { fileURLToPath } from "node:url";
 import { lexer, Marked, Parser, TextRenderer } from "marked";
 import { firstHeading, parseFrontmatter, stripFrontmatter } from "./site/frontmatter.mjs";
 import { checkLlmsCoverage, markdownOut, renderLlmsTxt, renderMarkdownCopy } from "./site/llms.mjs";
-import { CONTENT_REPO, escapeHtml, renderLanding, renderNotFound, renderPage } from "./site/template.mjs";
+import {
+  CONTENT_REPO,
+  INTRO_VIDEO,
+  escapeHtml,
+  renderLanding,
+  renderNotFound,
+  renderPage,
+} from "./site/template.mjs";
 import { ROBOTS_TXT, renderMarkdownHeaders, renderSitemap } from "./site/seo.mjs";
 
 const CONTENT_URL = `https://github.com/${CONTENT_REPO}.git`;
@@ -295,6 +302,10 @@ export async function build({ source, root = SITE_ROOT, out } = {}) {
     await write("index.html", renderLanding({ model, build: built }));
     await write("404.html", renderNotFound({ model, build: built }));
     await write("assets/style.css", await readFile(new URL("./site/style.css", import.meta.url)));
+    // The landing page's intro video, encoded in video/ and committed to video/web/.
+    for (const file of Object.values(INTRO_VIDEO)) {
+      await write(`assets/video/${file}`, await readFile(path.join(root, "video/web", file)));
+    }
     return { ...built, urls: model.pages.map((page) => page.url) };
   } finally {
     if (!source) await rm(content.dir, { recursive: true, force: true });
