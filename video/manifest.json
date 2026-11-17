@@ -1,4 +1,25 @@
 {
   "origin": "https://pi-extensions-media.mattriley.tools",
-  "videos": {}
+  "videos": {
+    "/": {
+      "captions": "video/captions/intro.en.vtt",
+      "seconds": 137.6,
+      "recorded": {
+        "content_sha": "e1e4e1ed72b862321062a1c16b7b80947a734eab",
+        "package_tree": null
+      },
+      "webm": {
+        "key": "videos/intro/95d1915bcc.webm",
+        "bytes": 8327181
+      },
+      "mp4": {
+        "key": "videos/intro/f96270734f.mp4",
+        "bytes": 8717932
+      },
+      "poster": {
+        "key": "videos/intro/33fe86f323.jpg",
+        "bytes": 76623
+      }
+    }
+  }
 }

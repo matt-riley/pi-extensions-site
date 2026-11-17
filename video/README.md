@@ -14,7 +14,7 @@ npm run render    # write out/intro.mp4
 npm run web       # captions, WebM/MP4 encodes and poster into web/, which the site ships
 ```
 
-Needs `vhs`, `pi` and `ffmpeg` on `PATH`. `PI_EXTENSIONS_DIR` names the pi-extensions checkout to
+Needs `vhs`, `pi`, `ffmpeg` and `ffprobe` on `PATH`. `PI_EXTENSIONS_DIR` names the pi-extensions checkout to
 load (default `~/.pi/agent/extensions/pi-extensions`).
 
 ## How a scene fits together
@@ -61,14 +61,50 @@ get a new content-hashed key. For a temporary smoke-test object, verify its publ
 HEAD response and a `Range: bytes=0-9` GET (expect 206 and `Content-Range`), then
 delete it with `npx wrangler r2 object delete <bucket>/<key> --remote`.
 
+### Publish a rendered video
+
+```sh
+npm run publish -- /                         # out/intro.mp4
+npm run publish -- / /absolute/path/intro.mp4 # explicit rendered master
+npm run publish -- /extensions/guardrail/    # out/extensions/guardrail.mp4
+```
+
+The publisher encodes VP9/Opus WebM, H.264/AAC MP4 with faststart, and a title-card
+JPEG; hashes each file; skips objects already present with the expected size; and
+uploads missing objects with the public headers above. Encodes are cached under
+`out/.publish/` by master bytes and encoder settings, with full SHA-256 checks on
+cached files. A repeat publish reuses the encodes and uploads nothing.
+
+Install the root dependencies too (`cd .. && npm ci`): the publisher reuses the
+site's page discovery so it can reject page URLs absent from the pinned content.
+
+Intro captions come from the existing narration timeline. Extension masters need
+a `.en.vtt` sidecar beside the master, such as `out/extensions/guardrail.en.vtt`.
+The per-page render pipeline will produce these sidecars. Captions are staged and
+validated before uploads, then copied to `captions/<kind>/<slug>.en.vtt` (or
+`captions/intro.en.vtt`). Prompt, skill and guide publishing awaits the later
+format and source-provenance decision.
+
+`manifest.json` is the rollout inventory. Entries use page URLs as keys (`/` for
+the intro), immutable media keys, caption paths, duration, and the pinned content
+commit and package tree. The publisher checks out `content.lock`; optionally set
+`PI_EXTENSIONS_SOURCE` to an existing **clean checkout at that exact commit**.
+`scripts/site/videos.mjs` validates the candidate before uploading. Upload errors
+leave the tracked manifest and captions unchanged; successfully uploaded objects
+from an interrupted batch may remain for the later prune step. The manifest is
+replaced atomically only after all uploads succeed. The publisher never deletes
+remote objects or intentionally replaces existing keys.
+
+Only one publish can run in a checkout at a time. SIGINT/SIGTERM stop child
+commands and release `video/.publish.lock`. After a crash, remove that directory
+only after checking that the publisher has stopped. Commit the manifest and
+captions, never the cached encodes. Root `npm test` covers the publisher with local
+fixtures and mocked process/HTTP boundaries; live uploads are run manually.
+
 ### Current homepage encodes
 
-`manifest.json` is the rollout inventory for R2-hosted videos. Its empty `videos`
-map leaves the current homepage unchanged until the publisher and build integration
-land. Entries use page URLs as keys (`/` for the intro), immutable hashed media
-keys, same-origin caption paths under `video/captions/`, duration, and the recorded
-content commit and package tree. `scripts/site/videos.mjs` validates this contract;
-its tests run with the root `npm test` command without contacting R2.
+The intro is uploaded to R2, but the site still embeds the committed `web/`
+encodes until the build integration and migration land.
 
 `npm run web` writes `web/intro.en.vtt` (the narration as captions, timed from `src/timeline.ts`,
 the same timeline the render uses), `web/intro.webm` and `web/intro.mp4` (each under Cloudflare
