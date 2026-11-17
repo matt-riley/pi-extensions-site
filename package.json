@@ -12,6 +12,7 @@
     "build": "node scripts/build-site.mjs && node .pi/verify/seo.mjs",
     "test": "vitest run",
     "verify:seo": "node .pi/verify/seo.mjs",
+    "verify:media": "node .pi/verify/media.mjs",
     "test:unit": "vitest run scripts tests/bombadil",
     "test:browser": "vitest run tests/browser"
   },
