@@ -1,0 +1,47 @@
+{
+  "title": "Doctor",
+  "line": "Check why a tool is missing from a Pi session.",
+  "terminalTitle": "pi — greet",
+  "beats": [
+    {
+      "cue": "command",
+      "caption": "You run a read-only health check."
+    },
+    {
+      "cue": "report",
+      "caption": "Doctor finds tools this session cannot reach.",
+      "label": "pi-doctor"
+    },
+    {
+      "cue": "check",
+      "caption": "The report says which tools are unreachable.",
+      "highlight": {
+        "x": 25,
+        "y": 246,
+        "w": 1550,
+        "h": 92
+      }
+    }
+  ],
+  "takeaway": {
+    "title": "Trace the missing tool",
+    "line": "Check how it is registered and how the session can reach it."
+  },
+  "narration": {
+    "title": {
+      "text": "If a tool seems to be missing, slash doctor can tell you what pi sees in the current session.",
+      "generation_id": "ECDT1ib0tdWbv5m9LnXd",
+      "request_id": "UsIpCsfNqVVMnsGulHfc"
+    },
+    "scene": {
+      "text": "The report lists the installed versions and tool registry. Here it finds deferred tools, but tool search is inactive. That gives you something specific to check in your settings.",
+      "generation_id": "JBMFH7EKtloTa0RTCpod",
+      "request_id": "yjZkjqmNij0qlBU6cQwK"
+    },
+    "takeaway": {
+      "text": "You can use the report to guide the fix. It reads the session and configuration without changing them.",
+      "generation_id": "UJGUmXwr5UuNQynjyoHn",
+      "request_id": "xGOslH2GWFajw9EPHFlT"
+    }
+  }
+}

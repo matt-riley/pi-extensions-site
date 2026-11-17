@@ -1,0 +1,48 @@
+{
+  "title": "Watch PR",
+  "line": "See what still needs attention on a pull request.",
+  "terminalTitle": "pi — greet",
+  "beats": [
+    {
+      "cue": "prompt",
+      "caption": "You ask what’s outstanding on the sample PR."
+    },
+    {
+      "cue": "result",
+      "caption": "Watch PR finds a thread even with a green check.",
+      "label": "pi-watch-pr",
+      "highlight": {
+        "x": 25,
+        "y": 369,
+        "w": 1060,
+        "h": 176
+      }
+    },
+    {
+      "cue": "next",
+      "caption": "The agent points you to the outstanding comment."
+    }
+  ],
+  "takeaway": {
+    "title": "Read the verdict for this commit",
+    "line": "The report ties checks and review threads to the PR head."
+  },
+  "notes": "The sample GitHub checks and thread come from a local CLI fixture. The real extension calculates the verdict.",
+  "narration": {
+    "title": {
+      "text": "When a test goes green, there can still be a review comment waiting on the pull request.",
+      "generation_id": "YZlojYNQuGtfx03vxcCx",
+      "request_id": "giCwwQpHdkKRGXlPdjBT"
+    },
+    "scene": {
+      "text": "Using a sample pull request, Watch PR checks the current commit and its reviews. The test passed, but a comment in the command line file still needs a response.",
+      "generation_id": "eL8MPBC0ruVrSXo2hCLE",
+      "request_id": "iNgNO8lf7z2W01OGRVut"
+    },
+    "takeaway": {
+      "text": "The report names the commit, check results, and open threads. You can see what needs attention before you merge.",
+      "generation_id": "tOiyUKlL7KyDYvTrTumw",
+      "request_id": "tevcnF4HQCvu5StE3ovc"
+    }
+  }
+}

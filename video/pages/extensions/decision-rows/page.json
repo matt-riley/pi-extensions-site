@@ -1,0 +1,48 @@
+{
+  "title": "Decision rows",
+  "line": "See saved judgments in the transcript.",
+  "terminalTitle": "pi — greet",
+  "beats": [
+    {
+      "cue": "prompt",
+      "caption": "The agent requests a judgment on a proposed check."
+    },
+    {
+      "cue": "row",
+      "caption": "Decision rows shows the saved result in one line.",
+      "label": "pi-decision-rows"
+    },
+    {
+      "cue": "expand",
+      "caption": "Expand tool output to see the saved details.",
+      "highlight": {
+        "x": 27,
+        "y": 434,
+        "w": 770,
+        "h": 222
+      }
+    }
+  ],
+  "takeaway": {
+    "title": "Open the details when you need them",
+    "line": "The transcript keeps the result visible alongside the work."
+  },
+  "notes": "The local judge serves a scripted probability. Pi saves the real decision entry and PI_DECISION_ROWS=all shows it.",
+  "narration": {
+    "title": {
+      "text": "When a judgment shapes what the agent does, you can see the record without digging through the session file.",
+      "generation_id": "gPaH0zs91p5rc7RXimcb",
+      "request_id": "spDWPruZXPisFswt8p35"
+    },
+    "scene": {
+      "text": "Here all decision rows are enabled. A scripted judge scores whether the command covers the new flag. The extension shows the saved result. Expand tool output to see how it was recorded.",
+      "generation_id": "bET7bfLu1yuWIWWAQCQw",
+      "request_id": "78eDJmuwkYmh8OLPPJjE"
+    },
+    "takeaway": {
+      "text": "Read the row to see what the agent had to go on. You can still run the check for actual evidence.",
+      "generation_id": "QsqUiWt2Ex67yRDBTKzM",
+      "request_id": "6WchRZnxCy7fg39bU0gq"
+    }
+  }
+}

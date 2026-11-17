@@ -1,0 +1,30 @@
+WEBVTT
+
+1
+00:00:00.400 --> 00:00:01.754
+When a test goes green,
+
+2
+00:00:01.754 --> 00:00:05.520
+there can still be a review comment
+waiting on the pull request.
+
+3
+00:00:07.400 --> 00:00:12.673
+Using a sample pull request, Watch PR
+checks the current commit and its reviews.
+
+4
+00:00:12.673 --> 00:00:17.880
+The test passed, but a comment in the
+command line file still needs a response.
+
+5
+00:00:26.367 --> 00:00:30.455
+The report names the commit,
+check results, and open threads.
+
+6
+00:00:30.455 --> 00:00:33.807
+You can see what needs
+attention before you merge.
