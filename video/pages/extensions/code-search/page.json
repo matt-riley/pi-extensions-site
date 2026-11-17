@@ -1,0 +1,47 @@
+{
+  "title": "Code search",
+  "line": "Follow an imported symbol to the place it is defined.",
+  "terminalTitle": "pi — greet",
+  "beats": [
+    {
+      "cue": "prompt",
+      "caption": "You ask where the CLI gets its greeting helper."
+    },
+    {
+      "cue": "definition",
+      "caption": "Code search follows the import to its definition.",
+      "label": "pi-code-search",
+      "highlight": {
+        "x": 24,
+        "y": 140,
+        "w": 825,
+        "h": 134
+      }
+    },
+    {
+      "cue": "answer",
+      "caption": "The result names the source file and line."
+    }
+  ],
+  "takeaway": {
+    "title": "Start at the definition",
+    "line": "Follow a symbol in context when names appear in several files."
+  },
+  "narration": {
+    "title": {
+      "text": "When you open an unfamiliar project, a function name only gets you part of the way.",
+      "generation_id": "I7FSSw2ZIbzyWPxbXFO2",
+      "request_id": "RmumOBuZIYl6tynWrtZb"
+    },
+    "scene": {
+      "text": "The agent starts at the command line file and asks where the greet function comes from. Code search follows that import and returns the source location.",
+      "generation_id": "F11iNdHxLQB3gRAN5SX0",
+      "request_id": "G2grWpuGaAwFqZHmlFhh"
+    },
+    "takeaway": {
+      "text": "Ask from the file you’re reading when several places use the same name. That anchors the lookup to the call you care about.",
+      "generation_id": "mWd05g659boxpc6tsJCm",
+      "request_id": "LfHmCr0fIw9J170oxArW"
+    }
+  }
+}

@@ -1,0 +1,26 @@
+WEBVTT
+
+1
+00:00:00.400 --> 00:00:05.520
+Weeks later, a diff can tell you what
+changed and leave you wondering why.
+
+2
+00:00:07.400 --> 00:00:12.361
+The agent records why the default greeting
+stays and points at the relevant line.
+
+3
+00:00:12.361 --> 00:00:16.280
+Trail checks that the pointer
+resolves when it writes the entry.
+
+4
+00:00:22.233 --> 00:00:26.410
+Give the trail the decision, a
+short reason, and a place to look.
+
+5
+00:00:26.410 --> 00:00:30.073
+That makes the record useful
+when you return to the work.
