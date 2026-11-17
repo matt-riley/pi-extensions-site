@@ -1,0 +1,47 @@
+{
+  "title": "Docs drift",
+  "line": "Find documentation older than the code it describes.",
+  "terminalTitle": "pi — greet",
+  "beats": [
+    {
+      "cue": "command",
+      "caption": "You scan the docs against the repository’s history."
+    },
+    {
+      "cue": "result",
+      "caption": "Docs drift flags the file that names the helper.",
+      "label": "pi-docs-drift",
+      "highlight": {
+        "x": 25,
+        "y": 45,
+        "w": 1500,
+        "h": 87
+      }
+    },
+    {
+      "cue": "reason",
+      "caption": "The report names the commit that changed the code."
+    }
+  ],
+  "takeaway": {
+    "title": "Read the docs beside the diff",
+    "line": "A stale report tells you where to check wording."
+  },
+  "narration": {
+    "title": {
+      "text": "When a helper changes, an example or explanation can miss the same update.",
+      "generation_id": "LQaGfnA8WJv4dNcwW77i",
+      "request_id": "CrysK1UCxD4M7tKLUiST"
+    },
+    "scene": {
+      "text": "This guide names the greeting helper. Docs drift compares their history and finds a newer commit on the code. You get both the document and the change to look at.",
+      "generation_id": "eJIdGg8L11R7y45wDpDv",
+      "request_id": "tspYRAm1Q8UrtnT1YtwQ"
+    },
+    "takeaway": {
+      "text": "Read the guide against the code before editing. The report gives you the place to start.",
+      "generation_id": "a42G7oApPGzRymtgEvrC",
+      "request_id": "YDSPlTphE3NCW7SqeHfD"
+    }
+  }
+}

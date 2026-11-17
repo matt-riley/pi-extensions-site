@@ -1,0 +1,30 @@
+WEBVTT
+
+1
+00:00:00.400 --> 00:00:02.679
+When the answer lives in release notes,
+
+2
+00:00:02.679 --> 00:00:05.600
+you can bring the source
+into the session as text.
+
+3
+00:00:07.400 --> 00:00:11.592
+Web fetch reads this sample GitHub
+release and returns its notes.
+
+4
+00:00:11.592 --> 00:00:15.720
+The agent uses the text to find
+which command line flag changed.
+
+5
+00:00:27.667 --> 00:00:30.165
+Keep the source handy
+when you use the answer.
+
+6
+00:00:30.165 --> 00:00:33.587
+It gives you somewhere to check
+what the release actually says.
