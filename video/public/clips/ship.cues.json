@@ -1,0 +1,10 @@
+{
+  "duration": 16.32,
+  "cues": {
+    "prompt": 1,
+    "checks": 2.36,
+    "dialog": 5.96,
+    "approve": 9.32,
+    "report": 11.82
+  }
+}

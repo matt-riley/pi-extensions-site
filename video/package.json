@@ -1,0 +1,25 @@
+{
+  "name": "pi-extensions-video",
+  "private": true,
+  "type": "module",
+  "description": "Introduction video for pi-extensions: VHS terminal clips composed with Remotion.",
+  "scripts": {
+    "tapes": "for t in tapes/*.tape; do vhs \"$t\" || exit 1; done && node scripts/cues.mjs",
+    "cues": "node scripts/cues.mjs",
+    "vo": "node scripts/vo-durations.mjs",
+    "studio": "remotion studio src/index.ts",
+    "render": "remotion render src/index.ts Intro out/intro.mp4",
+    "captions": "node scripts/captions.ts",
+    "web": "node scripts/captions.ts && sh scripts/encode-web.sh"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.540",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "remotion": "4.0.540"
+  },
+  "devDependencies": {
+    "@types/react": "19.2.2",
+    "typescript": "5.9.3"
+  }
+}

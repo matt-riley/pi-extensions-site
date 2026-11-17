@@ -1,0 +1,78 @@
+{
+  "voice": {
+    "name": "Maya (workspace voice: West Yorkshire, warm, relaxed)",
+    "voice_id": "NiSmcRcbLCKk4us1ybHJ",
+    "flow_id": "y007QrmOkEhqd7LaOuqD",
+    "model_id": "eleven_v4"
+  },
+  "lines": [
+    {
+      "shot": "cold-open",
+      "text": "An agent fixes a typo, then tries to force push to main. Guardrail stops it, and asks you first. You say no, and it tells you so.",
+      "generation_id": "GuuNPmU7mqZDXKXKo5Dl",
+      "file": "public/vo/cold-open.mp3"
+    },
+    {
+      "shot": "title",
+      "text": "Let's ship a feature with pi extensions.",
+      "generation_id": "4MrH3hPATm2HIrDv1B94",
+      "file": "public/vo/title.mp3",
+      "spoken": "Let's ship a feature with pie extensions."
+    },
+    {
+      "shot": "loop",
+      "text": "You type five commands: plan, workflow, review, ship, and retro. And underneath every step, there are guards you never have to call.",
+      "generation_id": "tBkS8H1PW1prq6zCiVkV",
+      "file": "public/vo/loop.mp3"
+    },
+    {
+      "shot": "plan",
+      "text": "Start with slash plan. The agent can read, but it can't edit. When a decision is really yours, it asks. Then it writes the plan, including how it'll be checked. And nothing changes until you approve it.",
+      "generation_id": "f3o4OUVAvB8ceKjc3jVG",
+      "file": "public/vo/plan.mp3"
+    },
+    {
+      "shot": "build",
+      "text": "Slash until gives it a finish line. Here it says it's done, but the test still fails, so it's sent straight back. It only stops when the tests pass.",
+      "generation_id": "GGBTz1BQ9lXDlfVTAcCo",
+      "file": "public/vo/build.mp3"
+    },
+    {
+      "shot": "done-gate",
+      "text": "Now, a guard you never see. The agent says done, without checking. Done gate quietly reminds the model, so it runs the repo's own verify script before it claims anything.",
+      "generation_id": "ssclRMbtYkweZsDKVupy",
+      "file": "public/vo/done-gate.mp3"
+    },
+    {
+      "shot": "review",
+      "text": "Slash review looks for real defects, not style notes. It runs the command line, and catches a bug the unit test can't reach. Ask for the fix, and it proves it with the same command.",
+      "generation_id": "03VVNlk9U4iBTAVY9hXB",
+      "file": "public/vo/review.mp3"
+    },
+    {
+      "shot": "ship",
+      "text": "Slash ship checks again, commits only the files it should, and pushes once. Guardrail still asks, and this time, you say yes. And it's honest: passing locally isn't passing on CI.",
+      "generation_id": "8fPQnf2tkvc7fSp8n2x7",
+      "file": "public/vo/ship.mp3"
+    },
+    {
+      "shot": "ring",
+      "text": "Six guards run underneath it all: guardrail, done gate, diagnosis nudge, drift, deslop, and the router. You never call them. They're simply on, for every step.",
+      "generation_id": "nRLhBrLwRWMJyx8PxBFc",
+      "file": "public/vo/ring.mp3",
+      "spoken": "Six guards run underneath it all: guardrail, done gate, diagnosis nudge, drift, dee-slop, and the router. You never call them. They're simply on, for every step."
+    },
+    {
+      "shot": "close",
+      "text": "pi extensions. Clone it, reload, and ship.",
+      "generation_id": "iVJXNu8ns3nkwvuvfqim",
+      "file": "public/vo/close.mp3",
+      "spoken": "Pie extensions. Clone it, reload, and ship."
+    }
+  ],
+  "note": "One take per line, generated in the ElevenLabs flow above. `spoken`, where present, is the exact text sent (respelled for pronunciation); `text` is the line as written. To replace a line, generate a new take there, download it over its file, and re-render.",
+  "pronunciation": {
+    "pi": "pie (written 'pie' in the text sent to ElevenLabs; plain 'pi' was read as 'pea')",
+    "deslop": "dee-slop (plain 'deslop' was misread)"
+  }
+}

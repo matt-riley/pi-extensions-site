@@ -145,6 +145,17 @@ function cardName(label) {
   return label.startsWith("pi-") ? `<span>pi-</span>${escapeHtml(label.slice(3))}` : escapeHtml(label);
 }
 
+/**
+ * The intro video's files, built by video/ (`npm run web` there) into video/web/ and copied by
+ * the build to dist/assets/video/.
+ */
+export const INTRO_VIDEO = {
+  webm: "intro.webm",
+  mp4: "intro.mp4",
+  poster: "intro-poster.jpg",
+  captions: "intro.en.vtt",
+};
+
 export function renderLanding({ model, build }) {
   const cards = model.extensions
     .map(
@@ -193,6 +204,17 @@ export function renderLanding({ model, build }) {
             <p class="terminal-note">Then run <code>/reload</code> in pi. See Getting started for prompt and skill setup.</p>
           </div>
         </div>
+      </section>
+      <section class="index" id="intro">
+        <h2>See it in two minutes</h2>
+        <figure class="intro-video">
+          <video controls preload="none" playsinline width="1920" height="1080" poster="/assets/video/${INTRO_VIDEO.poster}">
+            <source src="/assets/video/${INTRO_VIDEO.webm}" type="video/webm" />
+            <source src="/assets/video/${INTRO_VIDEO.mp4}" type="video/mp4" />
+            <track kind="captions" src="/assets/video/${INTRO_VIDEO.captions}" srclang="en" label="English (narration)" />
+          </video>
+          <figcaption>One feature from <code>/plan</code> to <code>/ship</code>, recorded in real pi with the collection loaded. The model's replies are scripted, so every take is the same.</figcaption>
+        </figure>
       </section>
       <section class="index" id="extensions">
         <h2>Extensions <span class="tally">${model.extensions.length}</span></h2>

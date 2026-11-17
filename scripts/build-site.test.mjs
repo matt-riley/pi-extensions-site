@@ -71,6 +71,29 @@ test("every packages/ directory becomes a page and a landing card", async (t) =>
   assert.ok(existsSync(path.join(out, "prompts/thing/index.html")));
 });
 
+test("the landing page embeds the intro video and the build ships every file it names", async (t) => {
+  const { source, out } = await fixture(t);
+  await build({ source, out });
+  const landing = await readFile(path.join(out, "index.html"), "utf8");
+  const video = landing.match(/<video\b[^>]*>[\s\S]*?<\/video>/)?.[0];
+  assert.ok(video, "the landing has a <video>");
+  assert.match(video, /\bcontrols\b/);
+  assert.match(video, /preload="none"/, "nothing downloads until the viewer presses play");
+  assert.match(video, /<source src="\/assets\/video\/intro\.webm" type="video\/webm" \/>/);
+  assert.match(video, /<source src="\/assets\/video\/intro\.mp4" type="video\/mp4" \/>/);
+  assert.match(video, /<track kind="captions" src="\/assets\/video\/intro\.en\.vtt" srclang="en"/);
+  assert.ok(
+    landing.indexOf('id="intro"') < landing.indexOf('id="extensions"'),
+    "the video comes before the extension cards",
+  );
+  // The SEO audit resolves src and href, but not poster, so check every named file here.
+  const named = [...video.matchAll(/\b(?:src|poster)="\/(assets\/video\/[^"]+)"/g)].map((m) => m[1]);
+  assert.equal(named.length, 4);
+  for (const file of named) assert.ok(existsSync(path.join(out, file)), `${file} is built`);
+  const captions = await readFile(path.join(out, "assets/video/intro.en.vtt"), "utf8");
+  assert.match(captions, /^WEBVTT\n/);
+});
+
 test("HTML pages share absolute canonical and social metadata, but errors are noindex", async (t) => {
   const { source, out } = await fixture(t);
   await write(source, "packages/alpha/package.json", JSON.stringify({
