@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { execFile } from "node:child_process";
 import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
-import { mkdir, mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promises";
+import { chmod, mkdir, mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "vitest";
@@ -677,8 +677,28 @@ test("discover and build report clear errors for invalid inputs and clean up fai
 
   const failedClone = await fixture(t);
   await write(failedClone.root, "content.lock", `${"0".repeat(40)}\n`);
-  const beforeTmp = new Set((await readdir(tmpdir())).filter((name) => name.startsWith("pi-extensions-content-")));
-  await assert.rejects(build({ root: failedClone.root, out: failedClone.out }));
-  const afterTmp = (await readdir(tmpdir())).filter((name) => name.startsWith("pi-extensions-content-") && !beforeTmp.has(name));
-  assert.deepEqual(afterTmp, [], "failed cloneContent cleans up temp directory");
+  const bin = path.join(failedClone.root, "bin");
+  const recorded = path.join(failedClone.root, "failed-clone-path");
+  await write(bin, "git", [
+    "#!/usr/bin/env node",
+    'const { writeFileSync } = require("node:fs");',
+    "const args = process.argv.slice(2);",
+    'if (args.includes("fetch")) {',
+    `  writeFileSync(${JSON.stringify(recorded)}, args[args.indexOf("-C") + 1]);`,
+    '  process.stderr.write("fixture clone fetch failure");',
+    "  process.exit(1);",
+    "}",
+  ].join("\n"));
+  await chmod(path.join(bin, "git"), 0o755);
+  const oldPath = process.env.PATH;
+  try {
+    process.env.PATH = `${bin}${path.delimiter}${oldPath ?? ""}`;
+    await assert.rejects(build({ root: failedClone.root, out: failedClone.out }), /fixture clone fetch failure/);
+  } finally {
+    if (oldPath === undefined) delete process.env.PATH;
+    else process.env.PATH = oldPath;
+  }
+  const ownedClone = await readFile(recorded, "utf8");
+  assert.ok(path.basename(ownedClone).startsWith("pi-extensions-content-"));
+  assert.equal(existsSync(ownedClone), false, "failed cloneContent removes its own temp directory");
 });
