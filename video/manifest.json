@@ -140,6 +140,66 @@
         "key": "videos/extensions/workbench/be796f7386.jpg",
         "bytes": 52710
       }
+    },
+    "/extensions/footer/": {
+      "captions": "video/captions/extensions/footer.en.vtt",
+      "seconds": 34.1,
+      "recorded": {
+        "content_sha": "5ad29da99d9e7fb42b4c37c609ecfe69d9424930",
+        "package_tree": "71ba07ab7449b7e412e2dfcfe4140ff2b0a290f6"
+      },
+      "webm": {
+        "key": "videos/extensions/footer/1ff650b642.webm",
+        "bytes": 852354
+      },
+      "mp4": {
+        "key": "videos/extensions/footer/af28300da6.mp4",
+        "bytes": 867939
+      },
+      "poster": {
+        "key": "videos/extensions/footer/2a78fc3c42.jpg",
+        "bytes": 49977
+      }
+    },
+    "/extensions/toasts/": {
+      "captions": "video/captions/extensions/toasts.en.vtt",
+      "seconds": 32.4,
+      "recorded": {
+        "content_sha": "5ad29da99d9e7fb42b4c37c609ecfe69d9424930",
+        "package_tree": "d5f45f1c996f80dd4f29e01e9f46eb90fa55c117"
+      },
+      "webm": {
+        "key": "videos/extensions/toasts/365440df5d.webm",
+        "bytes": 800991
+      },
+      "mp4": {
+        "key": "videos/extensions/toasts/a715932f6d.mp4",
+        "bytes": 787150
+      },
+      "poster": {
+        "key": "videos/extensions/toasts/35ceb7981e.jpg",
+        "bytes": 52035
+      }
+    },
+    "/extensions/emphasis/": {
+      "captions": "video/captions/extensions/emphasis.en.vtt",
+      "seconds": 31.933333,
+      "recorded": {
+        "content_sha": "5ad29da99d9e7fb42b4c37c609ecfe69d9424930",
+        "package_tree": "2db68aa295568c2d695aef269ea490383199a951"
+      },
+      "webm": {
+        "key": "videos/extensions/emphasis/4793f8d820.webm",
+        "bytes": 891962
+      },
+      "mp4": {
+        "key": "videos/extensions/emphasis/a03b91a880.mp4",
+        "bytes": 882243
+      },
+      "poster": {
+        "key": "videos/extensions/emphasis/cfd28afd21.jpg",
+        "bytes": 51985
+      }
     }
   }
 }
