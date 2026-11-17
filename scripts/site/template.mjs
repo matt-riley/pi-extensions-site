@@ -88,6 +88,17 @@ function footer({ contentSha, siteSha }) {
       ${commit(SITE_REPO, siteSha, "site")} · <a href="/llms.txt">llms.txt</a>`;
 }
 
+/**
+ * An asset's URL with its content hash (`?v=`), so a changed file is fetched at once. Assets are
+ * cached for hours under a fixed name; without the hash a deploy that changes HTML and CSS
+ * together can pair new HTML with a stale stylesheet (the intro video once rendered at its full
+ * 1920px width that way). `build.assets` maps a file under assets/ to its hash.
+ */
+export function assetUrl(file, build) {
+  const version = build?.assets?.[file];
+  return `/assets/${file}${version ? `?v=${version}` : ""}`;
+}
+
 export function renderPage({ model, current, title, description, content, build, indexable = true }) {
   const pageTitle = current === "/" ? SITE_NAME : `${title} — ${SITE_NAME}`;
   const canonical = escapeHtml(SITE_URL + current);
@@ -116,7 +127,7 @@ export function renderPage({ model, current, title, description, content, build,
     <meta name="description" content="${escapeHtml(description)}" />
     ${metadata}
     <link rel="icon" href="${FAVICON}" />
-    <link rel="stylesheet" href="/assets/style.css" />
+    <link rel="stylesheet" href="${assetUrl("style.css", build)}" />
   </head>
   <body>
     <a class="skip-link" href="#main-content">Skip to content</a>
@@ -208,10 +219,10 @@ export function renderLanding({ model, build }) {
       <section class="index" id="intro">
         <h2>See it in two minutes</h2>
         <figure class="intro-video">
-          <video controls preload="none" playsinline width="1920" height="1080" poster="/assets/video/${INTRO_VIDEO.poster}">
-            <source src="/assets/video/${INTRO_VIDEO.webm}" type="video/webm" />
-            <source src="/assets/video/${INTRO_VIDEO.mp4}" type="video/mp4" />
-            <track kind="captions" src="/assets/video/${INTRO_VIDEO.captions}" srclang="en" label="English (narration)" />
+          <video controls preload="none" playsinline width="1920" height="1080" poster="${assetUrl(`video/${INTRO_VIDEO.poster}`, build)}">
+            <source src="${assetUrl(`video/${INTRO_VIDEO.webm}`, build)}" type="video/webm" />
+            <source src="${assetUrl(`video/${INTRO_VIDEO.mp4}`, build)}" type="video/mp4" />
+            <track kind="captions" src="${assetUrl(`video/${INTRO_VIDEO.captions}`, build)}" srclang="en" label="English (narration)" />
           </video>
           <figcaption>One feature from <code>/plan</code> to <code>/ship</code>, recorded in real pi with the collection loaded. The model's replies are scripted, so every take is the same.</figcaption>
         </figure>

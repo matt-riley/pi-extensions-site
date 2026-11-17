@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
 import { mkdir, mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promises";
@@ -79,19 +80,38 @@ test("the landing page embeds the intro video and the build ships every file it 
   assert.ok(video, "the landing has a <video>");
   assert.match(video, /\bcontrols\b/);
   assert.match(video, /preload="none"/, "nothing downloads until the viewer presses play");
-  assert.match(video, /<source src="\/assets\/video\/intro\.webm" type="video\/webm" \/>/);
-  assert.match(video, /<source src="\/assets\/video\/intro\.mp4" type="video\/mp4" \/>/);
-  assert.match(video, /<track kind="captions" src="\/assets\/video\/intro\.en\.vtt" srclang="en"/);
+  assert.match(video, /<source src="\/assets\/video\/intro\.webm\?v=[0-9a-f]{10}" type="video\/webm" \/>/);
+  assert.match(video, /<source src="\/assets\/video\/intro\.mp4\?v=[0-9a-f]{10}" type="video\/mp4" \/>/);
+  assert.match(video, /<track kind="captions" src="\/assets\/video\/intro\.en\.vtt\?v=[0-9a-f]{10}" srclang="en"/);
   assert.ok(
     landing.indexOf('id="intro"') < landing.indexOf('id="extensions"'),
     "the video comes before the extension cards",
   );
   // The SEO audit resolves src and href, but not poster, so check every named file here.
-  const named = [...video.matchAll(/\b(?:src|poster)="\/(assets\/video\/[^"]+)"/g)].map((m) => m[1]);
+  const named = [...video.matchAll(/\b(?:src|poster)="\/(assets\/video\/[^"?]+)\?v=/g)].map((m) => m[1]);
   assert.equal(named.length, 4);
   for (const file of named) assert.ok(existsSync(path.join(out, file)), `${file} is built`);
   const captions = await readFile(path.join(out, "assets/video/intro.en.vtt"), "utf8");
   assert.match(captions, /^WEBVTT\n/);
+});
+
+test("pages link assets by content hash, so a deploy never pairs new HTML with a cached stylesheet", async (t) => {
+  // Assets are cached for hours under a fixed name. Unversioned, the intro video shipped as new
+  // HTML against a browser's cached style.css and rendered at its full 1920px width.
+  const { source, out } = await fixture(t);
+  await build({ source, out });
+  const version = async (file) =>
+    createHash("sha256").update(await readFile(path.join(out, "assets", file))).digest("hex").slice(0, 10);
+  const css = await version("style.css");
+  for (const page of await htmlFiles(out)) {
+    const html = await readFile(page, "utf8");
+    assert.match(html, new RegExp(`<link rel="stylesheet" href="/assets/style\\.css\\?v=${css}" />`), page);
+  }
+  const landing = await readFile(path.join(out, "index.html"), "utf8");
+  for (const file of ["intro.webm", "intro.mp4", "intro-poster.jpg", "intro.en.vtt"]) {
+    const v = await version(`video/${file}`);
+    assert.ok(landing.includes(`/assets/video/${file}?v=${v}`), `${file} is linked by its hash`);
+  }
 });
 
 test("HTML pages share absolute canonical and social metadata, but errors are noindex", async (t) => {
@@ -213,7 +233,8 @@ test("every internal link points at a generated file", async (t) => {
     for (const [, href] of html.matchAll(/href="([^"]+)"/g)) {
       if (!href.startsWith("/")) continue;
       checked += 1;
-      const [clean] = href.split("#");
+      // A static server ignores the query (assets carry a `?v=` content hash) and the fragment.
+      const [clean] = href.split(/[?#]/);
       const relative = clean === "/" ? "index.html" : path.join(clean.slice(1), clean.endsWith("/") ? "index.html" : "");
       assert.ok(existsSync(path.join(out, relative)), `${path.relative(out, file)} links to missing ${href}`);
     }
