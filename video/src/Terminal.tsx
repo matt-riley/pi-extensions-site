@@ -252,6 +252,7 @@ function AsideCard({ aside, open }: { aside: Aside; open: number }) {
           borderLeft: `4px solid ${theme.rust}`,
           padding: "18px 20px",
           borderRadius: 6,
+          whiteSpace: "pre-wrap",
         }}
       >
         {aside.body}

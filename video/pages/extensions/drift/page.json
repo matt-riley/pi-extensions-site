@@ -1,0 +1,53 @@
+{
+  "title": "Drift",
+  "line": "Flag edits made outside the current agent session.",
+  "terminalTitle": "pi — greet",
+  "beats": [
+    {
+      "cue": "first",
+      "caption": "The agent reads the original greeting."
+    },
+    {
+      "cue": "next",
+      "caption": "You edit the helper between turns."
+    },
+    {
+      "cue": "reminder",
+      "caption": "Drift tells the model what changed.",
+      "label": "pi-drift"
+    },
+    {
+      "cue": "read",
+      "caption": "The agent re-reads the file before answering."
+    }
+  ],
+  "aside": {
+    "from": "reminder",
+    "to": "read",
+    "kicker": "pi-drift",
+    "title": "What the model sees",
+    "note": "Captured from the second request’s system prompt."
+  },
+  "takeaway": {
+    "title": "Re-read the changed file",
+    "line": "Drift names changes made between the session’s turns."
+  },
+  "notes": "The recording harness edits the fixture outside Pi after the first turn settles.",
+  "narration": {
+    "title": {
+      "text": "You can edit a file in another terminal while the agent still remembers an earlier version.",
+      "generation_id": "tbu4N0vs89DRtHgwmMV9",
+      "request_id": "hnH2kXEkuD19GpoVjk09"
+    },
+    "scene": {
+      "text": "The file changes between turns. When you ask about it again, Drift adds this note to the model’s instructions. The agent re-reads the helper and sees the updated greeting.",
+      "generation_id": "NmPgqEsM4FTiTqsBR5w2",
+      "request_id": "ztvSAJR1to09uPwIXKd8"
+    },
+    "takeaway": {
+      "text": "The agent can work from the latest file when the session knows which old reads need to be refreshed.",
+      "generation_id": "TSGXqWXVafUwkbCyIlDM",
+      "request_id": "I9HrA25d0wVUDkUBksOP"
+    }
+  }
+}

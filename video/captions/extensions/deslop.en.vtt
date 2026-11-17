@@ -1,0 +1,29 @@
+WEBVTT
+
+1
+00:00:00.400 --> 00:00:05.520
+A short piece of documentation can get
+padded with phrases that add very little.
+
+2
+00:00:07.400 --> 00:00:09.546
+The agent writes the description.
+
+3
+00:00:09.546 --> 00:00:13.643
+Deslop’s local check flags a
+filler phrase in the write result.
+
+4
+00:00:13.643 --> 00:00:18.520
+The agent keeps what the sentence says
+and drops the words that delayed it.
+
+5
+00:00:26.400 --> 00:00:28.965
+Keep the wording that helps the reader.
+
+6
+00:00:28.965 --> 00:00:34.160
+When a phrase adds nothing to the claim,
+the shorter sentence is easier to use.

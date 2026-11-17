@@ -96,19 +96,22 @@ const server = createServer(async (req, res) => {
     const text = typeof last?.content === "string" ? last.content : JSON.stringify(last?.content);
     await appendFile(process.env.PI_VIDEO_LOG, `#${++request} ${last?.role}: ${text}\n`);
   }
-  // capture: a pattern for a hidden message (done-gate's reminder). The first message pi sends
-  // that matches is written to public/clips/<scene>.hidden.json, so the video shows the text
-  // this take really sent, never a retyped copy.
+  // Capture the whole last message or the matching excerpt from a specified role.
   if (scene.capture && !captured) {
-    const text = [last?.content].flat().map((part) => part?.text ?? part ?? "").join("");
-    if (scene.capture.test(text)) {
+    const capture = scene.capture instanceof RegExp ? { pattern: scene.capture } : scene.capture;
+    const message = capture.role
+      ? payload.messages?.findLast((entry) => entry.role === capture.role)
+      : last;
+    const text = [message?.content].flat().map((part) => part?.text ?? part ?? "").join("");
+    const match = text.match(capture.pattern);
+    if (match) {
       captured = true;
       const relative = pageFolder
         ? `public/pages/${path.basename(path.dirname(pageFolder))}/${name}/scene.hidden.json`
         : `public/clips/${name}.hidden.json`;
       const output = path.resolve(import.meta.dirname, "..", relative);
       await mkdir(path.dirname(output), { recursive: true });
-      await writeFile(output, JSON.stringify({ role: last.role, text }, null, 2) + "\n");
+      await writeFile(output, JSON.stringify({ role: message.role, text: capture.role ? match[0] : text }, null, 2) + "\n");
     }
   }
   const step = steps.shift() ?? { text: "…" };
@@ -144,6 +147,10 @@ const server = createServer(async (req, res) => {
     send({}, "stop");
   }
   res.end("data: [DONE]\n\n");
+  if (step.afterReply) {
+    // Let Pi settle the turn before simulating an edit from outside the session.
+    setTimeout(() => step.afterReply(cwd).catch((error) => console.error(error)), 1800).unref();
+  }
 });
 await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
 
