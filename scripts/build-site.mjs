@@ -262,6 +262,23 @@ export async function build({ source, root = SITE_ROOT, out } = {}) {
     const model = await discover(content.dir);
     const videos = await readVideoManifest(root);
     await validateVideoManifest(videos, ["/", ...model.pages.map((page) => page.url)], { root });
+    if (content.sha !== "local") {
+      for (const page of model.extensions) {
+        const recordedTree = videos.videos[page.url]?.recorded.package_tree;
+        if (!recordedTree) continue;
+        const packageDir = path.posix.dirname(page.source);
+        let currentTree;
+        try {
+          currentTree = git(["-C", content.dir, "rev-parse", "--verify", `${content.sha}:${packageDir}`]).trim();
+        } catch {
+          // An explicit source checkout can contain packages that are not committed yet.
+          continue;
+        }
+        if (currentTree !== recordedTree) {
+          console.warn(`stale video: ${page.url} (${packageDir} changed since ${recordedTree.slice(0, 7)})`);
+        }
+      }
+    }
     // Assets copied into dist/assets/, read up front so every page links them by content hash.
     const assets = new Map([
       ["style.css", await readFile(new URL("./site/style.css", import.meta.url))],
