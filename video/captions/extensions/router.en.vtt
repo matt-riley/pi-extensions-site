@@ -1,0 +1,30 @@
+WEBVTT
+
+1
+00:00:00.400 --> 00:00:05.120
+For a bug report, it can help to give
+the agent a repeatable way to start.
+
+2
+00:00:07.400 --> 00:00:09.551
+You pin Router’s bug fix playbook.
+
+3
+00:00:09.551 --> 00:00:13.158
+The first steps are now part
+of the model’s instructions.
+
+4
+00:00:13.158 --> 00:00:18.600
+The agent runs the failing example to get a
+clear reproduction before it investigates.
+
+5
+00:00:26.633 --> 00:00:30.241
+A manual pin holds for the
+session until you change it.
+
+6
+00:00:30.241 --> 00:00:33.193
+It gives the work a
+starting point you chose.

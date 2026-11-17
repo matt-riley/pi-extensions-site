@@ -1,0 +1,47 @@
+{
+  "title": "Agents",
+  "line": "Write project instructions from the files in the repository.",
+  "terminalTitle": "pi — greet",
+  "beats": [
+    {
+      "cue": "command",
+      "caption": "You start the project setup with `/agents`."
+    },
+    {
+      "cue": "read",
+      "caption": "The agent checks the manifest and README.",
+      "label": "pi-agents"
+    },
+    {
+      "cue": "write",
+      "caption": "It writes the project’s test command into `AGENTS.md`.",
+      "highlight": {
+        "x": 25,
+        "y": 464,
+        "w": 1130,
+        "h": 220
+      }
+    }
+  ],
+  "takeaway": {
+    "title": "Base the guide on the project",
+    "line": "Use the commands and paths the repository actually has."
+  },
+  "narration": {
+    "title": {
+      "text": "A new agent can get started faster when the project tells it how to run the checks.",
+      "generation_id": "apIOntd3cCX0jgwo1w2T",
+      "request_id": "9wd4A8FZTtxhCSsyqXtX"
+    },
+    "scene": {
+      "text": "Slash agents starts a setup task in the active session. The agent reads the manifest and README, then writes the test command and entry points into the project guide.",
+      "generation_id": "xUBHFLcH7J4OFoOoFfEa",
+      "request_id": "DVAZObLlyGqY5z9ZRtzc"
+    },
+    "takeaway": {
+      "text": "Review the instructions with the repository in view. They should match how this project is actually built and tested.",
+      "generation_id": "zc4kTjX7ALdKkEjPmOA7",
+      "request_id": "Hp1i7EqMZfXfU975hO5C"
+    }
+  }
+}

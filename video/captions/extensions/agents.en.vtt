@@ -1,0 +1,30 @@
+WEBVTT
+
+1
+00:00:00.400 --> 00:00:05.280
+A new agent can get started faster when the
+project tells it how to run the checks.
+
+2
+00:00:07.400 --> 00:00:10.968
+Slash agents starts a setup
+task in the active session.
+
+3
+00:00:10.968 --> 00:00:13.563
+The agent reads the manifest and README,
+
+4
+00:00:13.563 --> 00:00:18.040
+then writes the test command and
+entry points into the project guide.
+
+5
+00:00:27.600 --> 00:00:30.756
+Review the instructions with
+the repository in view.
+
+6
+00:00:30.756 --> 00:00:34.640
+They should match how this project
+is actually built and tested.

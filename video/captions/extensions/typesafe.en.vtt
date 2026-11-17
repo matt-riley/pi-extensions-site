@@ -1,0 +1,30 @@
+WEBVTT
+
+1
+00:00:00.400 --> 00:00:06.240
+A structured judgment can help you decide what to
+verify when the question has more than one part.
+
+2
+00:00:07.400 --> 00:00:12.539
+In this scripted example, TypeSafe returns
+two probabilities from one request.
+
+3
+00:00:12.539 --> 00:00:14.976
+The proposed command passes the flag,
+
+4
+00:00:14.976 --> 00:00:18.600
+and a separate question
+considers the default greeting.
+
+5
+00:00:26.767 --> 00:00:30.123
+Use those answers to
+decide what to test next.
+
+6
+00:00:30.123 --> 00:00:33.407
+Run both cases before
+you rely on the result.
