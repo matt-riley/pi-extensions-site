@@ -200,6 +200,66 @@
         "key": "videos/extensions/emphasis/cfd28afd21.jpg",
         "bytes": 51985
       }
+    },
+    "/extensions/affected/": {
+      "captions": "video/captions/extensions/affected.en.vtt",
+      "seconds": 33.1,
+      "recorded": {
+        "content_sha": "5ad29da99d9e7fb42b4c37c609ecfe69d9424930",
+        "package_tree": "8c8b733f445177df1a0c1351f2a81c548dec0a17"
+      },
+      "webm": {
+        "key": "videos/extensions/affected/a3145e344a.webm",
+        "bytes": 893316
+      },
+      "mp4": {
+        "key": "videos/extensions/affected/f44db0983d.mp4",
+        "bytes": 861268
+      },
+      "poster": {
+        "key": "videos/extensions/affected/dead4c027a.jpg",
+        "bytes": 51039
+      }
+    },
+    "/extensions/review/": {
+      "captions": "video/captions/extensions/review.en.vtt",
+      "seconds": 30.033333,
+      "recorded": {
+        "content_sha": "5ad29da99d9e7fb42b4c37c609ecfe69d9424930",
+        "package_tree": "35257543597c911c048b23f2f5d45fe2b336545f"
+      },
+      "webm": {
+        "key": "videos/extensions/review/ee4e5d88af.webm",
+        "bytes": 1099918
+      },
+      "mp4": {
+        "key": "videos/extensions/review/1c56fb9aac.mp4",
+        "bytes": 1055719
+      },
+      "poster": {
+        "key": "videos/extensions/review/4d4254f6d5.jpg",
+        "bytes": 49603
+      }
+    },
+    "/extensions/quality/": {
+      "captions": "video/captions/extensions/quality.en.vtt",
+      "seconds": 36.566667,
+      "recorded": {
+        "content_sha": "5ad29da99d9e7fb42b4c37c609ecfe69d9424930",
+        "package_tree": "4ee4104cb6e80f3b5ee4f50adff80dfce63db8d1"
+      },
+      "webm": {
+        "key": "videos/extensions/quality/a52dc8a10d.webm",
+        "bytes": 2691804
+      },
+      "mp4": {
+        "key": "videos/extensions/quality/c3ac4b5b40.mp4",
+        "bytes": 2507300
+      },
+      "poster": {
+        "key": "videos/extensions/quality/19cf592bab.jpg",
+        "bytes": 52265
+      }
     }
   }
 }

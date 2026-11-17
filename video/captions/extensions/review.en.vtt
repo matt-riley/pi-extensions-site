@@ -1,0 +1,30 @@
+WEBVTT
+
+1
+00:00:00.400 --> 00:00:05.360
+A small edit to a shared helper can reach
+code that never appears in your diff.
+
+2
+00:00:07.400 --> 00:00:11.817
+The agent uses Review to look up
+callers of the changed greeting helper.
+
+3
+00:00:11.817 --> 00:00:14.517
+The command line entry
+point is on the list,
+
+4
+00:00:14.517 --> 00:00:17.400
+so that’s a path you can
+check before shipping.
+
+5
+00:00:23.367 --> 00:00:25.008
+Use the callers as a guide.
+
+6
+00:00:25.008 --> 00:00:29.447
+Pick a check that actually goes through
+the part of the program they use.

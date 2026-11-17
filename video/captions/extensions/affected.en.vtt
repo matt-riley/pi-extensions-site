@@ -1,0 +1,33 @@
+WEBVTT
+
+1
+00:00:00.400 --> 00:00:01.974
+When you edit one helper,
+
+2
+00:00:01.974 --> 00:00:06.320
+you can use the project’s imports
+to find a test worth running first.
+
+3
+00:00:07.400 --> 00:00:10.074
+This change touches the greeting helper.
+
+4
+00:00:10.074 --> 00:00:14.753
+Slash affected follows the imports
+back to the test that exercises it.
+
+5
+00:00:14.753 --> 00:00:17.560
+It gives you a command for that selection.
+
+6
+00:00:25.300 --> 00:00:28.180
+Run the suggested command
+to check the change.
+
+7
+00:00:28.180 --> 00:00:32.500
+If the graph is incomplete, Affected
+will point you to a wider check.

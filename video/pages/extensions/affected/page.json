@@ -1,0 +1,47 @@
+{
+  "title": "Affected",
+  "line": "Find the tests that can reach a changed file.",
+  "terminalTitle": "pi — greet",
+  "beats": [
+    {
+      "cue": "prompt",
+      "caption": "You ask which tests reach the current changes."
+    },
+    {
+      "cue": "report",
+      "caption": "Affected traces imports back to the test file.",
+      "label": "pi-affected",
+      "highlight": {
+        "x": 26,
+        "y": 42,
+        "w": 1089,
+        "h": 128
+      }
+    },
+    {
+      "cue": "draft",
+      "caption": "The report suggests a command you can run."
+    }
+  ],
+  "takeaway": {
+    "title": "Give the change a check",
+    "line": "Use the suggested test when the import graph can trace the change."
+  },
+  "narration": {
+    "title": {
+      "text": "When you edit one helper, you can use the project’s imports to find a test worth running first.",
+      "generation_id": "nxRdNtTQ3kK0wkfA94aq",
+      "request_id": "YudoYANHrMt9kUms2AN5"
+    },
+    "scene": {
+      "text": "This change touches the greeting helper. Slash affected follows the imports back to the test that exercises it. It gives you a command for that selection.",
+      "generation_id": "zwlAyk9dVwpAcsJpESFS",
+      "request_id": "d57ZwTULWd50R2gqA9g4"
+    },
+    "takeaway": {
+      "text": "Run the suggested command to check the change. If the graph is incomplete, Affected will point you to a wider check.",
+      "generation_id": "BzD2jAlyJizBUBEz0rGO",
+      "request_id": "WamGSHOCqEnoDKX63KdK"
+    }
+  }
+}
