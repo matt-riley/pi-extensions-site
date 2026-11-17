@@ -40,6 +40,36 @@ than its recorded clip fails the render rather than being cut off.
 
 ## On the site
 
+### R2 upload access
+
+Run `npm ci` here to install the pinned Wrangler CLI, then `npx wrangler login`
+to authorize uploads with your Cloudflare account. Credentials stay in Wrangler's
+user configuration, outside this repository. Recording and uploading run locally.
+
+`matt-riley/infra` owns bucket `pi-extensions-media` and custom domain
+`https://pi-extensions-media.mattriley.tools`. Do not create a second bucket or
+DNS record from this repo. Check the deployment before uploading:
+
+```sh
+npx wrangler r2 bucket domain list pi-extensions-media
+npx wrangler r2 bucket dev-url get pi-extensions-media # must stay disabled
+```
+
+Upload objects with `--remote`, their actual content type, and
+`--cache-control "public, max-age=31536000, immutable"`. Each changed file must
+get a new content-hashed key. For a temporary smoke-test object, verify its public
+HEAD response and a `Range: bytes=0-9` GET (expect 206 and `Content-Range`), then
+delete it with `npx wrangler r2 object delete <bucket>/<key> --remote`.
+
+### Current homepage encodes
+
+`manifest.json` is the rollout inventory for R2-hosted videos. Its empty `videos`
+map leaves the current homepage unchanged until the publisher and build integration
+land. Entries use page URLs as keys (`/` for the intro), immutable hashed media
+keys, same-origin caption paths under `video/captions/`, duration, and the recorded
+content commit and package tree. `scripts/site/videos.mjs` validates this contract;
+its tests run with the root `npm test` command without contacting R2.
+
 `npm run web` writes `web/intro.en.vtt` (the narration as captions, timed from `src/timeline.ts`,
 the same timeline the render uses), `web/intro.webm` and `web/intro.mp4` (each under Cloudflare
 Pages' 25 MiB file limit) and `web/intro-poster.jpg`. Commit `web/` after a re-render: the site
