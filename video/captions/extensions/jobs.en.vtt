@@ -1,0 +1,32 @@
+WEBVTT
+
+1
+00:00:00.400 --> 00:00:02.146
+When a command takes a while,
+
+2
+00:00:02.146 --> 00:00:06.000
+you can start it from pi and come
+back when you want the output.
+
+3
+00:00:07.400 --> 00:00:10.206
+You start the test suite with slash jobs.
+
+4
+00:00:10.206 --> 00:00:12.875
+The prompt is free again while it runs.
+
+5
+00:00:12.875 --> 00:00:15.544
+Open the job list, select the test run,
+
+6
+00:00:15.544 --> 00:00:19.240
+and the log viewer follows
+it until the process exits.
+
+7
+00:00:23.633 --> 00:00:28.353
+Use the job list to get back to the output
+of a command you already have running.

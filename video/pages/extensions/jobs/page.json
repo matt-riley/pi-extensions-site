@@ -1,0 +1,51 @@
+{
+  "title": "Jobs",
+  "line": "Run a command in the background and follow its logs.",
+  "terminalTitle": "pi — greet",
+  "beats": [
+    {
+      "cue": "start",
+      "caption": "You start the test suite in the background."
+    },
+    {
+      "cue": "open",
+      "caption": "Jobs opens the list of running commands.",
+      "label": "pi-jobs"
+    },
+    {
+      "cue": "follow",
+      "caption": "The log viewer follows the same process."
+    },
+    {
+      "cue": "passed",
+      "caption": "The test passes and the job exits.",
+      "highlight": {
+        "x": 52,
+        "y": 252,
+        "w": 640,
+        "h": 318
+      }
+    }
+  ],
+  "takeaway": {
+    "title": "Come back to the logs",
+    "line": "Open the job list whenever you need its output."
+  },
+  "narration": {
+    "title": {
+      "text": "When a command takes a while, you can start it from pi and come back when you want the output.",
+      "generation_id": "jrs22nj0nrLlCqUvsdJH",
+      "request_id": "rtq1v5DlwzjG3Ia0DGXd"
+    },
+    "scene": {
+      "text": "You start the test suite with slash jobs. The prompt is free again while it runs. Open the job list, select the test run, and the log viewer follows it until the process exits.",
+      "generation_id": "jVSSyzXL0swPzZTUiS7k",
+      "request_id": "XlN3qHLVRCfOhmRNg51o"
+    },
+    "takeaway": {
+      "text": "Use the job list to get back to the output of a command you already have running.",
+      "generation_id": "oYvy843DXTYN5J3vHQbD",
+      "request_id": "pNoBBEWihI74QwBwIPIf"
+    }
+  }
+}

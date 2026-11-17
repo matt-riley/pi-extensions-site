@@ -1,0 +1,52 @@
+{
+  "title": "Done-gate",
+  "line": "Ask for evidence when the agent says it’s done.",
+  "terminalTitle": "pi — greet",
+  "beats": [
+    {
+      "cue": "prompt",
+      "caption": "You ask for a runnable example."
+    },
+    {
+      "cue": "done",
+      "caption": "Done-gate sends the model a verification reminder.",
+      "label": "pi-done-gate"
+    },
+    {
+      "cue": "verified",
+      "caption": "The agent runs the repository’s check."
+    },
+    {
+      "cue": "summary",
+      "caption": "The check runs the new example."
+    }
+  ],
+  "aside": {
+    "from": "done",
+    "to": "verified",
+    "kicker": "pi-done-gate",
+    "title": "What the model sees",
+    "note": "Captured from the model request in this recording."
+  },
+  "takeaway": {
+    "title": "Ask for evidence",
+    "line": "A repository check gives the agent a way to verify its work."
+  },
+  "narration": {
+    "title": {
+      "text": "An agent can finish an edit and miss the check that would tell you if it works.",
+      "generation_id": "JDDkJjKCnp5l8klIkIXE",
+      "request_id": "Mj5rEJTsliKueegQx9dI"
+    },
+    "scene": {
+      "text": "The agent adds an example and calls it done. Done-gate sends a reminder to the model. That card shows the actual reminder. The agent then runs the repository’s own check, which includes the example.",
+      "generation_id": "jkKm2q8eWFtziMp41IYF",
+      "request_id": "PomBqmkUNHeJQaLa9PAi"
+    },
+    "takeaway": {
+      "text": "If your repository has a verification recipe, Done-gate can point the agent to it before it wraps up.",
+      "generation_id": "q6Bxbig9g58CtDVMkefx",
+      "request_id": "Zwd5Ia33cMuaEGhlfP2o"
+    }
+  }
+}

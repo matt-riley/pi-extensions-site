@@ -1,0 +1,34 @@
+WEBVTT
+
+1
+00:00:00.400 --> 00:00:04.880
+An agent can finish an edit and miss the
+check that would tell you if it works.
+
+2
+00:00:07.400 --> 00:00:10.342
+The agent adds an example
+and calls it done.
+
+3
+00:00:10.342 --> 00:00:13.017
+Done-gate sends a reminder to the model.
+
+4
+00:00:13.017 --> 00:00:15.425
+That card shows the actual reminder.
+
+5
+00:00:15.425 --> 00:00:20.440
+The agent then runs the repository’s
+own check, which includes the example.
+
+6
+00:00:27.633 --> 00:00:30.441
+If your repository has
+a verification recipe,
+
+7
+00:00:30.441 --> 00:00:33.873
+Done-gate can point the agent
+to it before it wraps up.
