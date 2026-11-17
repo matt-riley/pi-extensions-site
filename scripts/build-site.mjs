@@ -14,13 +14,13 @@ import { firstHeading, parseFrontmatter, stripFrontmatter } from "./site/frontma
 import { checkLlmsCoverage, markdownOut, renderLlmsTxt, renderMarkdownCopy } from "./site/llms.mjs";
 import {
   CONTENT_REPO,
-  INTRO_VIDEO,
   escapeHtml,
   renderLanding,
   renderNotFound,
   renderPage,
 } from "./site/template.mjs";
 import { ROBOTS_TXT, renderMarkdownHeaders, renderSitemap } from "./site/seo.mjs";
+import { captionAsset, readVideoManifest, validateVideoManifest } from "./site/videos.mjs";
 
 const CONTENT_URL = `https://github.com/${CONTENT_REPO}.git`;
 const SITE_ROOT = fileURLToPath(new URL("..", import.meta.url));
@@ -260,16 +260,19 @@ export async function build({ source, root = SITE_ROOT, out } = {}) {
     : await cloneContent(root);
   try {
     const model = await discover(content.dir);
+    const videos = await readVideoManifest(root);
+    await validateVideoManifest(videos, ["/", ...model.pages.map((page) => page.url)], { root });
     // Assets copied into dist/assets/, read up front so every page links them by content hash.
     const assets = new Map([
       ["style.css", await readFile(new URL("./site/style.css", import.meta.url))],
-      ...(await Promise.all(
-        Object.values(INTRO_VIDEO).map(async (file) => [
-          `video/${file}`,
-          await readFile(path.join(root, "video/web", file)),
-        ]),
-      )),
     ]);
+    for (const entry of Object.values(videos.videos)) {
+      const captions = await readFile(path.join(root, entry.captions));
+      if (!/^WEBVTT(?:\r?\n|$)/.test(captions.toString("utf8"))) {
+        throw new Error(`${entry.captions}: captions must start with WEBVTT`);
+      }
+      assets.set(captionAsset(entry), captions);
+    }
     const hash = (data) => createHash("sha256").update(data).digest("hex").slice(0, 10);
     const built = {
       contentSha: content.sha,
@@ -301,6 +304,8 @@ export async function build({ source, root = SITE_ROOT, out } = {}) {
           description: page.description || page.title,
           content: renderMarkdown(markdown, rewrite, page.title),
           build: built,
+          video: videos.videos[page.url],
+          mediaOrigin: videos.origin,
         }),
       );
       await write(markdownOut(page.url), renderMarkdownCopy(markdown, page.title, rewrite, pageUrls));
@@ -312,9 +317,9 @@ export async function build({ source, root = SITE_ROOT, out } = {}) {
     await write("sitemap.xml", renderSitemap(model));
     await write("robots.txt", ROBOTS_TXT);
     await write("_headers", renderMarkdownHeaders(model));
-    await write("index.html", renderLanding({ model, build: built }));
+    await write("index.html", renderLanding({ model, build: built, video: videos.videos["/"], mediaOrigin: videos.origin }));
     await write("404.html", renderNotFound({ model, build: built }));
-    // The stylesheet, and the landing page's intro video (encoded in video/, committed to video/web/).
+    // Only the stylesheet and captions are local assets; video encodes and posters live on R2.
     for (const [file, data] of assets) await write(`assets/${file}`, data);
     return { ...built, urls: model.pages.map((page) => page.url) };
   } finally {

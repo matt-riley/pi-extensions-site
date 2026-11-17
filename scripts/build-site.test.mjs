@@ -1,10 +1,12 @@
 import { createHash } from "node:crypto";
+import { execFile } from "node:child_process";
 import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
 import { mkdir, mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "vitest";
+import { promisify } from "node:util";
 import { build, discover, rewriteHref } from "./build-site.mjs";
 import { renderLanding, renderPage } from "./site/template.mjs";
 
@@ -46,6 +48,102 @@ async function htmlFiles(dir) {
   return entries.filter((entry) => entry.endsWith(".html")).map((entry) => path.join(dir, entry));
 }
 
+test("manifest videos appear after the page h1 with remote sources and hashed same-origin captions", async (t) => {
+  const { root, source, out } = await fixture(t);
+  const captions = "WEBVTT\n\n00:00.000 --> 00:02.000\nAlpha in action.\n";
+  await write(root, "video/captions/extensions/alpha.en.vtt", captions);
+  await write(root, "video/manifest.json", JSON.stringify({
+    origin: "https://pi-extensions-media.mattriley.tools",
+    videos: {
+      "/extensions/alpha/": {
+        webm: { key: "videos/extensions/alpha/0123456789.webm", bytes: 100 },
+        mp4: { key: "videos/extensions/alpha/abcdef0123.mp4", bytes: 120 },
+        poster: { key: "videos/extensions/alpha/9876543210.jpg", bytes: 30 },
+        captions: "video/captions/extensions/alpha.en.vtt", seconds: 3,
+        recorded: { content_sha: "a".repeat(40), package_tree: "b".repeat(40) },
+      },
+    },
+  }));
+  await build({ root, source, out });
+  const alpha = await readFile(path.join(out, "extensions/alpha/index.html"), "utf8");
+  assert.equal([...alpha.matchAll(/<video\b/g)].length, 1);
+  assert.match(alpha, /<\/h1>\s*<figure class="page-video">/);
+  assert.match(alpha, /<video controls preload="none" playsinline/);
+  for (const [key, type] of [["0123456789.webm", "video/webm"], ["abcdef0123.mp4", "video/mp4"]]) {
+    assert.ok(alpha.includes(`<source src="https://pi-extensions-media.mattriley.tools/videos/extensions/alpha/${key}" type="${type}"`));
+  }
+  assert.match(alpha, /poster="https:\/\/pi-extensions-media\.mattriley\.tools\/videos\/extensions\/alpha\/9876543210\.jpg"/);
+  const hash = createHash("sha256").update(captions).digest("hex").slice(0, 10);
+  assert.ok(alpha.includes(`<track kind="captions" src="/assets/video/extensions/alpha.en.vtt?v=${hash}"`));
+  assert.equal(await readFile(path.join(out, "assets/video/extensions/alpha.en.vtt"), "utf8"), captions);
+  const beta = await readFile(path.join(out, "extensions/beta/index.html"), "utf8");
+  assert.doesNotMatch(beta, /<video\b/);
+  assert.doesNotMatch(alpha, /<script\b|autoplay|crossorigin/i);
+});
+
+test("an empty manifest omits the intro section and page video embeds", async (t) => {
+  const { root, source, out } = await fixture(t);
+  await write(root, "video/manifest.json", JSON.stringify({ origin: "https://pi-extensions-media.mattriley.tools", videos: {} }));
+  await build({ root, source, out });
+  const landing = await readFile(path.join(out, "index.html"), "utf8");
+  assert.doesNotMatch(landing, /id="intro"|<video\b/);
+  assert.equal(existsSync(path.join(out, "assets/video")), false);
+  assert.doesNotMatch(await readFile(path.join(out, "extensions/alpha/index.html"), "utf8"), /<video\b/);
+});
+
+test("unknown manifest pages fail before changing existing build output", async (t) => {
+  const { root, source, out } = await fixture(t);
+  await write(root, "video/manifest.json", JSON.stringify({ origin: "https://pi-extensions-media.mattriley.tools", videos: { "/missing/": {} } }));
+  await write(out, "keep.txt", "previous build");
+  await assert.rejects(build({ root, source, out }), { message: "unknown video page: /missing/" });
+  assert.equal(await readFile(path.join(out, "keep.txt"), "utf8"), "previous build");
+});
+
+test("caption changes get a new URL hash and malformed VTT fails before output changes", async (t) => {
+  const { root, source, out } = await fixture(t);
+  const manifest = JSON.parse(await readFile(new URL("../video/manifest.json", import.meta.url), "utf8"));
+  await write(root, "video/manifest.json", JSON.stringify(manifest));
+  const file = manifest.videos["/"].captions;
+  await write(root, file, "WEBVTT\n\nFirst narration.\n");
+  await build({ root, source, out });
+  const before = await readFile(path.join(out, "index.html"), "utf8");
+  await write(root, file, "WEBVTT\n\nChanged narration.\n");
+  await build({ root, source, out });
+  const after = await readFile(path.join(out, "index.html"), "utf8");
+  const track = (html) => html.match(/<track[^>]*src="([^"]+)"/)[1];
+  assert.notEqual(track(before), track(after));
+  assert.equal(await readFile(path.join(out, "assets/video/intro.en.vtt"), "utf8"), "WEBVTT\n\nChanged narration.\n");
+  await write(root, file, "not WebVTT");
+  await assert.rejects(build({ root, source, out }), { message: `${file}: captions must start with WEBVTT` });
+  assert.equal(await readFile(path.join(out, "index.html"), "utf8"), after);
+});
+
+test("the offline SEO audit accepts remote media and checks local posters and captions", async (t) => {
+  const { root, source, out } = await fixture(t);
+  await build({ source, out });
+  const guard = path.join(root, "offline.mjs");
+  await writeFile(guard, 'globalThis.fetch = () => { throw new Error("SEO audit must stay offline"); };\n');
+  const run = promisify(execFile);
+  const args = ["--import", guard, new URL("../.pi/verify/seo.mjs", import.meta.url).pathname, out];
+  const result = await run(process.execPath, args);
+  assert.match(result.stdout, /Passed: robots, social metadata/);
+  const file = path.join(out, "index.html");
+  const landing = await readFile(file, "utf8");
+  const missingPoster = landing.replace(/poster="[^"]+"/, 'poster="/missing-poster.jpg"');
+  assert.notEqual(missingPoster, landing);
+  await writeFile(file, missingPoster);
+  await assert.rejects(run(process.execPath, args), (error) => {
+    assert.match(error.stderr, /missing-poster\.jpg/);
+    return true;
+  });
+  await writeFile(file, landing);
+  await rm(path.join(out, "assets/video/intro.en.vtt"));
+  await assert.rejects(run(process.execPath, args), (error) => {
+    assert.match(error.stderr, /intro\.en\.vtt/);
+    return true;
+  });
+});
+
 test("every packages/ directory becomes a page and a landing card", async (t) => {
   const { source, out } = await fixture(t);
   await build({ source, out });
@@ -72,25 +170,29 @@ test("every packages/ directory becomes a page and a landing card", async (t) =>
   assert.ok(existsSync(path.join(out, "prompts/thing/index.html")));
 });
 
-test("the landing page embeds the intro video and the build ships every file it names", async (t) => {
+test("the landing page embeds R2 intro assets and ships only same-origin captions", async (t) => {
   const { source, out } = await fixture(t);
   await build({ source, out });
   const landing = await readFile(path.join(out, "index.html"), "utf8");
   const video = landing.match(/<video\b[^>]*>[\s\S]*?<\/video>/)?.[0];
   assert.ok(video, "the landing has a <video>");
   assert.match(video, /\bcontrols\b/);
-  assert.match(video, /preload="none"/, "nothing downloads until the viewer presses play");
-  assert.match(video, /<source src="\/assets\/video\/intro\.webm\?v=[0-9a-f]{10}" type="video\/webm" \/>/);
-  assert.match(video, /<source src="\/assets\/video\/intro\.mp4\?v=[0-9a-f]{10}" type="video\/mp4" \/>/);
+  assert.match(video, /preload="none"/, "video bytes are not preloaded");
+  const manifest = JSON.parse(await readFile(new URL("../video/manifest.json", import.meta.url), "utf8"));
+  const intro = manifest.videos["/"];
+  for (const [field, type] of [["webm", "video/webm"], ["mp4", "video/mp4"]]) {
+    assert.ok(video.includes(`<source src="${manifest.origin}/${intro[field].key}" type="${type}"`));
+  }
+  assert.ok(video.includes(`poster="${manifest.origin}/${intro.poster.key}"`));
   assert.match(video, /<track kind="captions" src="\/assets\/video\/intro\.en\.vtt\?v=[0-9a-f]{10}" srclang="en"/);
   assert.ok(
     landing.indexOf('id="intro"') < landing.indexOf('id="extensions"'),
     "the video comes before the extension cards",
   );
-  // The SEO audit resolves src and href, but not poster, so check every named file here.
-  const named = [...video.matchAll(/\b(?:src|poster)="\/(assets\/video\/[^"?]+)\?v=/g)].map((m) => m[1]);
-  assert.equal(named.length, 4);
-  for (const file of named) assert.ok(existsSync(path.join(out, file)), `${file} is built`);
+  assert.equal([...video.matchAll(/https:\/\/pi-extensions-media\.mattriley\.tools\//g)].length, 3);
+  for (const file of ["intro.webm", "intro.mp4", "intro-poster.jpg"]) {
+    assert.equal(existsSync(path.join(out, "assets/video", file)), false, `${file} is served by R2`);
+  }
   const captions = await readFile(path.join(out, "assets/video/intro.en.vtt"), "utf8");
   assert.match(captions, /^WEBVTT\n/);
 });
@@ -108,7 +210,7 @@ test("pages link assets by content hash, so a deploy never pairs new HTML with a
     assert.match(html, new RegExp(`<link rel="stylesheet" href="/assets/style\\.css\\?v=${css}" />`), page);
   }
   const landing = await readFile(path.join(out, "index.html"), "utf8");
-  for (const file of ["intro.webm", "intro.mp4", "intro-poster.jpg", "intro.en.vtt"]) {
+  for (const file of ["intro.en.vtt"]) {
     const v = await version(`video/${file}`);
     assert.ok(landing.includes(`/assets/video/${file}?v=${v}`), `${file} is linked by its hash`);
   }
