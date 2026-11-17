@@ -38,7 +38,8 @@ for (const [name, width, height] of [["desktop", 1440, 900], ["mobile", 375, 812
   test(`Bombadil explores the built site at ${name} size`, async () => {
     const output = path.join(root, "test-results/bombadil", name);
     try {
-      await run(process.execPath, [cli, "browser", "test", name === "mobile" ? `${origin}/prompts/upgrade/` : origin, specification,
+      const startPage = name === "mobile" ? "/prompts/upgrade/" : "/extensions/affected/";
+      await run(process.execPath, [cli, "browser", "test", origin + startPage, specification,
         "--headless", "--exit-on-violation", "--time-limit", "30s",
         "--width", String(width), "--height", String(height),
         "--output-path", output, "--output-path-overwrite",
