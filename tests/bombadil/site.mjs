@@ -10,6 +10,16 @@ export const accessiblePage = always(() => page.current.structure.length === 0);
 export const validAnchors = always(() => page.current.anchors.length === 0);
 export const noHorizontalOverflow = always(() => page.current.fitsViewport);
 
+const wrappedHeadingMarkers = extract(({ document, window }) =>
+  [...document.querySelectorAll(".content h2[id], .content h3[id]")]
+    .filter((heading) => {
+      const marker = window.getComputedStyle(heading, "::before");
+      return marker.display !== "none" && parseFloat(marker.height) > parseFloat(marker.lineHeight) + 1;
+    })
+    .map((heading) => heading.id),
+);
+export const headingMarkersFitOnOneLine = always(() => wrappedHeadingMarkers.current.length === 0);
+
 // Follow real anchors, but keep exploration on HTML pages; Markdown and llms.txt
 // are agent-facing downloads, not pages with the site's navigation and landmarks.
 const followLink = registerCustomAction("followSiteLink", async (document, window, href) => {

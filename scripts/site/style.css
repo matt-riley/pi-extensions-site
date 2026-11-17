@@ -351,6 +351,7 @@ svg {
   position: absolute;
   right: 100%;
   margin-right: 0.6rem;
+  white-space: nowrap;
   color: var(--accent);
   font: 500 0.75em/1.7 var(--mono);
   letter-spacing: -0.08em;
