@@ -87,8 +87,9 @@ access to the content repository. Use macOS on Apple Silicon or Linux (x64/arm64
 the platforms supported by the pinned Bombadil release, and a supported Node version
 from `package.json`.
 
-Each run explores for 30 seconds at 1440×900 and 375×812. Desktop starts on the
-homepage; mobile starts on `/prompts/upgrade/` to cover its long title deterministically. The specification in
+Desktop (1440×900) and mobile (375×812) explore concurrently for 30 seconds each.
+Desktop starts on `/extensions/affected/`, and mobile starts on `/prompts/upgrade/`
+to cover its long title deterministically. The specification in
 `tests/bombadil/site.mjs` checks titles, the main landmark and heading, canonical URLs,
 skip links, unique IDs, same-page anchors and horizontal overflow, plus Bombadil's
 HTTP, console, exception and promise-rejection defaults. Actions follow real HTML

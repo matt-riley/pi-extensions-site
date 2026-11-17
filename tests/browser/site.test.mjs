@@ -35,7 +35,7 @@ afterAll(async () => {
 });
 
 for (const [name, width, height] of [["desktop", 1440, 900], ["mobile", 375, 812]]) {
-  test(`Bombadil explores the built site at ${name} size`, async () => {
+  test.concurrent(`Bombadil explores the built site at ${name} size`, async () => {
     const output = path.join(root, "test-results/bombadil", name);
     try {
       const startPage = name === "mobile" ? "/prompts/upgrade/" : "/extensions/affected/";
