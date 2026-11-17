@@ -80,6 +80,66 @@
         "key": "videos/extensions/until/fb10d5db14.jpg",
         "bytes": 45209
       }
+    },
+    "/extensions/done-gate/": {
+      "captions": "video/captions/extensions/done-gate.en.vtt",
+      "seconds": 34.466667,
+      "recorded": {
+        "content_sha": "5ad29da99d9e7fb42b4c37c609ecfe69d9424930",
+        "package_tree": "003c740a70605af543af8e78c1d21838c5f6e83c"
+      },
+      "webm": {
+        "key": "videos/extensions/done-gate/372a9f6e47.webm",
+        "bytes": 1345214
+      },
+      "mp4": {
+        "key": "videos/extensions/done-gate/4a68bc375b.mp4",
+        "bytes": 1174089
+      },
+      "poster": {
+        "key": "videos/extensions/done-gate/ef37605576.jpg",
+        "bytes": 53816
+      }
+    },
+    "/extensions/jobs/": {
+      "captions": "video/captions/extensions/jobs.en.vtt",
+      "seconds": 30.233333,
+      "recorded": {
+        "content_sha": "5ad29da99d9e7fb42b4c37c609ecfe69d9424930",
+        "package_tree": "5d0b4b97ceef7a39e5db1321b3cd1522813237e9"
+      },
+      "webm": {
+        "key": "videos/extensions/jobs/6a3b57e5c2.webm",
+        "bytes": 937515
+      },
+      "mp4": {
+        "key": "videos/extensions/jobs/4016038cee.mp4",
+        "bytes": 868956
+      },
+      "poster": {
+        "key": "videos/extensions/jobs/ebc80ee5fb.jpg",
+        "bytes": 50014
+      }
+    },
+    "/extensions/workbench/": {
+      "captions": "video/captions/extensions/workbench.en.vtt",
+      "seconds": 32.433333,
+      "recorded": {
+        "content_sha": "5ad29da99d9e7fb42b4c37c609ecfe69d9424930",
+        "package_tree": "d3582f04c17c36aa61e7530563c66d53d489a398"
+      },
+      "webm": {
+        "key": "videos/extensions/workbench/288024166b.webm",
+        "bytes": 875195
+      },
+      "mp4": {
+        "key": "videos/extensions/workbench/db559cd9b6.mp4",
+        "bytes": 887608
+      },
+      "poster": {
+        "key": "videos/extensions/workbench/be796f7386.jpg",
+        "bytes": 52710
+      }
     }
   }
 }

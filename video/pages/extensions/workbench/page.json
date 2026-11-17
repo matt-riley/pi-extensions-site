@@ -1,0 +1,52 @@
+{
+  "title": "Workbench",
+  "line": "Find a file and bring its path into your prompt.",
+  "terminalTitle": "pi — greet",
+  "beats": [
+    {
+      "cue": "open",
+      "caption": "You open the file picker with `/files`."
+    },
+    {
+      "cue": "filter",
+      "caption": "Workbench filters the project as you type.",
+      "label": "pi-workbench",
+      "highlight": {
+        "x": 56,
+        "y": 309,
+        "w": 620,
+        "h": 264
+      },
+      "hold": 3.15
+    },
+    {
+      "cue": "insert",
+      "caption": "Enter puts the selected path in your draft."
+    },
+    {
+      "cue": "draft",
+      "caption": "You can keep writing before you send."
+    }
+  ],
+  "takeaway": {
+    "title": "Find the file in pi",
+    "line": "Use the picker to put a project path in your next prompt."
+  },
+  "narration": {
+    "title": {
+      "text": "When you know the file you want but can’t remember its path, you can look it up from the prompt.",
+      "generation_id": "5e4Hoc3HxfSr3W9uy7Ua",
+      "request_id": "pxMlZld6gfR8WpeLpstW"
+    },
+    "scene": {
+      "text": "Open slash files and type part of the name. Only matching files stay in the list. Choose one and its path lands in your draft. You can finish writing your question before you send it.",
+      "generation_id": "aiUYOyz4TmOtYtOebFZM",
+      "request_id": "tnlwtX9GUBEeJ86XWMfm"
+    },
+    "takeaway": {
+      "text": "The same workbench has pickers for commands and Git changes. You can open them without leaving the terminal.",
+      "generation_id": "nX0XbCSkVCF6cE6O7QpC",
+      "request_id": "RcI1YMAN7z1lmoxVtc4u"
+    }
+  }
+}
