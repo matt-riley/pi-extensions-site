@@ -20,4 +20,4 @@ Sleep 3200ms
 # cue: red
 Sleep 3500ms
 # cue: green
-Sleep 6s
+Sleep 9s

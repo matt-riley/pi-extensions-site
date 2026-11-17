@@ -3,21 +3,64 @@
   "line": "Make a passing check the finish line.",
   "terminalTitle": "pi — greet",
   "beats": [
-    { "cue": "prompt", "caption": "You give the agent a finish line it can run." },
-    { "cue": "kickoff", "caption": "Until runs `npm test` when the agent finishes.", "label": "pi-until" },
-    { "cue": "red", "caption": "The first test run fails. The agent gets another turn.", "highlight": { "x": 28, "y": 52, "w": 1100, "h": 180 }, "chip": { "text": "run 1  npm test", "ok": false } },
-    { "cue": "green", "caption": "The second test run passes.", "highlight": { "x": 926, "y": 56, "w": 636, "h": 84 }, "chip": { "text": "run 2  npm test", "ok": true } }
+    {
+      "cue": "prompt",
+      "caption": "You give the agent a finish line it can run."
+    },
+    {
+      "cue": "kickoff",
+      "caption": "Until runs `npm test` when the agent finishes.",
+      "label": "pi-until"
+    },
+    {
+      "cue": "red",
+      "caption": "The first test run fails. The agent gets another turn.",
+      "highlight": {
+        "x": 28,
+        "y": 52,
+        "w": 1100,
+        "h": 180
+      },
+      "chip": {
+        "text": "run 1  npm test",
+        "ok": false
+      }
+    },
+    {
+      "cue": "green",
+      "caption": "The second test run passes.",
+      "highlight": {
+        "x": 926,
+        "y": 56,
+        "w": 636,
+        "h": 84
+      },
+      "chip": {
+        "text": "run 2  npm test",
+        "ok": true
+      }
+    }
   ],
   "takeaway": {
     "title": "Give it a check",
     "line": "Choose a command that can tell when the work is done."
   },
   "narration": {
-    "title": { "text": "When the agent says it's finished, you can make a test run part of that decision." },
+    "title": {
+      "text": "When the agent says it's finished, you can make a test run part of that decision.",
+      "generation_id": "dIqnTjKp1WlDIkYHMD86",
+      "request_id": "lVFbHES38tvhv1Dhs4LI"
+    },
     "scene": {
       "text": "You ask it to build the plan and run npm test before finishing. Its first attempt fails the test. Until gives it another turn with the failure. The agent fixes the code, and the second run passes.",
-      "spoken": "You ask it to build the plan and run N P M test before finishing. Its first attempt fails the test. Until gives it another turn with the failure. The agent fixes the code, and the second run passes."
+      "spoken": "You ask it to build the plan and run N P M test before finishing. Its first attempt fails the test. Until gives it another turn with the failure. The agent fixes the code, and the second run passes.",
+      "generation_id": "K0zc5zwGNOQJuIrwJDHs",
+      "request_id": "tK3NWvPJtzjOKIacVxYy"
     },
-    "takeaway": { "text": "Pick the check that covers the behaviour you need. Until gives the agent a way to prove it locally." }
+    "takeaway": {
+      "text": "Pick the check that covers the behaviour you need. Until gives the agent a way to prove it locally.",
+      "generation_id": "YdFd1t7urr2TDDuI7qKr",
+      "request_id": "wI07WFwVS5onY6c1Wku9"
+    }
   }
 }

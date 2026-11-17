@@ -30,6 +30,10 @@ async function fixture(t) {
   const root = await mkdtemp(path.join(tmpdir(), "pi-extensions-site-"));
   t.onTestFinished(() => rm(root, { recursive: true, force: true }));
   const source = path.join(root, "content");
+  const { origin, videos } = JSON.parse(await readFile(new URL("../video/manifest.json", import.meta.url), "utf8"));
+  const intro = videos["/"];
+  await write(root, "video/manifest.json", JSON.stringify({ origin, videos: { "/": intro } }));
+  await write(root, intro.captions, await readFile(new URL(`../${intro.captions}`, import.meta.url)));
   await write(source, "package.json", JSON.stringify({ name: "fixture", description: "Fixture collection." }));
   await write(source, "README.md", "# Fixture collection\n\nStart with [alpha](./packages/alpha/README.md).\n");
   await write(source, "packages/alpha/package.json", JSON.stringify({ name: "fixture-alpha", description: "Alpha does things." }));
@@ -139,8 +143,7 @@ test("unknown manifest pages fail before changing existing build output", async 
 
 test("caption changes get a new URL hash and malformed VTT fails before output changes", async (t) => {
   const { root, source, out } = await fixture(t);
-  const manifest = JSON.parse(await readFile(new URL("../video/manifest.json", import.meta.url), "utf8"));
-  await write(root, "video/manifest.json", JSON.stringify(manifest));
+  const manifest = JSON.parse(await readFile(path.join(root, "video/manifest.json"), "utf8"));
   const file = manifest.videos["/"].captions;
   await write(root, file, "WEBVTT\n\nFirst narration.\n");
   await build({ root, source, out });
@@ -158,7 +161,7 @@ test("caption changes get a new URL hash and malformed VTT fails before output c
 
 test("the offline SEO audit accepts remote media and checks local posters and captions", async (t) => {
   const { root, source, out } = await fixture(t);
-  await build({ source, out });
+  await build({ root, source, out });
   const guard = path.join(root, "offline.mjs");
   await writeFile(guard, 'globalThis.fetch = () => { throw new Error("SEO audit must stay offline"); };\n');
   const run = promisify(execFile);
@@ -183,8 +186,8 @@ test("the offline SEO audit accepts remote media and checks local posters and ca
 });
 
 test("every packages/ directory becomes a page and a landing card", async (t) => {
-  const { source, out } = await fixture(t);
-  await build({ source, out });
+  const { root, source, out } = await fixture(t);
+  await build({ root, source, out });
   const landing = await readFile(path.join(out, "index.html"), "utf8");
   assert.match(landing, /<title>pi-extensions<\/title>/);
   const alphaTitle = await readFile(path.join(out, "extensions/alpha/index.html"), "utf8");
@@ -196,7 +199,7 @@ test("every packages/ directory becomes a page and a landing card", async (t) =>
 
   await write(source, "packages/gamma/package.json", JSON.stringify({ name: "fixture-gamma", description: "Gamma is new." }));
   await write(source, "packages/gamma/README.md", "# fixture-gamma\n\nGamma extension.\n");
-  await build({ source, out });
+  await build({ root, source, out });
 
   const rebuilt = await readFile(path.join(out, "index.html"), "utf8");
   assert.equal(rebuilt.match(/class="card"/g)?.length, 3);
@@ -209,8 +212,8 @@ test("every packages/ directory becomes a page and a landing card", async (t) =>
 });
 
 test("the landing page embeds R2 intro assets and ships only same-origin captions", async (t) => {
-  const { source, out } = await fixture(t);
-  await build({ source, out });
+  const { root, source, out } = await fixture(t);
+  await build({ root, source, out });
   const landing = await readFile(path.join(out, "index.html"), "utf8");
   const video = landing.match(/<video\b[^>]*>[\s\S]*?<\/video>/)?.[0];
   assert.ok(video, "the landing has a <video>");
@@ -238,8 +241,8 @@ test("the landing page embeds R2 intro assets and ships only same-origin caption
 test("pages link assets by content hash, so a deploy never pairs new HTML with a cached stylesheet", async (t) => {
   // Assets are cached for hours under a fixed name. Unversioned, the intro video shipped as new
   // HTML against a browser's cached style.css and rendered at its full 1920px width.
-  const { source, out } = await fixture(t);
-  await build({ source, out });
+  const { root, source, out } = await fixture(t);
+  await build({ root, source, out });
   const version = async (file) =>
     createHash("sha256").update(await readFile(path.join(out, "assets", file))).digest("hex").slice(0, 10);
   const css = await version("style.css");
@@ -255,11 +258,11 @@ test("pages link assets by content hash, so a deploy never pairs new HTML with a
 });
 
 test("HTML pages share absolute canonical and social metadata, but errors are noindex", async (t) => {
-  const { source, out } = await fixture(t);
+  const { root, source, out } = await fixture(t);
   await write(source, "packages/alpha/package.json", JSON.stringify({
     name: "fixture-alpha", description: 'Use "alpha" & <beta> safely.',
   }));
-  const result = await build({ source, out });
+  const result = await build({ root, source, out });
   const origin = "https://pi-extensions.mattriley.tools";
   for (const url of ["/", ...result.urls]) {
     const html = await readFile(path.join(out, url.slice(1), "index.html"), "utf8");
@@ -286,9 +289,9 @@ test("HTML pages share absolute canonical and social metadata, but errors are no
 });
 
 test("crawl artifacts cover only canonical HTML pages and consolidate Markdown copies", async (t) => {
-  const { source, out } = await fixture(t);
+  const { root, source, out } = await fixture(t);
   await write(source, "docs/a&b.md", "# A and B\n\nA guide with an ampersand in its URL.\n");
-  await build({ source, out });
+  await build({ root, source, out });
   const expected = [
     "/", "/getting-started/", "/extensions/alpha/", "/extensions/beta/",
     "/prompts/thing/", "/skills/z-skill/", "/guides/a&b/", "/guides/guide/",
@@ -308,18 +311,18 @@ test("crawl artifacts cover only canonical HTML pages and consolidate Markdown c
     assert.ok(blocks.includes(`${pathname}index.md\n  Link: <${url}>; rel="canonical"`), url);
   }
   assert.doesNotMatch(headers, /Disallow|noindex/);
-  await build({ source, out });
+  await build({ root, source, out });
   assert.equal(await readFile(path.join(out, "sitemap.xml"), "utf8"), sitemap, "rebuild is deterministic");
   assert.equal(await readFile(path.join(out, "_headers"), "utf8"), headers);
   await rm(path.join(source, "packages/beta"), { recursive: true });
-  await build({ source, out });
+  await build({ root, source, out });
   assert.doesNotMatch(await readFile(path.join(out, "sitemap.xml"), "utf8"), /extensions\/beta/);
   assert.doesNotMatch(await readFile(path.join(out, "_headers"), "utf8"), /extensions\/beta/);
   assert.ok(!existsSync(path.join(out, "extensions/beta/index.html")));
 });
 
 test("guide descriptions use the first prose paragraph, not headings or operational frontmatter", async (t) => {
-  const { source, out } = await fixture(t);
+  const { root, source, out } = await fixture(t);
   await write(source, "docs/guide.md", [
     "---", "description: Not the public introduction", "---",
     "# Guide page", "", "## Overview", "",
@@ -330,7 +333,7 @@ test("guide descriptions use the first prose paragraph, not headings or operatio
     "A later paragraph should not enter the description.", "",
   ].join("\n"));
   await write(source, "docs/empty.md", "# Empty guide\n\n## No prose yet\n");
-  await build({ source, out });
+  await build({ root, source, out });
   const guide = await readFile(path.join(out, "guides/guide/index.html"), "utf8");
   assert.match(guide, /<meta name="description" content="Learn safe setup with \/plan &amp; Pi\. Keep control of &quot;changes&quot;\." \/>/);
   assert.doesNotMatch(guide, /<meta[^>]+content="[^"]*(?:Not the public|not a summary|A quotation|A later)/);
@@ -347,8 +350,8 @@ test("guide descriptions use the first prose paragraph, not headings or operatio
 });
 
 test("relative links become site pages or content repository URLs", async (t) => {
-  const { source, out } = await fixture(t);
-  const result = await build({ source, out });
+  const { root, source, out } = await fixture(t);
+  const result = await build({ root, source, out });
   assert.equal(result.urls.length, 6);
 
   const alpha = await readFile(path.join(out, "extensions/alpha/index.html"), "utf8");
@@ -365,8 +368,8 @@ test("relative links become site pages or content repository URLs", async (t) =>
 });
 
 test("every internal link points at a generated file", async (t) => {
-  const { source, out } = await fixture(t);
-  await build({ source, out });
+  const { root, source, out } = await fixture(t);
+  await build({ root, source, out });
   let checked = 0;
   for (const file of await htmlFiles(out)) {
     const html = await readFile(file, "utf8");
@@ -383,8 +386,8 @@ test("every internal link points at a generated file", async (t) => {
 });
 
 test("frontmatter is stripped, tables render and prompts get a heading", async (t) => {
-  const { source, out } = await fixture(t);
-  await build({ source, out });
+  const { root, source, out } = await fixture(t);
+  await build({ root, source, out });
   const alpha = await readFile(path.join(out, "extensions/alpha/index.html"), "utf8");
   assert.match(alpha, /<table>/);
 
@@ -398,7 +401,7 @@ test("frontmatter is stripped, tables render and prompts get a heading", async (
 });
 
 test("section links have unique heading targets, including formatted headings", async (t) => {
-  const { source, out } = await fixture(t);
+  const { root, source, out } = await fixture(t);
   await write(source, "packages/alpha/README.md", ALPHA + `
 ## Install
 
@@ -410,7 +413,7 @@ test("section links have unique heading targets, including formatted headings", 
 
 ## Install-1
 `);
-  await build({ source, out });
+  await build({ root, source, out });
   const alpha = await readFile(path.join(out, "extensions/alpha/index.html"), "utf8");
   assert.match(alpha, /href="#install"/);
   assert.match(alpha, /<h2 id="install">Install<\/h2>/);
@@ -423,8 +426,8 @@ test("section links have unique heading targets, including formatted headings", 
 });
 
 test("homepage shows the full install steps before reload", async (t) => {
-  const { source, out } = await fixture(t);
-  await build({ source, out });
+  const { root, source, out } = await fixture(t);
+  await build({ root, source, out });
   const landing = await readFile(path.join(out, "index.html"), "utf8");
   assert.match(landing, /git clone https:\/\/github.com\/matt-riley\/pi-extensions/);
   assert.match(landing, /cd ~\/\.pi\/agent\/extensions\/pi-extensions &amp;&amp; npm install/);
@@ -432,9 +435,9 @@ test("homepage shows the full install steps before reload", async (t) => {
 });
 
 test("a package directory without a README fails the build", async (t) => {
-  const { source, out } = await fixture(t);
+  const { root, source, out } = await fixture(t);
   await write(source, "packages/delta/package.json", JSON.stringify({ name: "fixture-delta", description: "Delta." }));
-  await assert.rejects(build({ source, out }), /packages\/delta\/README\.md/);
+  await assert.rejects(build({ root, source, out }), /packages\/delta\/README\.md/);
 });
 
 test("an unpinned content.lock fails before any clone", async (t) => {
@@ -444,8 +447,8 @@ test("an unpinned content.lock fails before any clone", async (t) => {
 });
 
 test("every page has a Markdown copy listed in llms.txt", async (t) => {
-  const { source, out } = await fixture(t);
-  const result = await build({ source, out });
+  const { root, source, out } = await fixture(t);
+  const result = await build({ root, source, out });
   const llms = await readFile(path.join(out, "llms.txt"), "utf8");
   assert.match(llms, /^# pi-extensions\n\n> Fixture collection\.\n/);
   assert.match(llms, /^## Extensions$/m);
@@ -459,8 +462,8 @@ test("every page has a Markdown copy listed in llms.txt", async (t) => {
 });
 
 test("Markdown copies drop frontmatter and point links at other copies", async (t) => {
-  const { source, out } = await fixture(t);
-  await build({ source, out });
+  const { root, source, out } = await fixture(t);
+  await build({ root, source, out });
   const alpha = await readFile(path.join(out, "extensions/alpha/index.md"), "utf8");
   assert.match(alpha, /\[beta\]\(\/extensions\/beta\/index\.md\)/);
   assert.match(alpha, /\(https:\/\/github\.com\/matt-riley\/pi-extensions\/tree\/[^)]+\/packages\/alpha\/playbooks\)/);
@@ -472,9 +475,9 @@ test("Markdown copies drop frontmatter and point links at other copies", async (
 });
 
 test("page titles remain unique when README.md uses # pi-extensions and llms.txt labels Getting started", async (t) => {
-  const { source, out } = await fixture(t);
+  const { root, source, out } = await fixture(t);
   await write(source, "README.md", "# pi-extensions\n\nStart with [alpha](./packages/alpha/README.md).\n");
-  const result = await build({ source, out });
+  const result = await build({ root, source, out });
   const titles = [];
   for (const url of ["/", ...result.urls]) {
     const html = await readFile(path.join(out, url.slice(1), "index.html"), "utf8");
@@ -491,9 +494,9 @@ test("page titles remain unique when README.md uses # pi-extensions and llms.txt
 });
 
 test("landing page, 404, sidebar accessibility, and alternate markdown metadata are complete", async (t) => {
-  const { source, out } = await fixture(t);
+  const { root, source, out } = await fixture(t);
   await write(source, ".agents/skills/no-desc/SKILL.md", "---\nname: no-desc\n---\n\n# Fallback Skill Title\n\nBody.\n");
-  const result = await build({ source, out });
+  const result = await build({ root, source, out });
 
   const landing = await readFile(path.join(out, "index.html"), "utf8");
   for (const id of ["extensions", "prompts", "skills", "guides"]) {
@@ -535,7 +538,7 @@ test("landing page, 404, sidebar accessibility, and alternate markdown metadata 
 });
 
 test("relative images rewrite to raw.githubusercontent.com, directory links to pages, and unsafe schemes are blocked", async (t) => {
-  const { source, out } = await fixture(t);
+  const { root, source, out } = await fixture(t);
   await write(
     source,
     "packages/alpha/README.md",
@@ -546,7 +549,7 @@ test("relative images rewrite to raw.githubusercontent.com, directory links to p
       "Unsafe: [js](javascript:alert(1)), [vb](vbscript:msgbox(1)), [data](data:text/html,<script>).",
     ].join("\n"),
   );
-  await build({ source, out });
+  await build({ root, source, out });
 
   const alphaHtml = await readFile(path.join(out, "extensions/alpha/index.html"), "utf8");
   assert.match(
@@ -580,7 +583,7 @@ test("relative images rewrite to raw.githubusercontent.com, directory links to p
 });
 
 test("heading slugs preserve code-span placeholders, strip inline HTML, and avoid template ID collisions", async (t) => {
-  const { source, out } = await fixture(t);
+  const { root, source, out } = await fixture(t);
   await write(
     source,
     "packages/alpha/README.md",
@@ -597,7 +600,7 @@ test("heading slugs preserve code-span placeholders, strip inline HTML, and avoi
       "## extensions",
     ].join("\n"),
   );
-  await build({ source, out });
+  await build({ root, source, out });
   const alpha = await readFile(path.join(out, "extensions/alpha/index.html"), "utf8");
   assert.match(alpha, /<h2 id="run-skill-search-task">Run <code>\/skill-search &lt;task&gt;<\/code><\/h2>/);
   assert.match(alpha, /<h2 id="hello-world">Hello <span>world<\/span><\/h2>/);
@@ -610,14 +613,14 @@ test("heading slugs preserve code-span placeholders, strip inline HTML, and avoi
 });
 
 test("every internal #anchor link resolves to an actual id in the target HTML", async (t) => {
-  const { source, out } = await fixture(t);
+  const { root, source, out } = await fixture(t);
   await write(
     source,
     "packages/alpha/README.md",
     ALPHA + "\n## Install\n\n[Local](#install) and [Beta usage](../beta/README.md#usage).\n",
   );
   await write(source, "packages/beta/README.md", "# fixture-beta\n\n## Usage\n\nUse it.\n");
-  await build({ source, out });
+  await build({ root, source, out });
 
   for (const file of await htmlFiles(out)) {
     const html = await readFile(file, "utf8");
@@ -638,7 +641,7 @@ test("every internal #anchor link resolves to an actual id in the target HTML", 
 });
 
 test("guideDescription decodes &#39; and caps paragraphs exceeding 160 characters", async (t) => {
-  const { source, out } = await fixture(t);
+  const { root, source, out } = await fixture(t);
   const firstSentence = "First concise sentence about extensions.";
   const longSecond = "Second sentence pushes the paragraph well beyond the one hundred and sixty character meta description budget to force sentence selection.";
   await write(source, "docs/sentence.md", `# Sentence guide\n\nIt&#39;s great. ${firstSentence} ${longSecond}\n`);
@@ -646,7 +649,7 @@ test("guideDescription decodes &#39; and caps paragraphs exceeding 160 character
   const unbroken = Array.from({ length: 30 }, (_, i) => `word${i}`).join(" ");
   await write(source, "docs/truncated.md", `# Truncated guide\n\n${unbroken}\n`);
 
-  await build({ source, out });
+  await build({ root, source, out });
 
   const sentenceHtml = await readFile(path.join(out, "guides/sentence/index.html"), "utf8");
   assert.match(sentenceHtml, /<meta name="description" content="It's great\." \/>/);
