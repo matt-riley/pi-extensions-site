@@ -1,0 +1,53 @@
+{
+  "title": "Router",
+  "line": "Pin a playbook for the kind of work you want to do.",
+  "terminalTitle": "pi — greet",
+  "beats": [
+    {
+      "cue": "pin",
+      "caption": "You pin the bug-fix playbook for this task."
+    },
+    {
+      "cue": "submit",
+      "caption": "You ask about the incorrect CLI output."
+    },
+    {
+      "cue": "playbook",
+      "caption": "Router adds the playbook to the model’s instructions.",
+      "label": "pi-router"
+    },
+    {
+      "cue": "repro",
+      "caption": "The agent runs the command that reproduces it."
+    }
+  ],
+  "aside": {
+    "from": "playbook",
+    "to": "repro",
+    "kicker": "pi-router",
+    "title": "What the model sees",
+    "note": "Opening excerpt captured from the system prompt."
+  },
+  "takeaway": {
+    "title": "Set a playbook for the task",
+    "line": "A pinned playbook gives the agent a way to start."
+  },
+  "notes": "This take uses the manual playbook pin. Automatic model routing stays off.",
+  "narration": {
+    "title": {
+      "text": "For a bug report, it can help to give the agent a repeatable way to start.",
+      "generation_id": "d6dlJiBU6wFWawj9HCAI",
+      "request_id": "SRjrDwic6PsFXBoWSp1R"
+    },
+    "scene": {
+      "text": "You pin Router’s bug fix playbook. The first steps are now part of the model’s instructions. The agent runs the failing example to get a clear reproduction before it investigates.",
+      "generation_id": "NlagH0ie2y2wg19DBSKn",
+      "request_id": "jc4E6QLbe0eLhDmZi4DM"
+    },
+    "takeaway": {
+      "text": "A manual pin holds for the session until you change it. It gives the work a starting point you chose.",
+      "generation_id": "pcARuEwLNb3LGg4P05N0",
+      "request_id": "DlzGdNU3IYwtKs1C1U4S"
+    }
+  }
+}

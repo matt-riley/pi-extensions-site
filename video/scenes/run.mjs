@@ -91,6 +91,11 @@ const server = createServer(async (req, res) => {
     res.end(JSON.stringify({ model: payload.model, answers: scene.systemOne }));
     return;
   }
+  if (req.url === "/v1/rewrite/chat/completions" && scene.rewrite) {
+    res.writeHead(200, { "content-type": "application/json" });
+    res.end(JSON.stringify({ choices: [{ message: { content: scene.rewrite } }] }));
+    return;
+  }
   const last = payload.messages?.at(-1);
   if (process.env.PI_VIDEO_LOG) {
     const text = typeof last?.content === "string" ? last.content : JSON.stringify(last?.content);
@@ -232,6 +237,10 @@ const pi = spawn(
         TYPESAFE_API_KEY: "fixture",
         TYPESAFE_BASE_URL: `http://127.0.0.1:${server.address().port}/v1`,
         TYPESAFE_MODEL: "jev-1.13.0",
+      }),
+      ...(scene.rewrite && {
+        OPENAI_API_KEY: "fixture",
+        PI_PROMPT_COACH_BASE_URL: `http://127.0.0.1:${server.address().port}/v1/rewrite`,
       }),
     },
   },

@@ -1,0 +1,48 @@
+{
+  "title": "Prompt coach",
+  "line": "Turn a rough request into a draft you can edit.",
+  "terminalTitle": "pi — greet",
+  "beats": [
+    {
+      "cue": "command",
+      "caption": "You give Prompt coach a rough request."
+    },
+    {
+      "cue": "draft",
+      "caption": "The checked rewrite lands in the input box.",
+      "label": "pi-prompt-coach",
+      "highlight": {
+        "x": 20,
+        "y": 753,
+        "w": 1535,
+        "h": 74
+      }
+    },
+    {
+      "cue": "ready",
+      "caption": "You decide whether to edit it or send it."
+    }
+  ],
+  "takeaway": {
+    "title": "Read it before you send it",
+    "line": "Use the draft to make the task clearer."
+  },
+  "notes": "The local rewrite and intent-judgment responses are scripted. The real extension checks the intent score and places the draft.",
+  "narration": {
+    "title": {
+      "text": "A rough prompt often names the problem and leaves out what a useful check would look like.",
+      "generation_id": "AxRTuLn9KYzHA4UfhAzD",
+      "request_id": "fH3QckmZmtpb6BvjFGK0"
+    },
+    "scene": {
+      "text": "Here a scripted rewrite adds a command to reproduce the bug. Prompt coach checks whether the intent survived and puts the rewritten request in your editor.",
+      "generation_id": "OZ7HQ6LbtLvcAjwuwdeq",
+      "request_id": "0H12kE8Jkt6K97y23UD0"
+    },
+    "takeaway": {
+      "text": "Read the draft before sending it. You can keep the details that help and change anything that strays from the task.",
+      "generation_id": "EmEJuGZu2JOUylA6rfV4",
+      "request_id": "iuE7D7fBvGQVMsUjtDU1"
+    }
+  }
+}

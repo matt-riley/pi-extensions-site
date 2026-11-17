@@ -460,6 +460,86 @@
         "key": "videos/extensions/architecture/ae02b83882.jpg",
         "bytes": 54776
       }
+    },
+    "/extensions/agents/": {
+      "captions": "video/captions/extensions/agents.en.vtt",
+      "seconds": 35.233333,
+      "recorded": {
+        "content_sha": "5ad29da99d9e7fb42b4c37c609ecfe69d9424930",
+        "package_tree": "8db431046e3346f01e2262fc9792cb01ea6ec2cb"
+      },
+      "webm": {
+        "key": "videos/extensions/agents/3b2ec2e8ee.webm",
+        "bytes": 1446569
+      },
+      "mp4": {
+        "key": "videos/extensions/agents/e1bdfa38ff.mp4",
+        "bytes": 1367844
+      },
+      "poster": {
+        "key": "videos/extensions/agents/f505626dd3.jpg",
+        "bytes": 53261
+      }
+    },
+    "/extensions/router/": {
+      "captions": "video/captions/extensions/router.en.vtt",
+      "seconds": 33.8,
+      "recorded": {
+        "content_sha": "5ad29da99d9e7fb42b4c37c609ecfe69d9424930",
+        "package_tree": "8c89a2c1033154a5a59b22ba35362686da9f7937"
+      },
+      "webm": {
+        "key": "videos/extensions/router/50edda84c6.webm",
+        "bytes": 1262113
+      },
+      "mp4": {
+        "key": "videos/extensions/router/f0992b3219.mp4",
+        "bytes": 1153094
+      },
+      "poster": {
+        "key": "videos/extensions/router/c97f26749a.jpg",
+        "bytes": 50532
+      }
+    },
+    "/extensions/typesafe/": {
+      "captions": "video/captions/extensions/typesafe.en.vtt",
+      "seconds": 34,
+      "recorded": {
+        "content_sha": "5ad29da99d9e7fb42b4c37c609ecfe69d9424930",
+        "package_tree": "7ad9e71b9d079094f7e48c7c035970334deac5ef"
+      },
+      "webm": {
+        "key": "videos/extensions/typesafe/99f5ba3024.webm",
+        "bytes": 1080856
+      },
+      "mp4": {
+        "key": "videos/extensions/typesafe/65f375353f.mp4",
+        "bytes": 1028131
+      },
+      "poster": {
+        "key": "videos/extensions/typesafe/584761e20e.jpg",
+        "bytes": 54921
+      }
+    },
+    "/extensions/prompt-coach/": {
+      "captions": "video/captions/extensions/prompt-coach.en.vtt",
+      "seconds": 33.666667,
+      "recorded": {
+        "content_sha": "5ad29da99d9e7fb42b4c37c609ecfe69d9424930",
+        "package_tree": "1b59d04f5fbfa2120f63d808e1269bf51123fbea"
+      },
+      "webm": {
+        "key": "videos/extensions/prompt-coach/afa24a7a0a.webm",
+        "bytes": 944112
+      },
+      "mp4": {
+        "key": "videos/extensions/prompt-coach/f1f3416c09.mp4",
+        "bytes": 890027
+      },
+      "poster": {
+        "key": "videos/extensions/prompt-coach/8a25c894f9.jpg",
+        "bytes": 54186
+      }
     }
   }
 }

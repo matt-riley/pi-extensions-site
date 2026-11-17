@@ -1,0 +1,48 @@
+{
+  "title": "TypeSafe",
+  "line": "Ask for separate structured judgments in one request.",
+  "terminalTitle": "pi — greet",
+  "beats": [
+    {
+      "cue": "prompt",
+      "caption": "You give the agent two questions about a check."
+    },
+    {
+      "cue": "answers",
+      "caption": "TypeSafe returns a probability for each question.",
+      "label": "pi-typesafe",
+      "highlight": {
+        "x": 24,
+        "y": 200,
+        "w": 765,
+        "h": 90
+      }
+    },
+    {
+      "cue": "next",
+      "caption": "The agent identifies what still needs a real check."
+    }
+  ],
+  "takeaway": {
+    "title": "Use the judgment to choose a check",
+    "line": "Keep each question separate and verify the behavior directly."
+  },
+  "notes": "The local fixture returns scripted probabilities through the normal TypeSafe client.",
+  "narration": {
+    "title": {
+      "text": "A structured judgment can help you decide what to verify when the question has more than one part.",
+      "generation_id": "90f34wV3JXoiHJxtNECk",
+      "request_id": "kstcF8DWnwj6r0rsxReO"
+    },
+    "scene": {
+      "text": "In this scripted example, TypeSafe returns two probabilities from one request. The proposed command passes the flag, and a separate question considers the default greeting.",
+      "generation_id": "gbkl1EHv3HrgaaVGhdDl",
+      "request_id": "qlTQFDzCR0GbLBH6zahM"
+    },
+    "takeaway": {
+      "text": "Use those answers to decide what to test next. Run both cases before you rely on the result.",
+      "generation_id": "L7xfUxU1Al31J9AlRRAz",
+      "request_id": "RwDOYHzIcbETrefQgm47"
+    }
+  }
+}

@@ -1,0 +1,25 @@
+WEBVTT
+
+1
+00:00:00.400 --> 00:00:05.840
+A rough prompt often names the problem and
+leaves out what a useful check would look like.
+
+2
+00:00:07.400 --> 00:00:11.140
+Here a scripted rewrite adds a
+command to reproduce the bug.
+
+3
+00:00:11.140 --> 00:00:17.000
+Prompt coach checks whether the intent survived
+and puts the rewritten request in your editor.
+
+4
+00:00:26.033 --> 00:00:28.071
+Read the draft before sending it.
+
+5
+00:00:28.071 --> 00:00:33.073
+You can keep the details that help and
+change anything that strays from the task.
