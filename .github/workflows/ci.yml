@@ -21,17 +21,43 @@ jobs:
     uses: matt-riley/matt-riley-ci/.github/workflows/aube-ci.yml@002d16c00bc74ebced433f0a16187c9b13451194 # v4.2.0
     with:
       node-version: "26"
-      # No lint script in this repo. `test` is `npm test`; `build` runs
+      # No lint script in this repo. Unit tests use Vitest; `build` runs
       # `npm run build` from the content commit pinned in content.lock (and
       # audits dist/ with .pi/verify/seo.mjs), matching Cloudflare Pages.
       run-lint: false
       run-test: true
+      test-script: test:unit
       run-build: true
+
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    concurrency:
+      group: ${{ github.workflow }}:${{ github.ref }}:browser
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: "26"
+          cache: npm
+      - run: npm ci
+      - run: npm run test:browser
+      - name: Upload Bombadil traces and screenshots
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: bombadil-output
+          path: test-results/bombadil/
+          if-no-files-found: warn
+          retention-days: 7
 
   deploy:
     permissions:
       contents: read
-    needs: [check]
+    needs: [check, browser]
     if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
     uses: matt-riley/matt-riley-ci/.github/workflows/request-app-deploy.yml@002d16c00bc74ebced433f0a16187c9b13451194 # v4.2.0
     with:

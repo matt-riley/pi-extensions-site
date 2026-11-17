@@ -44,8 +44,10 @@
   }
 }
 
+/* Rapid history navigation can reject native transition promises without an
+   application handler. Keep document navigation immediate on this static site. */
 @view-transition {
-  navigation: auto;
+  navigation: none;
 }
 
 * {
@@ -302,6 +304,7 @@ svg {
 
 .content {
   min-width: 0;
+  overflow-wrap: anywhere;
   max-width: 50rem;
 }
 
