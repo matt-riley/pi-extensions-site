@@ -12,7 +12,7 @@ const seconds = (value) => {
   if (!match) throw new Error(`cannot read duration ${value}`);
   return Number(match[1]) * { ms: 0.001, s: 1, m: 60 }[match[2] ?? "s"];
 };
-const KEYS = /^(Enter|Down|Up|Left|Right|Tab|Space|Backspace|Escape|Ctrl\+\w)(?:\s+(\d+))?$/;
+const KEYS = /^(Enter|Down|Up|Left|Right|PageUp|PageDown|Tab|Space|Backspace|Escape|Ctrl\+\w)(?:\s+(\d+))?$/;
 
 export async function writeCues(file) {
   let output;

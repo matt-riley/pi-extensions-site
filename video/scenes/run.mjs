@@ -161,7 +161,12 @@ await writeFile(
 );
 await writeFile(
   path.join(agent, "settings.json"),
-  JSON.stringify({ quietStartup: true, retry: { enabled: false }, compaction: { enabled: false } }),
+  JSON.stringify({
+    quietStartup: true,
+    retry: { enabled: false },
+    compaction: { enabled: false },
+    ...(scene.toolSearch && { defaultTools: ["+tool_search"] }),
+  }),
 );
 
 const pi = spawn(
@@ -170,6 +175,7 @@ const pi = spawn(
     "--offline",
     "--no-extensions",
     "--no-mcp",
+    ...(scene.toolSearch ? ["-e", "builtin:tool-search"] : []),
     "--no-context-files",
     // prompts: true loads the collection's prompt templates and skills (/review, /ship, …).
     ...(scene.prompts

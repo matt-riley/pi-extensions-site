@@ -1,0 +1,48 @@
+{
+  "title": "Quality",
+  "line": "Start cleanup with a measured scan of the repository.",
+  "terminalTitle": "pi — greet",
+  "beats": [
+    {
+      "cue": "prompt",
+      "caption": "You ask for a cleanup pass with `/quality`."
+    },
+    {
+      "cue": "scan",
+      "caption": "Quality runs the installed analyzers.",
+      "label": "pi-quality",
+      "highlight": {
+        "x": 27,
+        "y": 173,
+        "w": 700,
+        "h": 38
+      }
+    },
+    {
+      "cue": "follow",
+      "caption": "The agent starts checking what the findings mean."
+    }
+  ],
+  "takeaway": {
+    "title": "Start from a finding",
+    "line": "Check what uses the code before you decide on a cleanup."
+  },
+  "notes": "Scroll to the measured report before returning to the agent's reply. The unused-file findings still need a caller check.",
+  "narration": {
+    "title": {
+      "text": "A cleanup pass is easier to review when you can see the measurements it started from.",
+      "generation_id": "tmMwGMbwVTSZtrl8o8Tk",
+      "request_id": "JzbQ30YpBabl93gm86Xt"
+    },
+    "scene": {
+      "text": "Slash quality runs the installed CRAP and Deadwood analyzers on this project. It hands the report to the agent, which starts checking whether a suspected unused export has callers.",
+      "generation_id": "g9QRTERx21F1ZOzSa1vW",
+      "request_id": "hYKHqzBmKflI40IzGnjO"
+    },
+    "takeaway": {
+      "text": "Investigate the finding before editing. A passing check after the change gives you evidence that the behavior still works.",
+      "generation_id": "4taHNBJrtJADpudUdNyo",
+      "request_id": "PsTMDPqSiCzXSn6SC943"
+    }
+  }
+}

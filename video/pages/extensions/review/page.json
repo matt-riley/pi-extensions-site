@@ -1,0 +1,47 @@
+{
+  "title": "Review",
+  "line": "Find callers outside the diff before you ship.",
+  "terminalTitle": "pi — greet",
+  "beats": [
+    {
+      "cue": "prompt",
+      "caption": "You ask what else the changed helper can affect."
+    },
+    {
+      "cue": "callers",
+      "caption": "Review lists the callers outside your diff.",
+      "label": "pi-review",
+      "highlight": {
+        "x": 25,
+        "y": 361,
+        "w": 815,
+        "h": 111
+      }
+    },
+    {
+      "cue": "next",
+      "caption": "The agent names a check for the CLI caller."
+    }
+  ],
+  "takeaway": {
+    "title": "Check an outside caller",
+    "line": "Use the review report to decide what else to exercise."
+  },
+  "narration": {
+    "title": {
+      "text": "A small edit to a shared helper can reach code that never appears in your diff.",
+      "generation_id": "O81bGgQk0nj4LzvKsxQn",
+      "request_id": "lZNFeGH9zYTj4fj7nBbD"
+    },
+    "scene": {
+      "text": "The agent uses Review to look up callers of the changed greeting helper. The command line entry point is on the list, so that’s a path you can check before shipping.",
+      "generation_id": "rxgmr3H0a4y8nZilJ4Q7",
+      "request_id": "hAqLvAjdOpUrTI5v57HY"
+    },
+    "takeaway": {
+      "text": "Use the callers as a guide. Pick a check that actually goes through the part of the program they use.",
+      "generation_id": "8nFjK0RpvD76JWcdDjO1",
+      "request_id": "aRpTbJDe6UMNKvolM5YN"
+    }
+  }
+}
