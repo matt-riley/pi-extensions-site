@@ -3,6 +3,7 @@
 // the content repository, pinned by content.lock.
 
 import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { existsSync, statSync } from "node:fs";
 import { mkdir, mkdtemp, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -259,9 +260,21 @@ export async function build({ source, root = SITE_ROOT, out } = {}) {
     : await cloneContent(root);
   try {
     const model = await discover(content.dir);
+    // Assets copied into dist/assets/, read up front so every page links them by content hash.
+    const assets = new Map([
+      ["style.css", await readFile(new URL("./site/style.css", import.meta.url))],
+      ...(await Promise.all(
+        Object.values(INTRO_VIDEO).map(async (file) => [
+          `video/${file}`,
+          await readFile(path.join(root, "video/web", file)),
+        ]),
+      )),
+    ]);
+    const hash = (data) => createHash("sha256").update(data).digest("hex").slice(0, 10);
     const built = {
       contentSha: content.sha,
       siteSha: commitOf(root) ?? process.env.GITHUB_SHA ?? "local",
+      assets: Object.fromEntries([...assets].map(([file, data]) => [file, hash(data)])),
     };
     await rm(out, { recursive: true, force: true });
     const write = async (file, data) => {
@@ -301,11 +314,8 @@ export async function build({ source, root = SITE_ROOT, out } = {}) {
     await write("_headers", renderMarkdownHeaders(model));
     await write("index.html", renderLanding({ model, build: built }));
     await write("404.html", renderNotFound({ model, build: built }));
-    await write("assets/style.css", await readFile(new URL("./site/style.css", import.meta.url)));
-    // The landing page's intro video, encoded in video/ and committed to video/web/.
-    for (const file of Object.values(INTRO_VIDEO)) {
-      await write(`assets/video/${file}`, await readFile(path.join(root, "video/web", file)));
-    }
+    // The stylesheet, and the landing page's intro video (encoded in video/, committed to video/web/).
+    for (const [file, data] of assets) await write(`assets/${file}`, data);
     return { ...built, urls: model.pages.map((page) => page.url) };
   } finally {
     if (!source) await rm(content.dir, { recursive: true, force: true });
