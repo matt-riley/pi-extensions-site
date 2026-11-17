@@ -11,6 +11,7 @@
     "render": "remotion render src/index.ts Intro out/intro.mp4",
     "captions": "node scripts/captions.ts",
     "publish": "node scripts/publish.mjs",
+    "prune": "node scripts/prune.mjs",
     "page": "node scripts/page.mjs",
     "narrate": "node scripts/narrate.mjs"
   },
