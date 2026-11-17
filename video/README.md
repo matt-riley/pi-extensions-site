@@ -2,8 +2,8 @@
 
 Terminal clips are recorded with [VHS](https://github.com/charmbracelet/vhs) against a real pi and
 a scripted local model, then composed with [Remotion](https://www.remotion.dev) into title cards,
-captions and highlights. Only `web/` is part of the site: the build copies it to
-`dist/assets/video/` for the homepage's intro section.
+captions and highlights. Encodes and posters are published to R2; the site build
+copies only caption files from `captions/` to `dist/assets/video/`.
 
 ```sh
 npm install
@@ -11,7 +11,7 @@ npm run tapes     # record tapes/*.tape into public/clips/, then write each clip
 npm run studio    # preview and scrub the composition in the browser
 npm run vo        # measure public/vo/*.mp3 after replacing a narration take
 npm run render    # write out/intro.mp4
-npm run web       # captions, WebM/MP4 encodes and poster into web/, which the site ships
+npm run publish -- / # encode and upload the intro, then update manifest.json and captions/
 ```
 
 Needs `vhs`, `pi`, `ffmpeg` and `ffprobe` on `PATH`. `PI_EXTENSIONS_DIR` names the pi-extensions checkout to
@@ -101,13 +101,22 @@ only after checking that the publisher has stopped. Commit the manifest and
 captions, never the cached encodes. Root `npm test` covers the publisher with local
 fixtures and mocked process/HTTP boundaries; live uploads are run manually.
 
-### Current homepage encodes
+### Site embeds
 
-The intro is uploaded to R2, but the site still embeds the committed `web/`
-encodes until the build integration and migration land.
+The site build embeds a plain `<video>` for each page in `manifest.json`, with
+R2 WebM/MP4 sources and poster, `preload="none"`, and native controls. Extension
+videos follow the page H1; the intro stays in the homepage's existing section.
+Pages absent from the manifest have no player. The scripted-model note stays
+under the intro.
 
-`npm run web` writes `web/intro.en.vtt` (the narration as captions, timed from `src/timeline.ts`,
-the same timeline the render uses), `web/intro.webm` and `web/intro.mp4` (each under Cloudflare
-Pages' 25 MiB file limit) and `web/intro-poster.jpg`. Commit `web/` after a re-render: the site
-build reads it, and `scripts/build-site.test.mjs` fails if a file the landing names is missing.
-The captions track is off by default, since the video already burns in its own captions.
+Captions stay on the site origin and use content-hashed `?v=` URLs. Run
+`npm run captions` to regenerate `captions/intro.en.vtt` from the narration timeline;
+the publisher generates the same captions in staging. Captions are off by default
+because the intro also burns them into the video.
+
+After every publish, run `npm run verify:media` **from the repo root** to check
+public HTTPS responses, content types, sizes, immutable headers and seeking.
+This manual check needs network access; normal builds and SEO audits check local
+links and caption files without contacting R2. Commit the manifest and VTT files,
+never the encodes or poster. The old `npm run web` command is replaced by the
+explicit upload command `npm run publish -- /`.

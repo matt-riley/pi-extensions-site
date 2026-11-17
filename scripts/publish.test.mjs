@@ -131,7 +131,7 @@ test("intro captions can be generated into a staging path without changing homep
   const dir = await mkdtemp(path.join(tmpdir(), "pi-intro-captions-"));
   t.onTestFinished(() => rm(dir, { recursive: true, force: true }));
   const destination = path.join(dir, "captions/intro.en.vtt");
-  const homepage = new URL("../video/web/intro.en.vtt", import.meta.url);
+  const homepage = new URL("../video/captions/intro.en.vtt", import.meta.url);
   const before = await readFile(homepage);
   await run(process.execPath, [new URL("../video/scripts/captions.ts", import.meta.url).pathname, destination]);
   const text = await readFile(destination, "utf8");

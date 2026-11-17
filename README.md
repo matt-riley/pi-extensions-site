@@ -70,6 +70,7 @@ npm run build                  # writes dist/ from content.lock and runs SEO ver
 PI_EXTENSIONS_SOURCE=../pi-extensions npm run build  # or build + verify from a local checkout
 node .pi/verify/site-content.mjs ../pi-extensions     # preview + full-content link/anchor check (optional count)
 npm run verify:seo             # audit existing dist/ metadata, sitemap, headers and URLs
+npm run verify:media           # manual network check after publishing videos to R2
 node .pi/verify/content-scope.mjs ../pi-extensions 69455e7  # editorial scope against its base
 ```
 
@@ -100,6 +101,16 @@ Traces and screenshots go to ignored `test-results/bombadil/{desktop,mobile}/`.
 To inspect a failed run, use `npx bombadil browser inspect test-results/bombadil/mobile`.
 CI runs unit tests and browser tests separately, uploads browser output even on failure,
 and requires both before deployment.
+
+## Page videos
+
+`video/manifest.json` selects which pages embed videos. The build validates it
+against the discovered page URLs, embeds R2-hosted WebM/MP4 sources and posters,
+and copies same-origin captions with content-hashed URLs. Pages without an entry
+get no player. The homepage intro uses the same manifest; no video binaries are
+committed or copied to `dist/`. See [the video workflow](video/README.md) for
+recording and publishing. `npm run verify:media` is a manual network check;
+the ordinary build and SEO audit stay offline for media.
 
 ## Deployment
 
