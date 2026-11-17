@@ -5,7 +5,7 @@ import { existsSync } from "node:fs";
 import { chmod, mkdir, mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { test } from "vitest";
+import { test, vi } from "vitest";
 import { promisify } from "node:util";
 import { build, discover, rewriteHref } from "./build-site.mjs";
 import { renderLanding, renderPage } from "./site/template.mjs";
@@ -48,8 +48,7 @@ async function htmlFiles(dir) {
   return entries.filter((entry) => entry.endsWith(".html")).map((entry) => path.join(dir, entry));
 }
 
-test("manifest videos appear after the page h1 with remote sources and hashed same-origin captions", async (t) => {
-  const { root, source, out } = await fixture(t);
+async function writeAlphaVideo(root, recorded) {
   const captions = "WEBVTT\n\n00:00.000 --> 00:02.000\nAlpha in action.\n";
   await write(root, "video/captions/extensions/alpha.en.vtt", captions);
   await write(root, "video/manifest.json", JSON.stringify({
@@ -60,10 +59,16 @@ test("manifest videos appear after the page h1 with remote sources and hashed sa
         mp4: { key: "videos/extensions/alpha/abcdef0123.mp4", bytes: 120 },
         poster: { key: "videos/extensions/alpha/9876543210.jpg", bytes: 30 },
         captions: "video/captions/extensions/alpha.en.vtt", seconds: 3,
-        recorded: { content_sha: "a".repeat(40), package_tree: "b".repeat(40) },
+        recorded,
       },
     },
   }));
+  return captions;
+}
+
+test("manifest videos appear after the page h1 with remote sources and hashed same-origin captions", async (t) => {
+  const { root, source, out } = await fixture(t);
+  const captions = await writeAlphaVideo(root, { content_sha: "a".repeat(40), package_tree: "b".repeat(40) });
   await build({ root, source, out });
   const alpha = await readFile(path.join(out, "extensions/alpha/index.html"), "utf8");
   assert.equal([...alpha.matchAll(/<video\b/g)].length, 1);
@@ -79,6 +84,39 @@ test("manifest videos appear after the page h1 with remote sources and hashed sa
   const beta = await readFile(path.join(out, "extensions/beta/index.html"), "utf8");
   assert.doesNotMatch(beta, /<video\b/);
   assert.doesNotMatch(alpha, /<script\b|autoplay|crossorigin/i);
+});
+
+test("a mismatched package tree warns and the build still embeds the video", async (t) => {
+  const { root, source, out } = await fixture(t);
+  const run = promisify(execFile);
+  const git = (...args) => run("git", ["-C", source, ...args]);
+  const commit = (message) => git(
+    "-c", "commit.gpgsign=false", "-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid",
+    "commit", "--quiet", "-m", message,
+  );
+  await git("init", "--quiet");
+  await git("add", ".");
+  await commit("Record alpha");
+  const { stdout } = await git("rev-parse", "HEAD", "HEAD:packages/alpha");
+  const [contentSha, packageTree] = stdout.trim().split("\n");
+  await writeAlphaVideo(root, { content_sha: contentSha, package_tree: packageTree });
+
+  const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+  t.onTestFinished(() => warn.mockRestore());
+  await build({ root, source, out });
+  assert.deepEqual(warn.mock.calls, []);
+
+  await write(source, "packages/alpha/README.md", `${ALPHA}\nUpdated alpha behavior.\n`);
+  await git("add", "packages/alpha/README.md");
+  await commit("Update alpha");
+
+  await build({ root, source, out });
+  assert.deepEqual(warn.mock.calls, [
+    [`stale video: /extensions/alpha/ (packages/alpha changed since ${packageTree.slice(0, 7)})`],
+  ]);
+  const alpha = await readFile(path.join(out, "extensions/alpha/index.html"), "utf8");
+  assert.match(alpha, /Updated alpha behavior\./);
+  assert.match(alpha, /<video\b/);
 });
 
 test("an empty manifest omits the intro section and page video embeds", async (t) => {
