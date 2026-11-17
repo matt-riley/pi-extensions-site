@@ -33,6 +33,10 @@ await mkdir(path.join(agent, "bin"), { recursive: true });
 // Offline pi warns on screen when it cannot find fd; reuse the copy your own pi downloaded.
 const fd = path.join(homedir(), ".pi/agent/bin/fd");
 if (existsSync(fd)) await symlink(fd, path.join(agent, "bin/fd"));
+for (const [name, script] of Object.entries(scene.commands ?? {})) {
+  if (!/^[a-z][a-z0-9-]*$/.test(name)) throw new Error(`invalid fixture command: ${name}`);
+  await writeFile(path.join(agent, "bin", name), script, { mode: 0o755, flag: "wx" });
+}
 
 // Seed the workspace and commit it, so the scene starts from a clean tree.
 for (const [file, content] of Object.entries(scene.files)) {
@@ -81,7 +85,13 @@ const server = createServer(async (req, res) => {
   let body = "";
   req.setEncoding("utf8");
   for await (const chunk of req) body += chunk;
-  const last = JSON.parse(body).messages?.at(-1);
+  const payload = JSON.parse(body);
+  if (req.url === "/v1/systemone" && scene.systemOne) {
+    res.writeHead(200, { "content-type": "application/json" });
+    res.end(JSON.stringify({ model: payload.model, answers: scene.systemOne }));
+    return;
+  }
+  const last = payload.messages?.at(-1);
   if (process.env.PI_VIDEO_LOG) {
     const text = typeof last?.content === "string" ? last.content : JSON.stringify(last?.content);
     await appendFile(process.env.PI_VIDEO_LOG, `#${++request} ${last?.role}: ${text}\n`);
@@ -194,7 +204,9 @@ const pi = spawn(
     cwd,
     stdio: "inherit",
     env: {
-      PATH: process.env.PATH,
+      PATH: scene.commands
+        ? [path.join(agent, "bin"), process.env.PATH].join(path.delimiter)
+        : process.env.PATH,
       HOME: fixture,
       XDG_CONFIG_HOME: fixture,
       TERM: process.env.TERM ?? "xterm-256color",
@@ -209,6 +221,11 @@ const pi = spawn(
       NPM_CONFIG_LOGLEVEL: "warn",
       NPM_CONFIG_FUND: "false",
       ...scene.env,
+      ...(scene.systemOne && {
+        TYPESAFE_API_KEY: "fixture",
+        TYPESAFE_BASE_URL: `http://127.0.0.1:${server.address().port}/v1`,
+        TYPESAFE_MODEL: "jev-1.13.0",
+      }),
     },
   },
 );
