@@ -11,10 +11,15 @@ import { existsSync } from "node:fs";
 import { appendFile, mkdir, writeFile, rm, symlink } from "node:fs/promises";
 import { homedir } from "node:os";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 
-const name = process.argv[2];
-if (!name) throw new Error("usage: run.mjs <scene>");
-const scene = (await import(`./${name}.mjs`)).default;
+const input = process.argv[2];
+if (!input) throw new Error("usage: run.mjs <scene-name-or-page-folder>");
+const pageFolder = input.includes("/") ? path.resolve(input) : null;
+const name = pageFolder ? path.basename(pageFolder) : input;
+if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(name)) throw new Error(`invalid scene name: ${name}`);
+const sceneFile = pageFolder ? path.join(pageFolder, "scene.mjs") : path.join(import.meta.dirname, `${name}.mjs`);
+const scene = (await import(pathToFileURL(sceneFile).href)).default;
 
 const root =
   process.env.PI_EXTENSIONS_DIR ?? path.join(homedir(), ".pi/agent/extensions/pi-extensions");
@@ -45,7 +50,7 @@ const GIT_ENV = {
   GIT_COMMITTER_DATE: "2026-11-17T09:00:00Z",
 };
 const git = (...args) =>
-  execFileSync("git", ["-C", cwd, ...args], { stdio: "ignore", env: { ...process.env, ...GIT_ENV } });
+  execFileSync("git", ["-C", cwd, "-c", "commit.gpgsign=false", ...args], { stdio: "ignore", env: { ...process.env, ...GIT_ENV } });
 git("init", "-q", "-b", "main");
 git("add", ".");
 git("commit", "-qm", "init");
@@ -88,10 +93,12 @@ const server = createServer(async (req, res) => {
     const text = [last?.content].flat().map((part) => part?.text ?? part ?? "").join("");
     if (scene.capture.test(text)) {
       captured = true;
-      await writeFile(
-        path.resolve(import.meta.dirname, "../public/clips", `${name}.hidden.json`),
-        JSON.stringify({ role: last.role, text }, null, 2) + "\n",
-      );
+      const relative = pageFolder
+        ? `public/pages/${path.basename(path.dirname(pageFolder))}/${name}/scene.hidden.json`
+        : `public/clips/${name}.hidden.json`;
+      const output = path.resolve(import.meta.dirname, "..", relative);
+      await mkdir(path.dirname(output), { recursive: true });
+      await writeFile(output, JSON.stringify({ role: last.role, text }, null, 2) + "\n");
     }
   }
   const step = steps.shift() ?? { text: "…" };

@@ -1,3 +1,6 @@
 node_modules/
 out/
 .publish.lock/
+public/pages/
+public/vo/pages/
+vo/raw/pages/

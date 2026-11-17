@@ -1,0 +1,35 @@
+{
+  "title": "Guardrail",
+  "line": "Ask before a risky command runs.",
+  "terminalTitle": "pi — greet",
+  "beats": [
+    { "cue": "prompt", "caption": "You ask for a quick fix and a push." },
+    { "cue": "working", "caption": "The agent fixes the typo and runs the test." },
+    {
+      "cue": "dialog",
+      "caption": "Guardrail waits for your decision.",
+      "label": "pi-guardrail",
+      "highlight": { "x": 28, "y": 398, "w": 1112, "h": 352 }
+    },
+    { "cue": "deny", "caption": "You decline the force push." },
+    { "cue": "summary", "caption": "The fix stays in your local checkout." }
+  ],
+  "takeaway": {
+    "title": "You decide what runs",
+    "line": "Review the command before it changes the remote."
+  },
+  "narration": {
+    "title": {
+      "text": "A quick fix can end with a command you'd rather review yourself. Guardrail gives you that moment.",
+      "spoken": "A quick fix can end with a command you'd rather review yourself. Guardrail gives you that moment."
+    },
+    "scene": {
+      "text": "You ask for a small typo fix. The test passes, then the agent reaches for a force push. Guardrail brings that command to you for a decision. You turn it down, and the fix stays in your checkout.",
+      "spoken": "You ask for a small typo fix. The test passes, then the agent reaches for a force push. Guardrail brings that command to you for a decision. You turn it down, and the fix stays in your checkout."
+    },
+    "takeaway": {
+      "text": "Read the command while you can still decide. A local fix can wait until you've reviewed how it ships.",
+      "spoken": "Read the command while you can still decide. A local fix can wait until you've reviewed how it ships."
+    }
+  }
+}

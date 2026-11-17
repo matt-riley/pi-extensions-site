@@ -4,6 +4,17 @@ import { TitleCard } from "./Cards";
 import { GuardRing, LoopIntro } from "./Loop";
 import { Terminal } from "./Terminal";
 import { FPS } from "./theme";
+import { PageShort, pageShortMetadata } from "./PageShort";
+import { SCRIPTED_NOTE, type PageDefinition } from "./page-timeline";
+
+// Webpack discovers page definitions at bundle time, including folders added after the intro.
+declare const require: {
+  context: (dir: string, recursive: boolean, pattern: RegExp) => {
+    keys: () => string[];
+    (key: string): PageDefinition;
+  };
+};
+const definitions = require.context("../pages", true, /^\.\/(extensions|prompts|skills|guides)\/[a-z0-9-]+\/page\.json$/);
 import { SHOTS, TOTAL_FRAMES, VO_LEAD, sec, type Shot } from "./timeline.ts";
 
 function draw(shot: Shot): ReactNode {
@@ -16,7 +27,7 @@ function draw(shot: Shot): ReactNode {
           kicker="pi-extensions"
           title="Ship a feature without babysitting the agent"
           line="Five commands you type. A handful of guards you don't."
-          note="Recorded in real pi with the collection loaded. The model's replies are scripted, so every take is the same."
+          note={SCRIPTED_NOTE}
         />
       );
     case "loop":
@@ -53,13 +64,31 @@ function Intro() {
 
 export function Root() {
   return (
-    <Composition
-      id="Intro"
-      component={Intro}
-      durationInFrames={TOTAL_FRAMES}
-      fps={FPS}
-      width={1920}
-      height={1080}
-    />
+    <>
+      <Composition
+        id="Intro"
+        component={Intro}
+        durationInFrames={TOTAL_FRAMES}
+        fps={FPS}
+        width={1920}
+        height={1080}
+      />
+      {definitions.keys().sort().map((key) => {
+        const pagePath = key.slice(2, -"/page.json".length);
+        const id = `page-${pagePath.replace("/", "-")}`;
+        return (
+          <Composition
+            key={id}
+            id={id}
+            component={PageShort}
+            defaultProps={{ pagePath, page: definitions(key) }}
+            calculateMetadata={pageShortMetadata}
+            fps={FPS}
+            width={1920}
+            height={1080}
+          />
+        );
+      })}
+    </>
   );
 }

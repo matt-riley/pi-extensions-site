@@ -1,0 +1,23 @@
+{
+  "title": "Plan mode",
+  "line": "Review the plan before edits start.",
+  "terminalTitle": "pi — greet",
+  "beats": [
+    { "cue": "prompt", "caption": "You ask for a plan for the new flag." },
+    { "cue": "planning", "caption": "The agent can inspect files in read-only mode.", "label": "pi-plan-mode" },
+    { "cue": "question", "caption": "It asks how the flag should behave.", "highlight": { "x": 28, "y": 540, "w": 1544, "h": 250 }, "hold": 3 },
+    { "cue": "plan", "caption": "You review the work and its verification steps.", "highlight": { "x": 28, "y": 410, "w": 1544, "h": 320 }, "hold": 4.5 },
+    { "cue": "approve", "caption": "Your approval opens the way to edits." }
+  ],
+  "takeaway": {
+    "title": "Approve the approach",
+    "line": "Read the plan and check how the agent will verify it."
+  },
+  "narration": {
+    "title": { "text": "A small change can hide a decision about how it should behave. Plan mode gives you time to make it." },
+    "scene": {
+      "text": "You ask for a flag that prints a greeting in capitals. The agent can read the project first. When it comes to a choice about the flag, it asks you. Then you can read the planned changes and the checks it will run. Approve that plan, and the agent can start editing."
+    },
+    "takeaway": { "text": "Use the review to settle the behaviour and how you'll check it. Then let the agent make the change." }
+  }
+}

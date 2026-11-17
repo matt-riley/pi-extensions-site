@@ -30,6 +30,38 @@ load (default `~/.pi/agent/extensions/pi-extensions`).
 - `src/scenes.ts` attaches a caption, an optional extension label and an optional highlight
   rectangle (in the clip's 1600x900 pixels) to each cue.
 
+## Per-page shorts
+
+From `video/`, run `npm run page -- extensions/guardrail`. The command records the
+scene, writes cue times, and renders `out/extensions/guardrail.mp4`. Use a clean
+pi-extensions checkout at the commit in `../content.lock` when recording for the
+site. Set `PI_EXTENSIONS_DIR` to select that checkout.
+
+Each short lives under `pages/<kind>/<slug>/`:
+
+- `scene.mjs` exports the recording fixture. It can reuse an intro scene.
+- `scene.tape` sources `tapes/common/settings.tape`, runs
+  `node scenes/run.mjs pages/<kind>/<slug>`, and writes
+  `public/pages/<kind>/<slug>/scene.mp4`.
+- `page.json` supplies the title, subtitle, terminal title, cue-based beats,
+  takeaway card, and narration text and spoken wording by shot.
+
+Studio registers each definition as `page-<kind>-<slug>`. The title card
+previews before recording. Check highlight rectangles against the freshly
+recorded clip.
+
+Set `ELEVENLABS_API_KEY` in the environment to generate the missing Maya takes
+during a page render. `npm run narrate -- extensions/guardrail` runs that step on
+its own. It applies the shared pronunciation map when a shot omits `spoken`,
+records generation and request IDs, and caches each raw take by voice, model, and
+spoken line. FFmpeg normalises the takes to −16 LUFS. Per-page MP3s and their
+duration metadata live under `public/vo/pages/<kind>/<slug>/`.
+
+A narrated render writes a matching `.en.vtt` sidecar beside the MP4. Without a
+key or an existing narration cache, the page command makes a silent preview.
+Pass `--silent` to force a preview without using the API. Preview renders do
+not produce a publishing sidecar.
+
 ## Narration
 
 `vo/script.json` holds one line per shot, the ElevenLabs voice (Maya, a workspace voice), the
@@ -80,7 +112,7 @@ site's page discovery so it can reject page URLs absent from the pinned content.
 
 Intro captions come from the existing narration timeline. Extension masters need
 a `.en.vtt` sidecar beside the master, such as `out/extensions/guardrail.en.vtt`.
-The per-page render pipeline will produce these sidecars. Captions are staged and
+Narrated per-page renders produce these sidecars. Captions are staged and
 validated before uploads, then copied to `captions/<kind>/<slug>.en.vtt` (or
 `captions/intro.en.vtt`). Prompt, skill and guide publishing awaits the later
 format and source-provenance decision.

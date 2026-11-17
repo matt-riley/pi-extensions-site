@@ -10,9 +10,12 @@
     "studio": "remotion studio src/index.ts",
     "render": "remotion render src/index.ts Intro out/intro.mp4",
     "captions": "node scripts/captions.ts",
-    "publish": "node scripts/publish.mjs"
+    "publish": "node scripts/publish.mjs",
+    "page": "node scripts/page.mjs",
+    "narrate": "node scripts/narrate.mjs"
   },
   "dependencies": {
+    "@elevenlabs/elevenlabs-js": "2.79.0",
     "@remotion/cli": "4.0.540",
     "react": "19.2.0",
     "react-dom": "19.2.0",
