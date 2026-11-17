@@ -7,6 +7,10 @@ const SHA = /^[0-9a-f]{40}$/;
 const object = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
 const fail = (message) => { throw new Error(message); };
 
+export function captionAsset(entry) {
+  return entry.captions.replace(/^video\/captions\//, "video/");
+}
+
 export async function readVideoManifest(root = SITE_ROOT) {
   const file = path.join(root, "video/manifest.json");
   try {

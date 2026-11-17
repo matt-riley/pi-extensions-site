@@ -10,7 +10,6 @@
     "studio": "remotion studio src/index.ts",
     "render": "remotion render src/index.ts Intro out/intro.mp4",
     "captions": "node scripts/captions.ts",
-    "web": "node scripts/captions.ts && sh scripts/encode-web.sh",
     "publish": "node scripts/publish.mjs"
   },
   "dependencies": {

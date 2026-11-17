@@ -111,7 +111,7 @@ async function checkUrl(href, from) {
   }
 }
 for (const [file, { html }] of pages) {
-  for (const [, href] of html.matchAll(/\b(?:href|src)="([^"]+)"/g)) await checkUrl(decode(href), file);
+  for (const [, href] of html.matchAll(/\b(?:href|src|poster)="([^"]+)"/g)) await checkUrl(decode(href), file);
 }
 const markdownFiles = files.filter((file) => file.endsWith(".md"));
 assert.equal(markdownFiles.length, markdownCanonicals.size, "Markdown copy count");

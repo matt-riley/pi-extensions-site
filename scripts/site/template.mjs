@@ -1,4 +1,5 @@
 // HTML shell and fragments for the generated documentation site.
+import { captionAsset } from "./videos.mjs";
 
 const SITE_REPO = "matt-riley/pi-extensions-site";
 export const CONTENT_REPO = "matt-riley/pi-extensions";
@@ -99,7 +100,20 @@ export function assetUrl(file, build) {
   return `/assets/${file}${version ? `?v=${version}` : ""}`;
 }
 
-export function renderPage({ model, current, title, description, content, build, indexable = true }) {
+export function renderPageVideo(entry, origin, build, caption = "") {
+  if (!entry) return "";
+  const media = (asset) => escapeHtml(`${origin}/${asset.key}`);
+  return `<figure class="page-video">
+          <video controls preload="none" playsinline width="1920" height="1080" poster="${media(entry.poster)}">
+            <source src="${media(entry.webm)}" type="video/webm" />
+            <source src="${media(entry.mp4)}" type="video/mp4" />
+            <track kind="captions" src="${escapeHtml(assetUrl(captionAsset(entry), build))}" srclang="en" label="English (narration)" />
+          </video>${caption ? `\n          <figcaption>${caption}</figcaption>` : ""}
+        </figure>`;
+}
+
+export function renderPage({ model, current, title, description, content, build, video, mediaOrigin, indexable = true }) {
+  if (video) content = content.replace(/<\/h1>/, (heading) => `${heading}\n${renderPageVideo(video, mediaOrigin, build)}`);
   const pageTitle = current === "/" ? SITE_NAME : `${title} — ${SITE_NAME}`;
   const canonical = escapeHtml(SITE_URL + current);
   const alternate = indexable && current !== "/"
@@ -156,18 +170,7 @@ function cardName(label) {
   return label.startsWith("pi-") ? `<span>pi-</span>${escapeHtml(label.slice(3))}` : escapeHtml(label);
 }
 
-/**
- * The intro video's files, built by video/ (`npm run web` there) into video/web/ and copied by
- * the build to dist/assets/video/.
- */
-export const INTRO_VIDEO = {
-  webm: "intro.webm",
-  mp4: "intro.mp4",
-  poster: "intro-poster.jpg",
-  captions: "intro.en.vtt",
-};
-
-export function renderLanding({ model, build }) {
+export function renderLanding({ model, build, video, mediaOrigin }) {
   const cards = model.extensions
     .map(
       (extension) => `        <li class="card">
@@ -216,17 +219,10 @@ export function renderLanding({ model, build }) {
           </div>
         </div>
       </section>
-      <section class="index" id="intro">
+${video ? `      <section class="index" id="intro">
         <h2>See it in two minutes</h2>
-        <figure class="intro-video">
-          <video controls preload="none" playsinline width="1920" height="1080" poster="${assetUrl(`video/${INTRO_VIDEO.poster}`, build)}">
-            <source src="${assetUrl(`video/${INTRO_VIDEO.webm}`, build)}" type="video/webm" />
-            <source src="${assetUrl(`video/${INTRO_VIDEO.mp4}`, build)}" type="video/mp4" />
-            <track kind="captions" src="${assetUrl(`video/${INTRO_VIDEO.captions}`, build)}" srclang="en" label="English (narration)" />
-          </video>
-          <figcaption>One feature from <code>/plan</code> to <code>/ship</code>, recorded in real pi with the collection loaded. The model's replies are scripted, so every take is the same.</figcaption>
-        </figure>
-      </section>
+        ${renderPageVideo(video, mediaOrigin, build, "One feature from <code>/plan</code> to <code>/ship</code>, recorded in real pi with the collection loaded. The model's replies are scripted, so every take is the same.")}
+      </section>\n` : ""}
       <section class="index" id="extensions">
         <h2>Extensions <span class="tally">${model.extensions.length}</span></h2>
         <ul class="cards">

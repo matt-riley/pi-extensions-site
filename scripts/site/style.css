@@ -740,14 +740,14 @@ svg {
   letter-spacing: 0;
 }
 
-/* Landing: intro video */
+/* Manifest-backed page videos, including the homepage intro. */
 
-.intro-video {
+.page-video {
   max-width: 72rem;
   margin: 0;
 }
 
-.intro-video video {
+.page-video video {
   display: block;
   width: 100%;
   height: auto;
@@ -758,7 +758,7 @@ svg {
   box-shadow: var(--shadow);
 }
 
-.intro-video figcaption {
+.page-video figcaption {
   margin-top: 0.75rem;
   color: var(--muted);
   font-size: 0.9rem;
