@@ -163,3 +163,20 @@ This manual check needs network access; normal builds and SEO audits check local
 links and caption files without contacting R2. Commit the manifest and VTT files,
 never the encodes or poster. The old `npm run web` command is replaced by the
 explicit upload command `npm run publish -- /`.
+
+### Prune old R2 objects
+
+From `video/`, set `CLOUDFLARE_ACCOUNT_ID` to the site's Cloudflare account and
+run `npm run prune`. Use the existing Wrangler login or set
+`CLOUDFLARE_API_TOKEN` with Pages and R2 read access.
+
+The dry run lists eligible keys and byte sizes under `videos/`. It protects
+every key referenced by upstream `main`, the three most recent successful
+production revisions, and the active production revision if it differs after a
+rollback. Objects must be more than 30 days old. An unreadable manifest or
+incomplete deployment history stops the run.
+
+`npm run prune -- --apply` requires R2 write access. Run apply during a quiet
+window free of simultaneous publishes, merges, deployments, or rollbacks. The
+command rechecks each object and the protected revisions before deleting. GitHub,
+Pages, and R2 do not share an atomic transaction.
