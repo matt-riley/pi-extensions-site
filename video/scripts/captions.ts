@@ -3,7 +3,7 @@
 // respelled `spoken`). A long line is split at sentence and clause breaks into cues of at most two
 // 42-character rows, each given time in proportion to its length.
 //
-//   node scripts/captions.ts
+//   node scripts/captions.ts [output.vtt]
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import path from "node:path";
 import { narration } from "../src/timeline.ts";
@@ -72,7 +72,7 @@ for (const { vo, start, end } of narration()) {
   }
 }
 
-mkdirSync(path.join(root, "web"), { recursive: true });
-const file = path.join(root, "web/intro.en.vtt");
+const file = process.argv[2] ? path.resolve(process.argv[2]) : path.join(root, "web/intro.en.vtt");
+mkdirSync(path.dirname(file), { recursive: true });
 writeFileSync(file, "WEBVTT\n\n" + cues.map((cue, i) => `${i + 1}\n${cue}`).join("\n\n") + "\n");
 console.log(`${path.relative(root, file)}: ${cues.length} cues`);
