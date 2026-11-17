@@ -1,0 +1,35 @@
+WEBVTT
+
+1
+00:00:00.400 --> 00:00:06.115
+Arena helps when two plausible designs could
+take the code in different directions.
+
+2
+00:00:06.115 --> 00:00:08.800
+This run uses two scripted model seats.
+
+3
+00:00:09.800 --> 00:00:14.142
+Each seat builds its own greeting
+candidate in a separate worktree.
+
+4
+00:00:14.142 --> 00:00:17.382
+The scorecard favors the
+simpler parser as a base.
+
+5
+00:00:17.382 --> 00:00:21.400
+The other candidate contributes
+normalization for blank names.
+
+6
+00:00:35.667 --> 00:00:40.039
+The parent combines those two parts
+and runs both checks on the result.
+
+7
+00:00:40.039 --> 00:00:43.427
+You can see exactly what made
+it into the final change.

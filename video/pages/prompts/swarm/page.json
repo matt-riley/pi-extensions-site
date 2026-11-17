@@ -1,0 +1,51 @@
+{
+  "title": "/swarm",
+  "line": "See what a missing required result does to the verdict.",
+  "terminalTitle": "pi — greet",
+  "beats": [
+    {
+      "cue": "start",
+      "caption": "You split the greeting checks into two required slices."
+    },
+    {
+      "cue": "gap",
+      "caption": "The report shows the missing slice as INCOMPLETE."
+    },
+    {
+      "cue": "retry",
+      "caption": "Pi reruns the required shout slice."
+    },
+    {
+      "cue": "result",
+      "caption": "Both required results are present. The report passes."
+    }
+  ],
+  "takeaway": {
+    "title": "Check that every slice reported",
+    "line": "A complete pass includes a verdict from each required slice."
+  },
+  "narration": {
+    "title": {
+      "text": "Swarm splits a check into slices and gives each child the same rule for reporting its result. The children here use scripted replies.",
+      "generation_id": "RjgyUAoqh1gSGMK972LU",
+      "request_id": "Gzi9zKQuQcE2qtxavyge"
+    },
+    "scene": {
+      "text": "The first report has the plain greeting result, but the required shout slice has no result. Swarm marks the job incomplete. Pi runs that slice again and aggregates the returned verdict.",
+      "generation_id": "9cPR0mCYyu7UBPEVF5bW",
+      "request_id": "mOpjRlX0xJVC64a6aezk"
+    },
+    "takeaway": {
+      "text": "You can see which checks are accounted for. Once both required slices pass on the same commit, the overall report passes.",
+      "generation_id": "RCwFGqDwJwaCFDU5DEXO",
+      "request_id": "8oTi4cKBoZch0mjw1C0f"
+    }
+  },
+  "aside": {
+    "from": "gap",
+    "to": "retry",
+    "kicker": "swarm_report",
+    "title": "A required slice is missing",
+    "note": "Captured from the first report in Pi."
+  }
+}

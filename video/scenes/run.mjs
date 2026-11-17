@@ -81,11 +81,13 @@ if (scene.remote === "bare") {
 }
 // dirty: files written after the commit, the uncommitted work a later shot picks up.
 await seedFiles(scene.dirty ?? {});
+if (scene.staged?.length) git(["add", "--", ...scene.staged]);
 
 // The scripted model: each request takes the next step. A step is either a list of tool calls or
 // reply text, streamed in small chunks so it reads like a live model rather than appearing whole.
 const steps = [...scene.steps];
-const childSteps = [...(scene.child?.steps ?? [])];
+const children = [scene.child, ...(scene.children ?? [])].filter(Boolean)
+  .map(({ task, steps }) => ({ task, steps: [...steps] }));
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 // PI_VIDEO_LOG=<file> appends each request's last message, to prove a hidden guard (done-gate,
 // drift) really reached the model in a take rather than being staged by the script.
@@ -130,8 +132,9 @@ const server = createServer(async (req, res) => {
     }
   }
   const userMessage = payload.messages?.findLast((entry) => entry.role === "user");
-  const isChild = scene.child && JSON.stringify(userMessage?.content ?? "").includes(scene.child.task);
-  const step = (isChild ? childSteps : steps).shift() ?? { text: "…" };
+  const child = children.find(({ task }) => JSON.stringify(userMessage?.content ?? "").includes(task));
+  const next = (child?.steps ?? steps).shift();
+  const step = (typeof next === "function" ? next(payload.messages) : next) ?? { text: "…" };
   await sleep(step.think ?? 700);
   res.writeHead(200, { "content-type": "text/event-stream" });
   const send = (delta, finish_reason = null) =>

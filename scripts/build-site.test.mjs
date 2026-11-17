@@ -743,3 +743,65 @@ test("discover and build report clear errors for invalid inputs and clean up fai
   assert.ok(path.basename(ownedClone).startsWith("pi-extensions-content-"));
   assert.equal(existsSync(ownedClone), false, "failed cloneContent removes its own temp directory");
 });
+
+test("a shared short embeds on both pages and warns on both source changes", async (t) => {
+  const { root, source, out } = await fixture(t);
+  const run = promisify(execFile);
+  const git = (...args) => run("git", ["-C", source, ...args]);
+  const commit = async (message) => {
+    await git("add", ".");
+    await git("-c", "commit.gpgsign=false", "-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid",
+      "commit", "--quiet", "-m", message);
+  };
+  await git("init", "--quiet");
+  await commit("Record the shared video");
+  const prompt = "prompts/thing.md";
+  const skill = ".agents/skills/z-skill";
+  const { stdout } = await git("rev-parse", "HEAD", "HEAD:" + prompt, "HEAD:" + skill);
+  const [contentSha, promptBlob, skillTree] = stdout.trim().split("\n");
+  const captions = "video/captions/prompts/thing.en.vtt";
+  await write(root, captions, "WEBVTT\n\n00:00.000 --> 00:02.000\nDo the thing.\n");
+  const manifest = {
+    origin: "https://pi-extensions-media.mattriley.tools",
+    videos: {
+      "/prompts/thing/": {
+        webm: { key: "videos/prompts/thing/0123456789.webm", bytes: 100 },
+        mp4: { key: "videos/prompts/thing/abcdef0123.mp4", bytes: 120 },
+        poster: { key: "videos/prompts/thing/9876543210.jpg", bytes: 30 },
+        captions, seconds: 3,
+        recorded: { content_sha: contentSha, sources: { [prompt]: promptBlob, [skill]: skillTree } },
+      },
+      "/skills/z-skill/": { shared_from: "/prompts/thing/" },
+    },
+  };
+  await write(root, "video/manifest.json", JSON.stringify(manifest));
+  const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+  t.onTestFinished(() => warn.mockRestore());
+  await build({ root, source, out });
+  assert.deepEqual(warn.mock.calls, []);
+  const files = ["prompts/thing/index.html", "skills/z-skill/index.html"];
+  const players = await Promise.all(files.map(async (file) => (
+    (await readFile(path.join(out, file), "utf8")).match(/<video\b[\s\S]*?<\/video>/)?.[0]
+  )));
+  assert.match(players[0], /videos\/prompts\/thing\/abcdef0123\.mp4/);
+  assert.match(players[0], /\/assets\/video\/prompts\/thing\.en\.vtt\?v=/);
+  assert.equal(players[1], players[0]);
+
+  await write(source, skill + "/example.md", "A new skill example.\n");
+  await commit("Change the skill directory");
+  await build({ root, source, out });
+  assert.deepEqual(warn.mock.calls, Object.keys(manifest.videos).map((url) => [
+    "stale video: " + url + " (" + skill + " changed since " + skillTree.slice(0, 7) + ")",
+  ]));
+  warn.mockClear();
+
+  await write(source, prompt, "---\ndescription: Do the revised thing\n---\nRun the new example.\n");
+  await commit("Change the prompt");
+  await build({ root, source, out });
+  assert.equal(warn.mock.calls.filter(([message]) => message.includes(prompt + " changed since")).length, 2);
+  assert.match(await readFile(path.join(out, files[1]), "utf8"), /<video\b/);
+
+  delete manifest.videos["/prompts/thing/"];
+  await write(root, "video/manifest.json", JSON.stringify(manifest));
+  await assert.rejects(build({ root, source, out }), /shared_from must reference a canonical prompt video/);
+});

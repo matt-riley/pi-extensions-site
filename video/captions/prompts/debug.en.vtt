@@ -1,0 +1,34 @@
+WEBVTT
+
+1
+00:00:00.400 --> 00:00:03.051
+When a bug has several plausible causes,
+
+2
+00:00:03.051 --> 00:00:06.960
+start with one command that
+catches the symptom every time.
+
+3
+00:00:07.967 --> 00:00:11.846
+With slash debug, Pi exercises
+the actual greeting command.
+
+4
+00:00:11.846 --> 00:00:15.659
+It captures the bad output,
+checks how the name is chosen,
+
+5
+00:00:15.659 --> 00:00:19.407
+and makes the flag separate
+from the positional argument.
+
+6
+00:00:29.933 --> 00:00:32.386
+Then Pi runs the original check again.
+
+7
+00:00:32.386 --> 00:00:35.613
+You can keep that same test
+as a regression check.

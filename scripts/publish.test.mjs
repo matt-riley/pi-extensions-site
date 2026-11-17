@@ -18,13 +18,15 @@ async function fixture(t) {
   const root = await mkdtemp(path.join(tmpdir(), "pi-publish-"));
   t.onTestFinished(() => rm(root, { recursive: true, force: true }));
   const contentDir = path.join(root, "content");
-  for (const dir of ["docs", "prompts", ".agents/skills", "packages/guardrail"]) {
+  for (const dir of ["docs", "prompts", ".agents/skills/review", "packages/guardrail"]) {
     await mkdir(path.join(contentDir, dir), { recursive: true });
   }
   await writeFile(path.join(contentDir, "package.json"), JSON.stringify({ description: "Example" }));
   await writeFile(path.join(contentDir, "README.md"), "# Example\n\nA fixture.\n");
   await writeFile(path.join(contentDir, "packages/guardrail/README.md"), "# Guardrail\n\nBlocks commands.\n");
   await writeFile(path.join(contentDir, "packages/guardrail/package.json"), JSON.stringify({ name: "guardrail", description: "Blocks commands" }));
+  await writeFile(path.join(contentDir, "prompts/review.md"), "---\ndescription: Review the change\n---\nReview.\n");
+  await writeFile(path.join(contentDir, ".agents/skills/review/SKILL.md"), "---\nname: implementation-review\n---\n# Review\n");
   await run("git", ["init", "--quiet", contentDir]);
   await run("git", ["-C", contentDir, "add", "."]);
   await run("git", ["-C", contentDir, "-c", "commit.gpgsign=false", "-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", "commit", "--quiet", "-m", "fixture"]);
@@ -255,4 +257,26 @@ test("refuses a content checkout at a different commit before encoding", async (
   await assert.rejects(publishVideo({ ...f, pageUrl: "/extensions/guardrail/" }), { message: "content checkout must match content.lock" });
   assert.equal(f.uploads.length, 0);
   assert.equal(f.commands.filter(({ binary }) => binary === "ffmpeg").length, 0);
+});
+
+test("publishes a shared prompt and skill with one set of assets and preserves the alias on republish", async (t) => {
+  const f = await fixture(t);
+  const pageUrl = "/prompts/review/";
+  const shareWith = "/skills/implementation-review/";
+  await mkdir(path.join(f.root, "video/out/prompts"), { recursive: true });
+  await writeFile(path.join(f.root, "video/out/prompts/review.mp4"), "rendered review master");
+  await writeFile(path.join(f.root, "video/out/prompts/review.en.vtt"), vtt);
+  const result = await publishVideo({ ...f, pageUrl, shareWith });
+  const manifestFile = path.join(f.root, "video/manifest.json");
+  const manifest = JSON.parse(await readFile(manifestFile, "utf8"));
+  assert.deepEqual(manifest.videos[shareWith], { shared_from: pageUrl });
+  const { stdout } = await run("git", ["-C", f.contentDir, "rev-parse", "HEAD:prompts/review.md", "HEAD:.agents/skills/review"]);
+  const [promptBlob, skillTree] = stdout.trim().split("\n");
+  assert.deepEqual(result.entry.recorded, {
+    content_sha: f.sha, sources: { "prompts/review.md": promptBlob, ".agents/skills/review": skillTree },
+  });
+  assert.equal(f.uploads.length, 3);
+  assert.deepEqual(await publishVideo({ ...f, pageUrl }).then(({ skipped }) => skipped.length), 3);
+  assert.deepEqual(JSON.parse(await readFile(manifestFile, "utf8")), manifest);
+  await assert.rejects(publishVideo({ ...f, pageUrl: shareWith }), /publish the canonical video at \/prompts\/review\//);
 });

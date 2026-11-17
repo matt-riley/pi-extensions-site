@@ -20,7 +20,7 @@ import {
   renderPage,
 } from "./site/template.mjs";
 import { ROBOTS_TXT, renderMarkdownHeaders, renderSitemap } from "./site/seo.mjs";
-import { captionAsset, readVideoManifest, validateVideoManifest } from "./site/videos.mjs";
+import { captionAsset, readVideoManifest, validateVideoManifest, videoEntry, videoSourcePath } from "./site/videos.mjs";
 
 const CONTENT_URL = `https://github.com/${CONTENT_REPO}.git`;
 const SITE_ROOT = fileURLToPath(new URL("..", import.meta.url));
@@ -262,20 +262,33 @@ export async function build({ source, root = SITE_ROOT, out } = {}) {
     const model = await discover(content.dir);
     const videos = await readVideoManifest(root);
     await validateVideoManifest(videos, ["/", ...model.pages.map((page) => page.url)], { root });
-    if (content.sha !== "local") {
-      for (const page of model.extensions) {
-        const recordedTree = videos.videos[page.url]?.recorded.package_tree;
-        if (!recordedTree) continue;
-        const packageDir = path.posix.dirname(page.source);
-        let currentTree;
-        try {
-          currentTree = git(["-C", content.dir, "rev-parse", "--verify", `${content.sha}:${packageDir}`]).trim();
-        } catch {
-          // An explicit source checkout can contain packages that are not committed yet.
-          continue;
+    const pagesByUrl = new Map(model.pages.map((page) => [page.url, page]));
+    for (const [url, raw] of Object.entries(videos.videos)) {
+      if (url === "/") continue;
+      const entry = videoEntry(videos, url);
+      const page = pagesByUrl.get(url);
+      const hasSourceIds = url.startsWith("/prompts/") || url.startsWith("/skills/");
+      if (!hasSourceIds && !url.startsWith("/extensions/")) continue;
+      const recorded = hasSourceIds ? entry.recorded.sources :
+        { [videoSourcePath(page)]: entry.recorded.package_tree };
+      if (hasSourceIds) {
+        const source = videoSourcePath(page);
+        const owner = raw.shared_from && videoSourcePath(pagesByUrl.get(raw.shared_from));
+        if (!Object.hasOwn(recorded, source) || (owner && !Object.hasOwn(recorded, owner))) {
+          throw new Error(`${url}: missing video provenance for a page source`);
         }
-        if (currentTree !== recordedTree) {
-          console.warn(`stale video: ${page.url} (${packageDir} changed since ${recordedTree.slice(0, 7)})`);
+      }
+      if (content.sha === "local") continue;
+      for (const [source, recordedId] of Object.entries(recorded)) {
+        let currentId;
+        try {
+          currentId = git(["-C", content.dir, "rev-parse", "--verify", `${content.sha}:${source}`]).trim();
+        } catch {
+          // An explicit source checkout can contain content that is not committed yet.
+          if (!hasSourceIds) continue;
+        }
+        if (currentId !== recordedId) {
+          console.warn(`stale video: ${url} (${source} changed since ${recordedId.slice(0, 7)})`);
         }
       }
     }
@@ -284,6 +297,7 @@ export async function build({ source, root = SITE_ROOT, out } = {}) {
       ["style.css", await readFile(new URL("./site/style.css", import.meta.url))],
     ]);
     for (const entry of Object.values(videos.videos)) {
+      if (entry.shared_from) continue;
       const captions = await readFile(path.join(root, entry.captions));
       if (!/^WEBVTT(?:\r?\n|$)/.test(captions.toString("utf8"))) {
         throw new Error(`${entry.captions}: captions must start with WEBVTT`);
@@ -321,7 +335,7 @@ export async function build({ source, root = SITE_ROOT, out } = {}) {
           description: page.description || page.title,
           content: renderMarkdown(markdown, rewrite, page.title),
           build: built,
-          video: videos.videos[page.url],
+          video: videoEntry(videos, page.url),
           mediaOrigin: videos.origin,
         }),
       );

@@ -110,16 +110,27 @@ cached files. A repeat publish reuses the encodes and uploads nothing.
 Install the root dependencies too (`cd .. && npm ci`): the publisher reuses the
 site's page discovery so it can reject page URLs absent from the pinned content.
 
-Intro captions come from the existing narration timeline. Extension masters need
+Intro captions come from the existing narration timeline. Per-page masters need
 a `.en.vtt` sidecar beside the master, such as `out/extensions/guardrail.en.vtt`.
 Narrated per-page renders produce these sidecars. Captions are staged and
 validated before uploads, then copied to `captions/<kind>/<slug>.en.vtt` (or
-`captions/intro.en.vtt`). Prompt, skill and guide publishing awaits the later
-format and source-provenance decision.
+`captions/intro.en.vtt`). To reuse a prompt short on its skill page, publish the
+prompt master with `--share-with /skills/<slug>/`. For example:
+
+```sh
+npm run publish -- /prompts/review/ --share-with /skills/implementation-review/
+```
+
+Republishing the canonical prompt keeps its existing skill aliases. Guide
+publishing awaits its source-provenance decision.
 
 `manifest.json` is the rollout inventory. Entries use page URLs as keys (`/` for
 the intro), immutable media keys, caption paths, duration, and the pinned content
-commit and package tree. The publisher checks out `content.lock`; optionally set
+commit. Extension videos record a package tree. Prompt and skill videos record
+the Git object IDs of the prompt file and skill directory they demonstrate. A
+skill page sharing a prompt short uses the same media and caption paths. Changes
+to either source warn on both pages at build time. The publisher checks out
+`content.lock`; optionally set
 `PI_EXTENSIONS_SOURCE` to an existing **clean checkout at that exact commit**.
 `scripts/site/videos.mjs` validates the candidate before uploading. Upload errors
 leave the tracked manifest and captions unchanged; successfully uploaded objects

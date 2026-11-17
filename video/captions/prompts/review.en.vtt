@@ -1,0 +1,25 @@
+WEBVTT
+
+1
+00:00:00.400 --> 00:00:06.400
+Slash review uses the implementation review
+skill to look for defects in your staged change.
+
+2
+00:00:07.400 --> 00:00:12.044
+Here, the new shout flag is still read
+as the first positional argument.
+
+3
+00:00:12.044 --> 00:00:17.720
+Pi runs the example to confirm the wrong
+greeting and points to the line that causes it.
+
+4
+00:00:29.667 --> 00:00:34.833
+You get a finding with the location,
+the exact input, and what went wrong.
+
+5
+00:00:34.833 --> 00:00:37.347
+The staged change is left as it was.

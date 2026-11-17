@@ -6,7 +6,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 import { discover } from "../../scripts/build-site.mjs";
-import { readVideoManifest, validateVideoManifest } from "../../scripts/site/videos.mjs";
+import { readVideoManifest, validateVideoManifest, videoSourcePath } from "../../scripts/site/videos.mjs";
 
 const SITE_ROOT = fileURLToPath(new URL("../../", import.meta.url));
 const ORIGIN = "https://pi-extensions-media.mattriley.tools";
@@ -16,7 +16,7 @@ const exec = promisify(execFile);
 const executeDefault = (binary, args) => exec(binary, args, { encoding: "utf8", maxBuffer: 8 * 1024 * 1024 });
 
 export async function publishVideo({
-  root = SITE_ROOT, pageUrl, master, contentDir = process.env.PI_EXTENSIONS_SOURCE,
+  root = SITE_ROOT, pageUrl, master, shareWith, contentDir = process.env.PI_EXTENSIONS_SOURCE,
   execute = executeDefault, fetch = globalThis.fetch, log = () => {},
 } = {}) {
   if (pageUrl !== "/" && !/^\/(?:[a-z0-9-]+\/)+$/.test(pageUrl ?? "")) {
@@ -53,17 +53,40 @@ export async function publishVideo({
       throw new Error("content checkout must be clean before recording provenance");
     }
     const model = await discover(contentDir);
-    const pages = new Set(["/", ...model.pages.map(({ url }) => url)]);
-    if (!pages.has(pageUrl)) throw new Error(`unknown video page: ${pageUrl}`);
+    const byUrl = new Map(model.pages.map((page) => [page.url, page]));
+    const pages = ["/", ...byUrl.keys()];
+    if (!pages.includes(pageUrl)) throw new Error(`unknown video page: ${pageUrl}`);
     await validateVideoManifest(manifest, pages, { root });
-    if (pageUrl !== "/" && !pageUrl.startsWith("/extensions/")) {
-      throw new Error("prompt, skill and guide publishing awaits their source-provenance decision");
+    if (manifest.videos[pageUrl]?.shared_from) {
+      throw new Error(`publish the canonical video at ${manifest.videos[pageUrl].shared_from}`);
     }
-    const packageTree = pageUrl === "/" ? null : await git(["-C", contentDir, "rev-parse", `${contentSha}:packages/${name.split("/")[1]}`]);
+    if (shareWith && (!pageUrl.startsWith("/prompts/") ||
+        !model.skills.some((page) => page.url === shareWith) ||
+        (manifest.videos[shareWith] && manifest.videos[shareWith].shared_from !== pageUrl))) {
+      throw new Error("--share-with must name an unused skill page or a skill already sharing this prompt video");
+    }
+    const aliases = Object.entries(manifest.videos)
+      .filter(([, entry]) => entry.shared_from === pageUrl).map(([url]) => url);
+    if (shareWith && !aliases.includes(shareWith)) aliases.push(shareWith);
+
+    const recorded = { content_sha: contentSha };
+    if (pageUrl === "/") {
+      recorded.package_tree = null;
+    } else if (pageUrl.startsWith("/extensions/")) {
+      recorded.package_tree = await git(["-C", contentDir, "rev-parse", `${contentSha}:${videoSourcePath(byUrl.get(pageUrl))}`]);
+    } else if (pageUrl.startsWith("/prompts/") || pageUrl.startsWith("/skills/")) {
+      recorded.sources = {};
+      for (const url of [pageUrl, ...aliases]) {
+        const source = videoSourcePath(byUrl.get(url));
+        recorded.sources[source] = await git(["-C", contentDir, "rev-parse", `${contentSha}:${source}`]);
+      }
+    } else {
+      throw new Error("guide publishing awaits its source-provenance decision");
+    }
     const prefix = `videos/${name}/`;
     const probe = await execute("ffprobe", ["-v", "error", "-show_entries", "format=duration", "-of", "json", masterFile]);
     const seconds = Number(JSON.parse(probe.stdout).format?.duration);
-    const entry = { captions: `video/captions/${name}.en.vtt`, seconds, recorded: { content_sha: contentSha, package_tree: packageTree } };
+    const entry = { captions: `video/captions/${name}.en.vtt`, seconds, recorded };
     const assets = [];
     const encodes = [
       ["webm", "webm", "video/webm", ["-c:v", "libvpx-vp9", "-crf", "38", "-b:v", "0", "-row-mt", "1", "-deadline", "good", "-cpu-used", "2", "-c:a", "libopus", "-b:a", "96k"]],
@@ -103,6 +126,7 @@ export async function publishVideo({
     const stagedRoot = path.join(work, "site");
     // Validate the candidate with staged captions before touching tracked files or R2.
     for (const existing of Object.values(manifest.videos)) {
+      if (existing.shared_from) continue;
       const file = path.join(stagedRoot, existing.captions);
       await mkdir(path.dirname(file), { recursive: true });
       await copyFile(path.join(root, existing.captions), file);
@@ -117,6 +141,7 @@ export async function publishVideo({
     const captions = await readFile(stagedCaptions);
     if (!captions.toString("utf8").startsWith("WEBVTT\n")) throw new Error("generated captions must start with WEBVTT");
     const candidate = { ...manifest, videos: { ...manifest.videos, [pageUrl]: entry } };
+    for (const url of aliases) candidate.videos[url] = { shared_from: pageUrl };
     await validateVideoManifest(candidate, pages, { root: stagedRoot });
     const uploaded = [], skipped = [];
     for (const asset of assets) {
@@ -168,9 +193,14 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   process.on("SIGINT", cancel);
   process.on("SIGTERM", cancel);
   try {
-    if (args.length < 1 || args.length > 2) throw new Error("Usage: npm run publish -- <page-url> [master.mp4]");
+    const shareIndex = args.indexOf("--share-with");
+    const shareWith = shareIndex === -1 ? undefined : args.splice(shareIndex, 2)[1];
+    if (args.length < 1 || args.length > 2 || (shareIndex !== -1 && !shareWith) ||
+        args.some((arg) => arg.startsWith("--"))) {
+      throw new Error("Usage: npm run publish -- <page-url> [master.mp4] [--share-with <skill-url>]");
+    }
     const result = await publishVideo({
-      pageUrl: args[0], master: args[1], log: console.log,
+      pageUrl: args[0], master: args[1], shareWith, log: console.log,
       execute: (binary, argv) => exec(binary, argv, {
         encoding: "utf8", maxBuffer: 8 * 1024 * 1024, timeout: 30 * 60 * 1000,
         signal: controller.signal,
