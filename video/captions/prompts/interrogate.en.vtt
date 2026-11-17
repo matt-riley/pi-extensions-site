@@ -1,0 +1,34 @@
+WEBVTT
+
+1
+00:00:00.400 --> 00:00:05.482
+Interrogate asks several reviewers
+to test a change against its intent.
+
+2
+00:00:05.482 --> 00:00:09.920
+This run uses two scripted seats
+on an isolated local fixture.
+
+3
+00:00:10.933 --> 00:00:16.065
+One seat flags the shouted greeting
+and one flags the default greeting.
+
+4
+00:00:16.065 --> 00:00:17.799
+Pi reruns both commands.
+
+5
+00:00:17.799 --> 00:00:23.653
+The default greeting passes, so only the
+broken shout example reaches the report.
+
+6
+00:00:37.767 --> 00:00:40.345
+The report shows the input, the output,
+
+7
+00:00:40.345 --> 00:00:44.247
+and why the remaining failure
+breaks the intended behavior.

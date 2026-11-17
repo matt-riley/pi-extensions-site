@@ -1,0 +1,39 @@
+WEBVTT
+
+1
+00:00:00.400 --> 00:00:06.769
+Swarm splits a check into slices and gives each
+child the same rule for reporting its result.
+
+2
+00:00:06.769 --> 00:00:09.440
+The children here use scripted replies.
+
+3
+00:00:10.433 --> 00:00:13.780
+The first report has the
+plain greeting result,
+
+4
+00:00:13.780 --> 00:00:16.842
+but the required shout
+slice has no result.
+
+5
+00:00:16.842 --> 00:00:19.050
+Swarm marks the job incomplete.
+
+6
+00:00:19.050 --> 00:00:23.393
+Pi runs that slice again and
+aggregates the returned verdict.
+
+7
+00:00:35.933 --> 00:00:38.857
+You can see which checks
+are accounted for.
+
+8
+00:00:38.857 --> 00:00:44.093
+Once both required slices pass on the
+same commit, the overall report passes.

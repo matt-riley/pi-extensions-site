@@ -1,0 +1,44 @@
+{
+  "title": "/ship",
+  "line": "Check the behavior, push the commit, and trace CI to its SHA.",
+  "terminalTitle": "pi — greet",
+  "beats": [
+    {
+      "cue": "start",
+      "caption": "You ask Pi to ship the greeting change."
+    },
+    {
+      "cue": "local",
+      "caption": "The CLI check passes on your machine."
+    },
+    {
+      "cue": "push",
+      "caption": "A focused commit goes to the demo remote."
+    },
+    {
+      "cue": "result",
+      "caption": "The sample CI result is tied to that commit."
+    }
+  ],
+  "takeaway": {
+    "title": "Keep the evidence separate",
+    "line": "Report what ran locally and what checked the pushed commit."
+  },
+  "narration": {
+    "title": {
+      "text": "Slash ship takes a change from a local check to a pushed commit. Here, the change adds a shout flag to a tiny command line app.",
+      "generation_id": "LVnFHDRxJwcnpQxBGu65",
+      "request_id": "nAfBPOvJH8ryD8d56szf"
+    },
+    "scene": {
+      "text": "Pi runs the tests, stages three files, and pushes a focused commit to a disposable remote. The hosted CI response is a labeled fixture for the exact commit that arrived.",
+      "generation_id": "F6kvTLUiIh8XnoLfSafu",
+      "request_id": "9L0bjLxf9ZFmlZvAjCU1"
+    },
+    "takeaway": {
+      "text": "When you ship, keep the local result and hosted status separate. Check the commit that actually reached the remote.",
+      "generation_id": "KbAQmwuinyMAQeH02EgB",
+      "request_id": "ih5jEArzkHVagqv8vBHY"
+    }
+  }
+}

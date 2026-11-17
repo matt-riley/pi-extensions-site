@@ -620,6 +620,154 @@
         "key": "videos/extensions/web-fetch/b35400236f.jpg",
         "bytes": 55626
       }
+    },
+    "/prompts/ship/": {
+      "captions": "video/captions/prompts/ship.en.vtt",
+      "seconds": 39.933333,
+      "recorded": {
+        "content_sha": "5ad29da99d9e7fb42b4c37c609ecfe69d9424930",
+        "sources": {
+          "prompts/ship.md": "e08ffd50cbe8e119eb70088d4bd6e705aecab1d8"
+        }
+      },
+      "webm": {
+        "key": "videos/prompts/ship/264d5e9af9.webm",
+        "bytes": 1397763
+      },
+      "mp4": {
+        "key": "videos/prompts/ship/cb6270c052.mp4",
+        "bytes": 1398672
+      },
+      "poster": {
+        "key": "videos/prompts/ship/a6cc113a13.jpg",
+        "bytes": 52651
+      }
+    },
+    "/prompts/debug/": {
+      "captions": "video/captions/prompts/debug.en.vtt",
+      "seconds": 36.533333,
+      "recorded": {
+        "content_sha": "5ad29da99d9e7fb42b4c37c609ecfe69d9424930",
+        "sources": {
+          "prompts/debug.md": "c251aa8cb9ee80dff085c987dc5e7a3279d39d20"
+        }
+      },
+      "webm": {
+        "key": "videos/prompts/debug/b9e1cf3d82.webm",
+        "bytes": 1320393
+      },
+      "mp4": {
+        "key": "videos/prompts/debug/59ce264072.mp4",
+        "bytes": 1285593
+      },
+      "poster": {
+        "key": "videos/prompts/debug/dac2f82fd0.jpg",
+        "bytes": 52708
+      }
+    },
+    "/prompts/review/": {
+      "captions": "video/captions/prompts/review.en.vtt",
+      "seconds": 37.933333,
+      "recorded": {
+        "content_sha": "5ad29da99d9e7fb42b4c37c609ecfe69d9424930",
+        "sources": {
+          "prompts/review.md": "82cedcdab27bdd85d4f78020fe3f0b5d9db6db47",
+          ".agents/skills/implementation-review": "1305221d3d17e6c09c4748b431b32e5eb18b46d6"
+        }
+      },
+      "webm": {
+        "key": "videos/prompts/review/63782042a0.webm",
+        "bytes": 1113189
+      },
+      "mp4": {
+        "key": "videos/prompts/review/983de6a185.mp4",
+        "bytes": 1034532
+      },
+      "poster": {
+        "key": "videos/prompts/review/79c45dcb67.jpg",
+        "bytes": 52956
+      }
+    },
+    "/skills/implementation-review/": {
+      "shared_from": "/prompts/review/"
+    },
+    "/prompts/arena/": {
+      "captions": "video/captions/prompts/arena.en.vtt",
+      "seconds": 44.033333,
+      "recorded": {
+        "content_sha": "5ad29da99d9e7fb42b4c37c609ecfe69d9424930",
+        "sources": {
+          "prompts/arena.md": "773a8fbaa8964a5d3dc1c84885c1874deb8d8c30",
+          ".agents/skills/arena": "c648222c4147c034331729ba8bcf21e542889194"
+        }
+      },
+      "webm": {
+        "key": "videos/prompts/arena/0f148f58a4.webm",
+        "bytes": 2223815
+      },
+      "mp4": {
+        "key": "videos/prompts/arena/aaed748979.mp4",
+        "bytes": 2071983
+      },
+      "poster": {
+        "key": "videos/prompts/arena/314a5cd871.jpg",
+        "bytes": 54304
+      }
+    },
+    "/skills/arena/": {
+      "shared_from": "/prompts/arena/"
+    },
+    "/prompts/interrogate/": {
+      "captions": "video/captions/prompts/interrogate.en.vtt",
+      "seconds": 44.833333,
+      "recorded": {
+        "content_sha": "5ad29da99d9e7fb42b4c37c609ecfe69d9424930",
+        "sources": {
+          "prompts/interrogate.md": "77179fe11087e40619717bad67667eacf22aca95",
+          ".agents/skills/interrogate": "f4b131bc397eab15ce715ac43fbf47d6c8d5f57c"
+        }
+      },
+      "webm": {
+        "key": "videos/prompts/interrogate/dc5a3f91ee.webm",
+        "bytes": 1554963
+      },
+      "mp4": {
+        "key": "videos/prompts/interrogate/5ee03e5c83.mp4",
+        "bytes": 1615659
+      },
+      "poster": {
+        "key": "videos/prompts/interrogate/1c911f0509.jpg",
+        "bytes": 56561
+      }
+    },
+    "/skills/interrogate/": {
+      "shared_from": "/prompts/interrogate/"
+    },
+    "/prompts/swarm/": {
+      "captions": "video/captions/prompts/swarm.en.vtt",
+      "seconds": 44.7,
+      "recorded": {
+        "content_sha": "5ad29da99d9e7fb42b4c37c609ecfe69d9424930",
+        "sources": {
+          "prompts/swarm.md": "cc9e6cf110f5e942c24e72247c1a3676364be79f",
+          ".agents/skills/swarm": "60e6661a29681239e5d1e9b76341971d358827c0"
+        }
+      },
+      "webm": {
+        "key": "videos/prompts/swarm/480b3b6ae5.webm",
+        "bytes": 1868695
+      },
+      "mp4": {
+        "key": "videos/prompts/swarm/06a161f150.mp4",
+        "bytes": 1881905
+      },
+      "poster": {
+        "key": "videos/prompts/swarm/38748ad79d.jpg",
+        "bytes": 52577
+      }
+    },
+    "/skills/swarm/": {
+      "shared_from": "/prompts/swarm/"
     }
   }
 }

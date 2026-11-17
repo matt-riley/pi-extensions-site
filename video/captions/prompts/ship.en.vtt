@@ -1,0 +1,35 @@
+WEBVTT
+
+1
+00:00:00.400 --> 00:00:04.829
+Slash ship takes a change from a
+local check to a pushed commit.
+
+2
+00:00:04.829 --> 00:00:09.120
+Here, the change adds a shout
+flag to a tiny command line app.
+
+3
+00:00:10.133 --> 00:00:12.773
+Pi runs the tests, stages three files,
+
+4
+00:00:12.773 --> 00:00:16.315
+and pushes a focused commit
+to a disposable remote.
+
+5
+00:00:16.315 --> 00:00:21.733
+The hosted CI response is a labeled
+fixture for the exact commit that arrived.
+
+6
+00:00:31.900 --> 00:00:36.077
+When you ship, keep the local
+result and hosted status separate.
+
+7
+00:00:36.077 --> 00:00:39.340
+Check the commit that
+actually reached the remote.

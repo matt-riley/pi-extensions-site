@@ -1,0 +1,44 @@
+{
+  "title": "/review",
+  "line": "Read the staged change and report a concrete defect.",
+  "terminalTitle": "pi — greet",
+  "beats": [
+    {
+      "cue": "start",
+      "caption": "You ask for a read-only review of the staged diff."
+    },
+    {
+      "cue": "diff",
+      "caption": "Pi loads the implementation-review skill."
+    },
+    {
+      "cue": "check",
+      "caption": "The staged CLI treats the flag as the name."
+    },
+    {
+      "cue": "result",
+      "caption": "The finding gives you a location and an input."
+    }
+  ],
+  "takeaway": {
+    "title": "Make the finding checkable",
+    "line": "Include the changed line, the trigger, and the observed result."
+  },
+  "narration": {
+    "title": {
+      "text": "Slash review uses the implementation review skill to look for defects in your staged change.",
+      "generation_id": "BUOxzfU5yvh41uBBrosq",
+      "request_id": "ODxxVp1jeQ2I4JsFCrUT"
+    },
+    "scene": {
+      "text": "Here, the new shout flag is still read as the first positional argument. Pi runs the example to confirm the wrong greeting and points to the line that causes it.",
+      "generation_id": "6Rudmz7i0A6FKw7bl32P",
+      "request_id": "bhLDrM7x1Rq9E74tdYJr"
+    },
+    "takeaway": {
+      "text": "You get a finding with the location, the exact input, and what went wrong. The staged change is left as it was.",
+      "generation_id": "T4jhPTsHXmbmiSS0RG95",
+      "request_id": "dN4zqCfsmM9ISDZkvWtu"
+    }
+  }
+}

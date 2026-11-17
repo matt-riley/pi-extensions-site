@@ -1,19 +1,23 @@
 // Manual network check. The ordinary build/SEO audit stays offline.
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { readVideoManifest } from "../../scripts/site/videos.mjs";
+import { readVideoManifest, videoEntry } from "../../scripts/site/videos.mjs";
 
 export async function verifyMedia(manifest, { fetch = globalThis.fetch, log = () => {} } = {}) {
-  const entries = Object.entries(manifest.videos ?? {});
-  if (entries.length === 0) throw new Error("video manifest has no videos to verify");
+  const pages = Object.keys(manifest.videos ?? {});
+  if (pages.length === 0) throw new Error("video manifest has no videos to verify");
   const origin = new URL(manifest.origin);
   if (origin.protocol !== "https:" || origin.origin !== manifest.origin) {
     throw new Error("media origin must be an HTTPS origin without a path or credentials");
   }
   let assets = 0, rangeChecks = 0;
-  for (const [page, entry] of entries) {
+  const verified = new Set();
+  for (const page of pages) {
+    const entry = videoEntry(manifest, page);
+    if (verified.has(entry)) continue;
+    verified.add(entry);
     for (const [field, type] of [["webm", "video/webm"], ["mp4", "video/mp4"], ["poster", "image/jpeg"]]) {
-      const asset = entry[field];
+      const asset = entry?.[field];
       if (!asset || !/^videos\/(?:[a-z0-9-]+\/)+[0-9a-f]{10}\.(webm|mp4|jpg)$/.test(asset.key) ||
           !Number.isSafeInteger(asset.bytes) || asset.bytes <= 0) {
         throw new Error(`invalid media asset: ${page} ${field}`);
@@ -43,14 +47,14 @@ export async function verifyMedia(manifest, { fetch = globalThis.fetch, log = ()
       log(`PASS ${url}`);
     }
   }
-  return { videos: entries.length, assets, rangeChecks };
+  return { videos: pages.length, assets, rangeChecks };
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   try {
     const root = fileURLToPath(new URL("../../", import.meta.url));
     const result = await verifyMedia(await readVideoManifest(root), { log: console.log });
-    console.log(`Passed: ${result.videos} videos, ${result.assets} assets, ${result.rangeChecks} range checks.`);
+    console.log(`Passed: ${result.videos} video pages, ${result.assets} assets, ${result.rangeChecks} range checks.`);
   } catch (error) {
     console.error(error.message);
     process.exitCode = 1;

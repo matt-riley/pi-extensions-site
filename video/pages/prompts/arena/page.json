@@ -1,0 +1,51 @@
+{
+  "title": "/arena",
+  "line": "Compare two candidates and bring their best parts together.",
+  "terminalTitle": "pi — greet",
+  "beats": [
+    {
+      "cue": "start",
+      "caption": "You enable subagents and give Arena a small task."
+    },
+    {
+      "cue": "seats",
+      "caption": "Two scripted seats work in separate Git worktrees."
+    },
+    {
+      "cue": "rubric",
+      "caption": "The rubric selects a base and one useful improvement."
+    },
+    {
+      "cue": "result",
+      "caption": "The combined version passes both checks."
+    }
+  ],
+  "takeaway": {
+    "title": "Select a base by rubric",
+    "line": "Carry over a specific improvement and check the result."
+  },
+  "narration": {
+    "title": {
+      "text": "Arena helps when two plausible designs could take the code in different directions. This run uses two scripted model seats.",
+      "generation_id": "1LR78zTGkCZYUpAJnu0q",
+      "request_id": "q4JqmXQ4ipp1SinDQYDw"
+    },
+    "scene": {
+      "text": "Each seat builds its own greeting candidate in a separate worktree. The scorecard favors the simpler parser as a base. The other candidate contributes normalization for blank names.",
+      "generation_id": "W2kiUiQFlQmvqgpNRCHU",
+      "request_id": "d1OYKenfGYnV9iTWspx0"
+    },
+    "takeaway": {
+      "text": "The parent combines those two parts and runs both checks on the result. You can see exactly what made it into the final change.",
+      "generation_id": "FNCQFe3x3dGV0dABcLOC",
+      "request_id": "b1PnOwib0M1rKzDO007m"
+    }
+  },
+  "aside": {
+    "from": "rubric",
+    "to": "result",
+    "kicker": "arena",
+    "title": "The rubric",
+    "note": "Two isolated candidates with scripted replies."
+  }
+}

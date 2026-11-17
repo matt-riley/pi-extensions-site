@@ -1,0 +1,44 @@
+{
+  "title": "/debug",
+  "line": "Make a bug fail on demand, then rerun the same check.",
+  "terminalTitle": "pi — greet",
+  "beats": [
+    {
+      "cue": "start",
+      "caption": "You describe the symptom at the command line."
+    },
+    {
+      "cue": "red",
+      "caption": "The same input reliably gives the wrong result."
+    },
+    {
+      "cue": "fix",
+      "caption": "The parser excludes the flag from the name."
+    },
+    {
+      "cue": "result",
+      "caption": "The original check now passes."
+    }
+  ],
+  "takeaway": {
+    "title": "Keep the failing command",
+    "line": "Rerun it after the fix to prove the symptom is gone."
+  },
+  "narration": {
+    "title": {
+      "text": "When a bug has several plausible causes, start with one command that catches the symptom every time.",
+      "generation_id": "RIR3Z52ppbmPMq7ooKCc",
+      "request_id": "rMAj8Oh9mayxaVAMjmba"
+    },
+    "scene": {
+      "text": "With slash debug, Pi exercises the actual greeting command. It captures the bad output, checks how the name is chosen, and makes the flag separate from the positional argument.",
+      "generation_id": "GWCDzBcWiJvdWXSvskML",
+      "request_id": "TDDZUgAm5TpeDISWyECI"
+    },
+    "takeaway": {
+      "text": "Then Pi runs the original check again. You can keep that same test as a regression check.",
+      "generation_id": "Eoo3j4U45VhFRZYYZqd8",
+      "request_id": "YD5RmqZXEVaU36cUUmoL"
+    }
+  }
+}

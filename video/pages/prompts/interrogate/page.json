@@ -1,0 +1,44 @@
+{
+  "title": "/interrogate",
+  "line": "Rerun candidate findings before they enter the report.",
+  "terminalTitle": "pi — greet",
+  "beats": [
+    {
+      "cue": "start",
+      "caption": "You ask Interrogate to check a local greeting change."
+    },
+    {
+      "cue": "seats",
+      "caption": "Two scripted seats check different inputs."
+    },
+    {
+      "cue": "rerun",
+      "caption": "The real rerun keeps one failure and drops one claim."
+    },
+    {
+      "cue": "result",
+      "caption": "The report gives you the one reproduced finding."
+    }
+  ],
+  "takeaway": {
+    "title": "Rerun the evidence",
+    "line": "Keep a finding when the command reproduces a failure that matters."
+  },
+  "narration": {
+    "title": {
+      "text": "Interrogate asks several reviewers to test a change against its intent. This run uses two scripted seats on an isolated local fixture.",
+      "generation_id": "LQo0HWce9YcDLQE3pB1S",
+      "request_id": "gxyzIeRVG6hM7W5fDzDL"
+    },
+    "scene": {
+      "text": "One seat flags the shouted greeting and one flags the default greeting. Pi reruns both commands. The default greeting passes, so only the broken shout example reaches the report.",
+      "generation_id": "LPRY0STGQWuhUJN2tfJh",
+      "request_id": "BYDM6DQY17a2jf2d07ue"
+    },
+    "takeaway": {
+      "text": "The report shows the input, the output, and why the remaining failure breaks the intended behavior.",
+      "generation_id": "15g0qMz2JWp2JOE136d3",
+      "request_id": "aD9W3XTbmm86oMEzL15l"
+    }
+  }
+}

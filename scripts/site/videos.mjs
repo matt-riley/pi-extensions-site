@@ -11,6 +11,15 @@ export function captionAsset(entry) {
   return entry.captions.replace(/^video\/captions\//, "video/");
 }
 
+export function videoEntry(manifest, url) {
+  const entry = manifest.videos[url];
+  return entry?.shared_from ? manifest.videos[entry.shared_from] : entry;
+}
+
+export function videoSourcePath(page) {
+  return page.url.startsWith("/prompts/") ? page.source : path.posix.dirname(page.source);
+}
+
 export async function readVideoManifest(root = SITE_ROOT) {
   const file = path.join(root, "video/manifest.json");
   try {
@@ -31,6 +40,15 @@ export async function validateVideoManifest(manifest, pageUrls, { root = SITE_RO
   for (const [page, entry] of Object.entries(manifest.videos)) {
     if (!pages.has(page)) fail(`unknown video page: ${page}`);
     if (!object(entry)) fail(`${page}: video entry must be an object`);
+    if (Object.hasOwn(entry, "shared_from")) {
+      const owner = manifest.videos[entry.shared_from];
+      if (!page.startsWith("/skills/") || typeof entry.shared_from !== "string" ||
+          !entry.shared_from.startsWith("/prompts/") || !Object.hasOwn(manifest.videos, entry.shared_from) ||
+          !object(owner) || Object.hasOwn(owner, "shared_from") || Object.keys(entry).length !== 1) {
+        fail(`${page}: shared_from must reference a canonical prompt video`);
+      }
+      continue;
+    }
     const prefix = page === "/" ? "videos/intro/" : `videos${page}`;
     for (const [field, ext] of [["webm", "webm"], ["mp4", "mp4"], ["poster", "jpg"]]) {
       const asset = entry[field];
@@ -64,8 +82,18 @@ export async function validateVideoManifest(manifest, pageUrls, { root = SITE_RO
     if (!object(entry.recorded) || typeof entry.recorded.content_sha !== "string" || !SHA.test(entry.recorded.content_sha)) {
       fail(`${page}: recorded.content_sha must be a 40-character git SHA`);
     }
+    if (page.startsWith("/prompts/") || page.startsWith("/skills/")) {
+      const sources = entry.recorded.sources;
+      if (!object(sources) || Object.keys(sources).length === 0 ||
+          Object.entries(sources).some(([file, sha]) => (
+            !/^(?:prompts\/[a-z0-9-]+\.md|\.agents\/skills\/[a-z0-9-]+)$/.test(file) ||
+            typeof sha !== "string" || !SHA.test(sha)
+          ))) {
+        fail(`${page}: recorded.sources must map prompt files and skill directories to git object IDs`);
+      }
+      continue;
+    }
     const tree = entry.recorded.package_tree;
-    // Other page types can define source-specific freshness checks when their rollout is decided.
     if (!(typeof tree === "string" && SHA.test(tree)) && !(page === "/" && tree === null)) {
       fail(`${page}: recorded.package_tree must be a 40-character git tree SHA`);
     }

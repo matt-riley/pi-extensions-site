@@ -80,3 +80,15 @@ test("propagates network failures", async () => {
     message: "network unavailable",
   });
 });
+
+test("a shared video is checked once for both pages", async () => {
+  const m = manifest();
+  const f = fixtureFetch(m);
+  const entry = m.videos["/"];
+  m.videos = {
+    "/skills/review/": { shared_from: "/prompts/review/" },
+    "/prompts/review/": entry,
+  };
+  assert.deepEqual(await verifyMedia(m, { fetch: f.fetch }), { videos: 2, assets: 3, rangeChecks: 2 });
+  assert.equal(f.calls.length, 5);
+});
