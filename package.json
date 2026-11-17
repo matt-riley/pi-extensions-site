@@ -6,14 +6,20 @@
   "license": "MIT",
   "type": "module",
   "engines": {
-    "node": ">=22"
+    "node": "^22.22.2 || ^24.15.0 || >=26.0.0"
   },
   "scripts": {
     "build": "node scripts/build-site.mjs && node .pi/verify/seo.mjs",
-    "test": "node --test scripts/*.test.mjs",
-    "verify:seo": "node .pi/verify/seo.mjs"
+    "test": "vitest run",
+    "verify:seo": "node .pi/verify/seo.mjs",
+    "test:unit": "vitest run scripts tests/bombadil",
+    "test:browser": "vitest run tests/browser"
   },
   "devDependencies": {
-    "marked": "^18.1.3"
+    "@antithesishq/bombadil": "0.7.10",
+    "jsdom": "^31.0.1",
+    "marked": "^18.1.3",
+    "sirv": "^3.0.2",
+    "vitest": "^5.1.0"
   }
 }

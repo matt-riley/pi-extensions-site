@@ -63,7 +63,9 @@ a re-run of an old site revision renders the same docs. The `Sync content` workf
 
 ```sh
 npm ci
-npm test                       # generator contract tests
+npm test                       # all tests through Vitest (including Bombadil)
+npm run test:unit              # generator, publishing, style and property contract tests
+npm run test:browser           # desktop + mobile Bombadil exploration
 npm run build                  # writes dist/ from content.lock and runs SEO verification
 PI_EXTENSIONS_SOURCE=../pi-extensions npm run build  # or build + verify from a local checkout
 node .pi/verify/site-content.mjs ../pi-extensions     # preview + full-content link/anchor check (optional count)
@@ -73,6 +75,31 @@ node .pi/verify/content-scope.mjs ../pi-extensions 69455e7  # editorial scope ag
 
 There is no dev server: `dist/` is plain HTML with one stylesheet, so `open dist/index.html` or any
 static file server is enough.
+
+## Browser properties
+
+[Bombadil](https://antithesishq.github.io/bombadil/browser/bombadil-manual.txt)
+explores a temporary build of the pinned content through a loopback-only static server.
+Vitest owns setup, assertions, timeouts and cleanup; all test files use Vitest.
+The first browser run downloads Chromium, so it needs network access as well as Git
+access to the content repository. Use macOS on Apple Silicon or Linux (x64/arm64),
+the platforms supported by the pinned Bombadil release, and a supported Node version
+from `package.json`.
+
+Each run explores for 30 seconds at 1440×900 and 375×812. Desktop starts on the
+homepage; mobile starts on `/prompts/upgrade/` to cover its long title deterministically. The specification in
+`tests/bombadil/site.mjs` checks titles, the main landmark and heading, canonical URLs,
+skip links, unique IDs, same-page anchors and horizontal overflow, plus Bombadil's
+HTTP, console, exception and promise-rejection defaults. Actions follow real HTML
+anchors, scroll, reload, traverse history and toggle the mobile docs menu. Exploration
+stays on the preview origin and excludes Markdown/text downloads from page navigation.
+It does not test external destinations or video playback. Random exploration complements
+the deterministic contract tests; a short run does not guarantee visiting every page.
+
+Traces and screenshots go to ignored `test-results/bombadil/{desktop,mobile}/`.
+To inspect a failed run, use `npx bombadil browser inspect test-results/bombadil/mobile`.
+CI runs unit tests and browser tests separately, uploads browser output even on failure,
+and requires both before deployment.
 
 ## Deployment
 

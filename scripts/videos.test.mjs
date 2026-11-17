@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { mkdtemp, mkdir, writeFile, rm, symlink } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import test from "node:test";
+import { test } from "vitest";
 import { readVideoManifest, validateVideoManifest } from "./site/videos.mjs";
 
 const origin = "https://pi-extensions-media.mattriley.tools";
@@ -24,7 +24,7 @@ const validManifest = () => ({
 
 async function fixture(t) {
   const root = await mkdtemp(path.join(tmpdir(), "pi-video-manifest-"));
-  t.after(() => rm(root, { recursive: true, force: true }));
+  t.onTestFinished(() => rm(root, { recursive: true, force: true }));
   await mkdir(path.join(root, "video/captions/extensions"), { recursive: true });
   await writeFile(path.join(root, "video/captions/extensions/guardrail.en.vtt"), "WEBVTT\n\n");
   return root;

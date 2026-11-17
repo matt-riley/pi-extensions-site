@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import test from "node:test";
+import { test } from "vitest";
 import { firstHeading, parseFrontmatter, stripFrontmatter } from "./site/frontmatter.mjs";
 import { checkLlmsCoverage, markdownOut, markdownUrl, renderLlmsTxt, renderMarkdownCopy } from "./site/llms.mjs";
 import { SITE_URL } from "./site/template.mjs";

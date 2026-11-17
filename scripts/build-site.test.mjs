@@ -4,7 +4,7 @@ import { existsSync } from "node:fs";
 import { mkdir, mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import test from "node:test";
+import { test } from "vitest";
 import { build, discover, rewriteHref } from "./build-site.mjs";
 import { renderLanding, renderPage } from "./site/template.mjs";
 
@@ -26,7 +26,7 @@ async function write(root, file, body) {
 
 async function fixture(t) {
   const root = await mkdtemp(path.join(tmpdir(), "pi-extensions-site-"));
-  t.after(() => rm(root, { recursive: true, force: true }));
+  t.onTestFinished(() => rm(root, { recursive: true, force: true }));
   const source = path.join(root, "content");
   await write(source, "package.json", JSON.stringify({ name: "fixture", description: "Fixture collection." }));
   await write(source, "README.md", "# Fixture collection\n\nStart with [alpha](./packages/alpha/README.md).\n");

@@ -5,7 +5,7 @@ import { mkdtemp, mkdir, readFile, writeFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
-import test from "node:test";
+import { test } from "vitest";
 import { publishVideo } from "../video/scripts/publish.mjs";
 
 const run = promisify(execFile);
@@ -16,7 +16,7 @@ const vtt = "WEBVTT\n\n00:00.000 --> 00:02.000\nGuardrail blocks the command.\n"
 
 async function fixture(t) {
   const root = await mkdtemp(path.join(tmpdir(), "pi-publish-"));
-  t.after(() => rm(root, { recursive: true, force: true }));
+  t.onTestFinished(() => rm(root, { recursive: true, force: true }));
   const contentDir = path.join(root, "content");
   for (const dir of ["docs", "prompts", ".agents/skills", "packages/guardrail"]) {
     await mkdir(path.join(contentDir, dir), { recursive: true });
@@ -129,7 +129,7 @@ test("publisher CLI rejects missing arguments instead of silently succeeding", a
 
 test("intro captions can be generated into a staging path without changing homepage assets", async (t) => {
   const dir = await mkdtemp(path.join(tmpdir(), "pi-intro-captions-"));
-  t.after(() => rm(dir, { recursive: true, force: true }));
+  t.onTestFinished(() => rm(dir, { recursive: true, force: true }));
   const destination = path.join(dir, "captions/intro.en.vtt");
   const homepage = new URL("../video/web/intro.en.vtt", import.meta.url);
   const before = await readFile(homepage);
