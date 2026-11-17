@@ -1,0 +1,35 @@
+WEBVTT
+
+1
+00:00:00.400 --> 00:00:02.338
+When you switch between projects,
+
+2
+00:00:02.338 --> 00:00:05.920
+the bottom line tells you where
+you are and what pi is doing.
+
+3
+00:00:07.400 --> 00:00:10.627
+This session starts on
+the main branch of greet.
+
+4
+00:00:10.627 --> 00:00:13.786
+Turn on plan mode and the
+footer says planning.
+
+5
+00:00:13.786 --> 00:00:17.080
+Leave it again and the
+footer goes back to ready.
+
+6
+00:00:25.667 --> 00:00:29.181
+Ready means pi is waiting
+for your next instruction.
+
+7
+00:00:29.181 --> 00:00:33.507
+When you need proof a change works,
+look for the check that ran.

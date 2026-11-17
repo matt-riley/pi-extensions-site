@@ -1,0 +1,30 @@
+WEBVTT
+
+1
+00:00:00.400 --> 00:00:05.840
+When a reply has several results, a status
+label helps you see where to look first.
+
+2
+00:00:07.400 --> 00:00:11.472
+The agent runs the greeting test
+and reports where it passed.
+
+3
+00:00:11.472 --> 00:00:15.276
+The next label calls out the
+hosted checks it hasn’t run.
+
+4
+00:00:15.276 --> 00:00:18.280
+Emphasis draws those
+words as coloured pills.
+
+5
+00:00:25.100 --> 00:00:27.596
+Read the label and then the named check.
+
+6
+00:00:27.596 --> 00:00:31.340
+That tells you what happened
+and where the result came from.

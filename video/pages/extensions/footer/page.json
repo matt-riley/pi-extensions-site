@@ -1,0 +1,48 @@
+{
+  "title": "Footer",
+  "line": "Keep the project, branch, and work state in view.",
+  "terminalTitle": "pi — greet",
+  "beats": [
+    {
+      "cue": "ready",
+      "caption": "The footer shows your project, branch, and work state."
+    },
+    {
+      "cue": "planning",
+      "caption": "The footer changes to planning.",
+      "label": "pi-footer",
+      "highlight": {
+        "x": 1124,
+        "y": 837,
+        "w": 449,
+        "h": 44
+      },
+      "hold": 4.3
+    },
+    {
+      "cue": "back",
+      "caption": "Back at the prompt, ready means idle."
+    }
+  ],
+  "takeaway": {
+    "title": "Read the work state",
+    "line": "The footer keeps your project, branch, and mode visible."
+  },
+  "narration": {
+    "title": {
+      "text": "When you switch between projects, the bottom line tells you where you are and what pi is doing.",
+      "generation_id": "G2dUgPHSWwyrJAXOiANI",
+      "request_id": "0nKAM3blyY8vPwrKr3fS"
+    },
+    "scene": {
+      "text": "This session starts on the main branch of greet. Turn on plan mode and the footer says planning. Leave it again and the footer goes back to ready.",
+      "generation_id": "LnCny3XjebdJvnWlIcT5",
+      "request_id": "F7ETfIQRJSL0XnvcySnq"
+    },
+    "takeaway": {
+      "text": "Ready means pi is waiting for your next instruction. When you need proof a change works, look for the check that ran.",
+      "generation_id": "IkqIsVxvZUvjNuL6AhIW",
+      "request_id": "o5JpoDslXBZHQsECnUvu"
+    }
+  }
+}

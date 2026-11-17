@@ -1,0 +1,47 @@
+{
+  "title": "Emphasis",
+  "line": "Spot the status and the next action in a reply.",
+  "terminalTitle": "pi — greet",
+  "beats": [
+    {
+      "cue": "prompt",
+      "caption": "You ask for a test run and a clear report."
+    },
+    {
+      "cue": "checks",
+      "caption": "The agent runs the greeting test locally."
+    },
+    {
+      "cue": "pills",
+      "caption": "Emphasis draws the status labels as pills.",
+      "label": "pi-emphasis",
+      "highlight": {
+        "x": 24,
+        "y": 450,
+        "w": 985,
+        "h": 148
+      }
+    }
+  ],
+  "takeaway": {
+    "title": "Scan the status first",
+    "line": "The pill points you to what passed and what still needs a check."
+  },
+  "narration": {
+    "title": {
+      "text": "When a reply has several results, a status label helps you see where to look first.",
+      "generation_id": "xHQf40rBwWcpX3uaA8Ey",
+      "request_id": "pxfwlcr8gO0NlApWeIT8"
+    },
+    "scene": {
+      "text": "The agent runs the greeting test and reports where it passed. The next label calls out the hosted checks it hasn’t run. Emphasis draws those words as coloured pills.",
+      "generation_id": "KRFfQWTA5pNJA1uAD6DC",
+      "request_id": "pKzqFDTChNh1C5IlVX7i"
+    },
+    "takeaway": {
+      "text": "Read the label and then the named check. That tells you what happened and where the result came from.",
+      "generation_id": "lyzlOxfudjwPAlbySlvb",
+      "request_id": "1yqCA9ogrMNfhrOC2Vfu"
+    }
+  }
+}

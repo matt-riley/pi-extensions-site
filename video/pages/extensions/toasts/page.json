@@ -1,0 +1,48 @@
+{
+  "title": "Toasts",
+  "line": "See extension notices without interrupting your draft.",
+  "terminalTitle": "pi — greet",
+  "beats": [
+    {
+      "cue": "command",
+      "caption": "You check the working tree with `/changes`."
+    },
+    {
+      "cue": "toast",
+      "caption": "A small card reports that the working tree is clean.",
+      "label": "pi-toasts",
+      "highlight": {
+        "x": 922,
+        "y": 53,
+        "w": 642,
+        "h": 78
+      },
+      "hold": 2.8
+    },
+    {
+      "cue": "expired",
+      "caption": "The card clears while your draft stays put."
+    }
+  ],
+  "takeaway": {
+    "title": "Keep your place",
+    "line": "Extension notices clear on their own while you type."
+  },
+  "narration": {
+    "title": {
+      "text": "A quick update from an extension can be useful while you’re getting your next prompt ready.",
+      "generation_id": "hE8xTDjPMbjuojW6qM0y",
+      "request_id": "LTI8ZYA8Q42A2O4XJx9u"
+    },
+    "scene": {
+      "text": "You check for changes in a clean project. The result shows in a card in the top right. Keep typing, and the card disappears while the prompt you started stays where it was.",
+      "generation_id": "nu1I7mw2trbwhEm0c5zt",
+      "request_id": "jKP0L4K4WvSfQGqA1Wvc"
+    },
+    "takeaway": {
+      "text": "When an extension has something brief to tell you, you can read it and carry on from the same place.",
+      "generation_id": "3rxpAR09bBfGbSBwgcgE",
+      "request_id": "jF9fx4tLLkiped1VIumw"
+    }
+  }
+}
