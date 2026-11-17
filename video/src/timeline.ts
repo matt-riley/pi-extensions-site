@@ -17,11 +17,14 @@ export type Vo = keyof typeof voDurations;
 export type ShotKind = "clip" | "title" | "loop" | "ring" | "close";
 export type Shot = { kind: ShotKind; frames: number; vo: Vo; clip?: Clip };
 
-const voFrames = (vo: Vo) => sec(VO_LEAD + voDurations[vo] + VO_TAIL);
+export const voiceFrames = (seconds: number) => sec(VO_LEAD + seconds + VO_TAIL);
+export const clipFrames = (clip: Clip) => Math.ceil((clip.duration - (clip.start ?? 0) + 0.5) * FPS);
+export const motionFrames = (seconds: number, narrationSeconds: number) =>
+  Math.max(sec(seconds), narrationSeconds > 0 ? voiceFrames(narrationSeconds) : 0);
 
 const clipShot = (clip: Clip, vo: Vo): Shot => {
-  const frames = Math.ceil((clip.duration - (clip.start ?? 0) + 0.5) * FPS);
-  if (voFrames(vo) > frames) {
+  const frames = clipFrames(clip);
+  if (voiceFrames(voDurations[vo]) > frames) {
     // A recorded clip cannot be stretched: shorten the line or lengthen the tape instead.
     throw new Error(`voice-over "${vo}" is longer than its clip ${clip.src}`);
   }
@@ -29,7 +32,7 @@ const clipShot = (clip: Clip, vo: Vo): Shot => {
 };
 const motionShot = (kind: ShotKind, seconds: number, vo: Vo): Shot => ({
   kind,
-  frames: Math.max(sec(seconds), voFrames(vo)),
+  frames: motionFrames(seconds, voDurations[vo]),
   vo,
 });
 

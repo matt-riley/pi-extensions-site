@@ -20,6 +20,66 @@
         "key": "videos/intro/33fe86f323.jpg",
         "bytes": 76623
       }
+    },
+    "/extensions/guardrail/": {
+      "captions": "video/captions/extensions/guardrail.en.vtt",
+      "seconds": 31.3,
+      "recorded": {
+        "content_sha": "5ad29da99d9e7fb42b4c37c609ecfe69d9424930",
+        "package_tree": "a84070eccbf83a77c45f9b87f067e69708f3b0b2"
+      },
+      "webm": {
+        "key": "videos/extensions/guardrail/c9a5d5e315.webm",
+        "bytes": 1185757
+      },
+      "mp4": {
+        "key": "videos/extensions/guardrail/9967615377.mp4",
+        "bytes": 1232866
+      },
+      "poster": {
+        "key": "videos/extensions/guardrail/cbb5ce1dff.jpg",
+        "bytes": 48245
+      }
+    },
+    "/extensions/plan-mode/": {
+      "captions": "video/captions/extensions/plan-mode.en.vtt",
+      "seconds": 35.633333,
+      "recorded": {
+        "content_sha": "5ad29da99d9e7fb42b4c37c609ecfe69d9424930",
+        "package_tree": "1b1ceced545f1c66188b77e58d8e4d66aa4a63aa"
+      },
+      "webm": {
+        "key": "videos/extensions/plan-mode/5526013bfa.webm",
+        "bytes": 1830551
+      },
+      "mp4": {
+        "key": "videos/extensions/plan-mode/8fa62e2d7d.mp4",
+        "bytes": 1810700
+      },
+      "poster": {
+        "key": "videos/extensions/plan-mode/ac89452769.jpg",
+        "bytes": 49009
+      }
+    },
+    "/extensions/until/": {
+      "captions": "video/captions/extensions/until.en.vtt",
+      "seconds": 33.966667,
+      "recorded": {
+        "content_sha": "5ad29da99d9e7fb42b4c37c609ecfe69d9424930",
+        "package_tree": "23b27e3ed5759b8bb2df805186ba369f784e7703"
+      },
+      "webm": {
+        "key": "videos/extensions/until/810686618a.webm",
+        "bytes": 1553196
+      },
+      "mp4": {
+        "key": "videos/extensions/until/55c7188964.mp4",
+        "bytes": 1710678
+      },
+      "poster": {
+        "key": "videos/extensions/until/fb10d5db14.jpg",
+        "bytes": 45209
+      }
     }
   }
 }

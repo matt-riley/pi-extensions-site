@@ -4,6 +4,7 @@
 // one TypingSpeed tick per key press, which is how VHS paces them.
 import { readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 
 const dir = path.resolve(import.meta.dirname, "..");
 const seconds = (value) => {
@@ -13,13 +14,13 @@ const seconds = (value) => {
 };
 const KEYS = /^(Enter|Down|Up|Left|Right|Tab|Space|Backspace|Escape|Ctrl\+\w)(?:\s+(\d+))?$/;
 
-for (const file of (await readdir(path.join(dir, "tapes"))).filter((f) => f.endsWith(".tape"))) {
+export async function writeCues(file) {
   let output;
   let typing = 0.05;
   let shown = true;
   let t = 0;
   const cues = {};
-  for (const raw of (await readFile(path.join(dir, "tapes", file), "utf8")).split("\n")) {
+  for (const raw of (await readFile(path.resolve(dir, file), "utf8")).split("\n")) {
     const line = raw.trim();
     const cue = /^#\s*cue:\s*(\S+)/.exec(line);
     if (cue) cues[cue[1]] = Math.round(t * 100) / 100;
@@ -39,4 +40,13 @@ for (const file of (await readdir(path.join(dir, "tapes"))).filter((f) => f.ends
   const target = path.join(dir, output.replace(/\.\w+$/, ".cues.json"));
   await writeFile(target, JSON.stringify({ duration: Math.round(t * 100) / 100, cues }, null, 2) + "\n");
   console.log(`${path.relative(dir, target)}: ${Object.keys(cues).join(", ")}`);
+  return { duration: Math.round(t * 100) / 100, cues };
+}
+
+if (process.argv[1] && pathToFileURL(path.resolve(process.argv[1])).href === import.meta.url) {
+  const files = process.argv.slice(2);
+  for (const file of files.length ? files : (await readdir(path.join(dir, "tapes")))
+    .filter((name) => name.endsWith(".tape")).map((name) => `tapes/${name}`)) {
+    await writeCues(file);
+  }
 }

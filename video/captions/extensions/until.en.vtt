@@ -1,0 +1,35 @@
+WEBVTT
+
+1
+00:00:00.400 --> 00:00:04.960
+When the agent says it's finished, you can
+make a test run part of that decision.
+
+2
+00:00:07.400 --> 00:00:12.022
+You ask it to build the plan and
+run npm test before finishing.
+
+3
+00:00:12.022 --> 00:00:14.443
+Its first attempt fails the test.
+
+4
+00:00:14.443 --> 00:00:17.745
+Until gives it another
+turn with the failure.
+
+5
+00:00:17.745 --> 00:00:21.560
+The agent fixes the code,
+and the second run passes.
+
+6
+00:00:26.633 --> 00:00:30.062
+Pick the check that covers
+the behaviour you need.
+
+7
+00:00:30.062 --> 00:00:33.353
+Until gives the agent a
+way to prove it locally.
