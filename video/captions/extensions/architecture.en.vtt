@@ -1,0 +1,30 @@
+WEBVTT
+
+1
+00:00:00.400 --> 00:00:05.280
+An import can run fine today and still
+make it harder to keep layers separate.
+
+2
+00:00:07.400 --> 00:00:09.937
+This repository has a rule for its core.
+
+3
+00:00:09.937 --> 00:00:14.693
+The architecture scan finds the core
+importing from the command line layer,
+
+4
+00:00:14.693 --> 00:00:17.800
+which reverses the direction
+the project expects.
+
+5
+00:00:26.800 --> 00:00:29.371
+Write down the boundaries
+you want to keep.
+
+6
+00:00:29.371 --> 00:00:32.480
+The report gives you a file
+and a rule to work from.

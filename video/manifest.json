@@ -380,6 +380,86 @@
         "key": "videos/extensions/deslop/dd1ff94a25.jpg",
         "bytes": 52053
       }
+    },
+    "/extensions/code-search/": {
+      "captions": "video/captions/extensions/code-search.en.vtt",
+      "seconds": 33.5,
+      "recorded": {
+        "content_sha": "5ad29da99d9e7fb42b4c37c609ecfe69d9424930",
+        "package_tree": "dbc81e20c670d62d6a8d3e72222e368732f1cbe9"
+      },
+      "webm": {
+        "key": "videos/extensions/code-search/5aa780577e.webm",
+        "bytes": 956721
+      },
+      "mp4": {
+        "key": "videos/extensions/code-search/2eaeffd27a.mp4",
+        "bytes": 979504
+      },
+      "poster": {
+        "key": "videos/extensions/code-search/6a745830dd.jpg",
+        "bytes": 56108
+      }
+    },
+    "/extensions/skill-select/": {
+      "captions": "video/captions/extensions/skill-select.en.vtt",
+      "seconds": 36.433333,
+      "recorded": {
+        "content_sha": "5ad29da99d9e7fb42b4c37c609ecfe69d9424930",
+        "package_tree": "d49cceb54c60413707178254c7df5ba24ca39fbd"
+      },
+      "webm": {
+        "key": "videos/extensions/skill-select/f88ee7368a.webm",
+        "bytes": 851034
+      },
+      "mp4": {
+        "key": "videos/extensions/skill-select/1010e7d0b8.mp4",
+        "bytes": 769955
+      },
+      "poster": {
+        "key": "videos/extensions/skill-select/79e3466d8a.jpg",
+        "bytes": 51367
+      }
+    },
+    "/extensions/trail/": {
+      "captions": "video/captions/extensions/trail.en.vtt",
+      "seconds": 30.666667,
+      "recorded": {
+        "content_sha": "5ad29da99d9e7fb42b4c37c609ecfe69d9424930",
+        "package_tree": "a0d491e38fe8d76c30a3b869b5f932a126a6f02d"
+      },
+      "webm": {
+        "key": "videos/extensions/trail/0919831d04.webm",
+        "bytes": 1145654
+      },
+      "mp4": {
+        "key": "videos/extensions/trail/85236026c6.mp4",
+        "bytes": 1080694
+      },
+      "poster": {
+        "key": "videos/extensions/trail/c10eef3c00.jpg",
+        "bytes": 47278
+      }
+    },
+    "/extensions/architecture/": {
+      "captions": "video/captions/extensions/architecture.en.vtt",
+      "seconds": 33.4,
+      "recorded": {
+        "content_sha": "5ad29da99d9e7fb42b4c37c609ecfe69d9424930",
+        "package_tree": "460db8a390640fc7825b556b8685050e28144577"
+      },
+      "webm": {
+        "key": "videos/extensions/architecture/8210f3c3f1.webm",
+        "bytes": 946918
+      },
+      "mp4": {
+        "key": "videos/extensions/architecture/4f841dde2a.mp4",
+        "bytes": 875185
+      },
+      "poster": {
+        "key": "videos/extensions/architecture/ae02b83882.jpg",
+        "bytes": 54776
+      }
     }
   }
 }

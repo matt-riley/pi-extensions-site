@@ -1,0 +1,47 @@
+{
+  "title": "Architecture",
+  "line": "Check that imports follow the repository’s rules.",
+  "terminalTitle": "pi — greet",
+  "beats": [
+    {
+      "cue": "command",
+      "caption": "You run the repository’s import checks."
+    },
+    {
+      "cue": "violation",
+      "caption": "Architecture finds an import across the boundary.",
+      "label": "pi-architecture"
+    },
+    {
+      "cue": "rule",
+      "caption": "The report names the file and the rule it breaks.",
+      "highlight": {
+        "x": 25,
+        "y": 126,
+        "w": 1535,
+        "h": 28
+      }
+    }
+  ],
+  "takeaway": {
+    "title": "Put the boundary in code",
+    "line": "Name the import direction your project depends on."
+  },
+  "narration": {
+    "title": {
+      "text": "An import can run fine today and still make it harder to keep layers separate.",
+      "generation_id": "VcwxA5fOcaYt81pzEuPF",
+      "request_id": "htmbrVrgZfnrbUu3hpLl"
+    },
+    "scene": {
+      "text": "This repository has a rule for its core. The architecture scan finds the core importing from the command line layer, which reverses the direction the project expects.",
+      "generation_id": "TFUzLe4btLYwBUySzlUU",
+      "request_id": "vWmcB9xK7ifeiTazIgWA"
+    },
+    "takeaway": {
+      "text": "Write down the boundaries you want to keep. The report gives you a file and a rule to work from.",
+      "generation_id": "OokgCtAgL2dbXSYFPvB9",
+      "request_id": "EtUITs5rqoCyMWRUaoa4"
+    }
+  }
+}

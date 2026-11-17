@@ -1,0 +1,26 @@
+WEBVTT
+
+1
+00:00:00.400 --> 00:00:05.760
+When you open an unfamiliar project, a
+function name only gets you part of the way.
+
+2
+00:00:07.400 --> 00:00:12.655
+The agent starts at the command line file and
+asks where the greet function comes from.
+
+3
+00:00:12.655 --> 00:00:16.520
+Code search follows that import
+and returns the source location.
+
+4
+00:00:25.700 --> 00:00:29.890
+Ask from the file you’re reading when
+several places use the same name.
+
+5
+00:00:29.890 --> 00:00:32.900
+That anchors the lookup to
+the call you care about.

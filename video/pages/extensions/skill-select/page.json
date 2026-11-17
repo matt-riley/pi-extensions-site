@@ -1,0 +1,41 @@
+{
+  "title": "Skill select",
+  "line": "Find a local skill and prepare its prompt.",
+  "terminalTitle": "pi — greet",
+  "beats": [
+    {
+      "cue": "command",
+      "caption": "You search for a skill from the editor."
+    },
+    {
+      "cue": "choose",
+      "caption": "Skill select ranks the matching instructions.",
+      "label": "pi-skill-select"
+    },
+    {
+      "cue": "draft",
+      "caption": "The selected skill and task land in your draft."
+    }
+  ],
+  "takeaway": {
+    "title": "Choose a skill when it fits",
+    "line": "Review the prepared prompt before you send it."
+  },
+  "narration": {
+    "title": {
+      "text": "You can keep a local library of instructions and bring in the one you need for this job.",
+      "generation_id": "OJFsziMaW52TyRQwLfwO",
+      "request_id": "VLT43vQekbmLPixWLvkJ"
+    },
+    "scene": {
+      "text": "Open skill search and type what you’re looking for. This result describes how to check the greeting command. Select it and pi prepares the reference in the editor.",
+      "generation_id": "5JqLpfoeyAE8mJ1Ezjk4",
+      "request_id": "jSOb4RZTcyaDs6FB0CQV"
+    },
+    "takeaway": {
+      "text": "You can read or edit the prepared prompt before sending it. Choosing a skill keeps the next step in your hands.",
+      "generation_id": "iCvX5Cr9gcQKKnMXNFlI",
+      "request_id": "Kk9Hz9LOae9zMVTeDD6u"
+    }
+  }
+}

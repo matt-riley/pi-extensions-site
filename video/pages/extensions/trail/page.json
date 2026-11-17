@@ -1,0 +1,47 @@
+{
+  "title": "Trail",
+  "line": "Keep a decision with a pointer to its evidence.",
+  "terminalTitle": "pi — greet",
+  "beats": [
+    {
+      "cue": "prompt",
+      "caption": "You ask the agent to record a decision."
+    },
+    {
+      "cue": "row",
+      "caption": "Trail checks the file and line in the entry.",
+      "label": "pi-trail",
+      "highlight": {
+        "x": 24,
+        "y": 365,
+        "w": 1400,
+        "h": 112
+      }
+    },
+    {
+      "cue": "stored",
+      "caption": "The decision goes into the session’s local trail."
+    }
+  ],
+  "takeaway": {
+    "title": "Record the reason and the evidence",
+    "line": "Leave enough detail to check the decision later."
+  },
+  "narration": {
+    "title": {
+      "text": "Weeks later, a diff can tell you what changed and leave you wondering why.",
+      "generation_id": "XwsZTrOFsg8PHnLsyF8I",
+      "request_id": "NNnxSoVYjBI3BMmET0mg"
+    },
+    "scene": {
+      "text": "The agent records why the default greeting stays and points at the relevant line. Trail checks that the pointer resolves when it writes the entry.",
+      "generation_id": "mPMJ0KEs8wGISVHCDYi7",
+      "request_id": "bnjUbXpAlmIU8FZwKmXy"
+    },
+    "takeaway": {
+      "text": "Give the trail the decision, a short reason, and a place to look. That makes the record useful when you return to the work.",
+      "generation_id": "KgNfqjEJDjpycHaUnfcF",
+      "request_id": "5dbZEDGobX066q42H78Y"
+    }
+  }
+}
