@@ -1,0 +1,48 @@
+{
+  "title": "Safe compact",
+  "line": "See what’s using the context window before compacting.",
+  "terminalTitle": "pi — greet",
+  "beats": [
+    {
+      "cue": "setup",
+      "caption": "You read a file in a planning session."
+    },
+    {
+      "cue": "inspect",
+      "caption": "You ask Safe compact for its context report.",
+      "label": "pi-safe-compact"
+    },
+    {
+      "cue": "report",
+      "caption": "The report shows usage, thresholds, and prompt sizes.",
+      "highlight": {
+        "x": 24,
+        "y": 349,
+        "w": 1500,
+        "h": 73
+      }
+    }
+  ],
+  "takeaway": {
+    "title": "Inspect context before you compact",
+    "line": "Check what’s occupying the prompt and when compaction starts."
+  },
+  "notes": "This take uses the read-only info command and does not compact the session.",
+  "narration": {
+    "title": {
+      "text": "When a session grows, you can check what’s taking up space before you decide whether to compact.",
+      "generation_id": "IH1a1gGvbw2nc3df6ALc",
+      "request_id": "fFyYfLLDbldyQ0j3EJi4"
+    },
+    "scene": {
+      "text": "Slash safe compact info shows how much context the session is using, the thresholds for compaction, and estimates for what’s in the prompt.",
+      "generation_id": "3MKOHqHaXBaRpQZ5RR5z",
+      "request_id": "SbNTCWDDN2plEAZmiagY"
+    },
+    "takeaway": {
+      "text": "Use the numbers to understand the current session. The info command leaves the conversation in place.",
+      "generation_id": "zPEPuDeuFVsUuvOuOTzc",
+      "request_id": "Z0I5p7l91F0aIqBEAWp1"
+    }
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "title": "Web fetch",
+  "line": "Bring a page’s content into the session as readable text.",
+  "terminalTitle": "pi — greet",
+  "beats": [
+    {
+      "cue": "prompt",
+      "caption": "You ask what changed in the demo release."
+    },
+    {
+      "cue": "notes",
+      "caption": "Web fetch pulls the release notes into the session.",
+      "label": "pi-web-fetch",
+      "highlight": {
+        "x": 24,
+        "y": 528,
+        "w": 985,
+        "h": 92
+      }
+    },
+    {
+      "cue": "answer",
+      "caption": "The agent can point to the described change."
+    }
+  ],
+  "takeaway": {
+    "title": "Keep the source with the answer",
+    "line": "Read the extracted page and use the link to check it."
+  },
+  "notes": "The release notes come from a local GitHub CLI fixture. No GitHub account or real release is used.",
+  "narration": {
+    "title": {
+      "text": "When the answer lives in release notes, you can bring the source into the session as text.",
+      "generation_id": "RablpK48JhJG8OIFhkeB",
+      "request_id": "xmnMyaVkPgSXt2LmCOX7"
+    },
+    "scene": {
+      "text": "Web fetch reads this sample GitHub release and returns its notes. The agent uses the text to find which command line flag changed.",
+      "generation_id": "WaCQgkBCQgOIssRLCk2w",
+      "request_id": "KsgI7n1mX42CqIEA8Fru"
+    },
+    "takeaway": {
+      "text": "Keep the source handy when you use the answer. It gives you somewhere to check what the release actually says.",
+      "generation_id": "yFTDzLQM2Bgj014F047A",
+      "request_id": "2rKdAXhwySg5doUXc4S5"
+    }
+  }
+}

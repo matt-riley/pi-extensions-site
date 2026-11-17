@@ -1,0 +1,52 @@
+{
+  "title": "Subagents",
+  "line": "Give a child agent a small task and bring its answer back.",
+  "terminalTitle": "pi — greet",
+  "beats": [
+    {
+      "cue": "enable",
+      "caption": "You enable subagents for this session."
+    },
+    {
+      "cue": "request",
+      "caption": "The parent gives the scout a focused question."
+    },
+    {
+      "cue": "running",
+      "caption": "The widget shows the scout’s work in progress.",
+      "label": "pi-subagents"
+    },
+    {
+      "cue": "result",
+      "caption": "The scout’s answer returns to the parent.",
+      "highlight": {
+        "x": 24,
+        "y": 303,
+        "w": 1150,
+        "h": 110
+      }
+    }
+  ],
+  "takeaway": {
+    "title": "Give the child a complete task",
+    "line": "It starts with its own context, so include what it needs."
+  },
+  "notes": "The scout and parent both use the local scripted model. No external model is called.",
+  "narration": {
+    "title": {
+      "text": "You can hand a small question to another agent when a separate piece of work needs attention.",
+      "generation_id": "Oyk04vEm5V7BVXMUksnz",
+      "request_id": "4QlcnRy3T66Kl9WiAF5u"
+    },
+    "scene": {
+      "text": "After you enable subagents, the parent starts a scout with one focused task. The widget shows it running. Its answer then comes back to the parent session.",
+      "generation_id": "SVH90QIzAAZfv2L9CR3C",
+      "request_id": "lxfbzc40JvEyRa26VYqB"
+    },
+    "takeaway": {
+      "text": "Give the child the whole question and the scope. It starts with its own context.",
+      "generation_id": "JRM8yizBkYVbBKXYxCWv",
+      "request_id": "lm6KNTKLRrzVF1ZWHviS"
+    }
+  }
+}

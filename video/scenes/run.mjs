@@ -38,11 +38,15 @@ for (const [name, script] of Object.entries(scene.commands ?? {})) {
   await writeFile(path.join(agent, "bin", name), script, { mode: 0o755, flag: "wx" });
 }
 
-// Seed the workspace and commit it, so the scene starts from a clean tree.
-for (const [file, content] of Object.entries(scene.files)) {
-  await mkdir(path.dirname(path.join(cwd, file)), { recursive: true });
-  await writeFile(path.join(cwd, file), content);
+async function seedFiles(files) {
+  for (const [file, content] of Object.entries(files)) {
+    const destination = path.join(cwd, file);
+    await mkdir(path.dirname(destination), { recursive: true });
+    await writeFile(destination, content);
+  }
 }
+// Seed the workspace and commit it, so the scene starts from a clean tree.
+await seedFiles(scene.files);
 // Fixed identity and dates make every commit hash reproducible, so a scripted reply can name the
 // SHA a real push produced (the ship shot does).
 const GIT_ENV = {
@@ -53,29 +57,35 @@ const GIT_ENV = {
   GIT_AUTHOR_DATE: "2026-11-17T09:00:00Z",
   GIT_COMMITTER_DATE: "2026-11-17T09:00:00Z",
 };
-const git = (...args) =>
-  execFileSync("git", ["-C", cwd, "-c", "commit.gpgsign=false", ...args], { stdio: "ignore", env: { ...process.env, ...GIT_ENV } });
-git("init", "-q", "-b", "main");
-git("add", ".");
-git("commit", "-qm", "init");
+const git = (args, date = GIT_ENV.GIT_AUTHOR_DATE) =>
+  execFileSync("git", ["-C", cwd, "-c", "commit.gpgsign=false", ...args], {
+    stdio: "ignore",
+    env: { ...process.env, ...GIT_ENV, GIT_AUTHOR_DATE: date, GIT_COMMITTER_DATE: date },
+  });
+git(["init", "-q", "-b", "main"]);
+git(["add", "."]);
+git(["commit", "-qm", "init"]);
+if (scene.nextCommit) {
+  await seedFiles(scene.nextCommit.files);
+  git(["add", "."]);
+  git(["commit", "-qm", scene.nextCommit.message], "2026-11-17T10:00:00Z");
+}
 // remote: "bare" gives origin a local bare repository so a push really lands, offline.
 if (scene.remote === "bare") {
   const bare = path.join(fixture, "remote.git");
   execFileSync("git", ["init", "-q", "--bare", "-b", "main", bare], { stdio: "ignore" });
-  git("remote", "add", "origin", bare);
-  git("push", "-q", "origin", "main");
+  git(["remote", "add", "origin", bare]);
+  git(["push", "-q", "origin", "main"]);
 } else {
-  git("remote", "add", "origin", "https://example.invalid/demo/greet.git");
+  git(["remote", "add", "origin", "https://example.invalid/demo/greet.git"]);
 }
 // dirty: files written after the commit, the uncommitted work a later shot picks up.
-for (const [file, content] of Object.entries(scene.dirty ?? {})) {
-  await mkdir(path.dirname(path.join(cwd, file)), { recursive: true });
-  await writeFile(path.join(cwd, file), content);
-}
+await seedFiles(scene.dirty ?? {});
 
 // The scripted model: each request takes the next step. A step is either a list of tool calls or
 // reply text, streamed in small chunks so it reads like a live model rather than appearing whole.
 const steps = [...scene.steps];
+const childSteps = [...(scene.child?.steps ?? [])];
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 // PI_VIDEO_LOG=<file> appends each request's last message, to prove a hidden guard (done-gate,
 // drift) really reached the model in a take rather than being staged by the script.
@@ -119,7 +129,9 @@ const server = createServer(async (req, res) => {
       await writeFile(output, JSON.stringify({ role: message.role, text: capture.role ? match[0] : text }, null, 2) + "\n");
     }
   }
-  const step = steps.shift() ?? { text: "…" };
+  const userMessage = payload.messages?.findLast((entry) => entry.role === "user");
+  const isChild = scene.child && JSON.stringify(userMessage?.content ?? "").includes(scene.child.task);
+  const step = (isChild ? childSteps : steps).shift() ?? { text: "…" };
   await sleep(step.think ?? 700);
   res.writeHead(200, { "content-type": "text/event-stream" });
   const send = (delta, finish_reason = null) =>

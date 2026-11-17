@@ -540,6 +540,86 @@
         "key": "videos/extensions/prompt-coach/8a25c894f9.jpg",
         "bytes": 54186
       }
+    },
+    "/extensions/docs-drift/": {
+      "captions": "video/captions/extensions/docs-drift.en.vtt",
+      "seconds": 33.166667,
+      "recorded": {
+        "content_sha": "5ad29da99d9e7fb42b4c37c609ecfe69d9424930",
+        "package_tree": "67d5de301f60e423c8c2139b611551a912db5c51"
+      },
+      "webm": {
+        "key": "videos/extensions/docs-drift/6dd3c73493.webm",
+        "bytes": 918180
+      },
+      "mp4": {
+        "key": "videos/extensions/docs-drift/b15ac2de1b.mp4",
+        "bytes": 898067
+      },
+      "poster": {
+        "key": "videos/extensions/docs-drift/9ffd6a3973.jpg",
+        "bytes": 53807
+      }
+    },
+    "/extensions/safe-compact/": {
+      "captions": "video/captions/extensions/safe-compact.en.vtt",
+      "seconds": 31.033333,
+      "recorded": {
+        "content_sha": "5ad29da99d9e7fb42b4c37c609ecfe69d9424930",
+        "package_tree": "d18a3e84f801cb68cbc40818bbd031093c061e37"
+      },
+      "webm": {
+        "key": "videos/extensions/safe-compact/7e189b9b20.webm",
+        "bytes": 1055518
+      },
+      "mp4": {
+        "key": "videos/extensions/safe-compact/b7c2e6fb5f.mp4",
+        "bytes": 940266
+      },
+      "poster": {
+        "key": "videos/extensions/safe-compact/4e79bd0891.jpg",
+        "bytes": 59708
+      }
+    },
+    "/extensions/subagents/": {
+      "captions": "video/captions/extensions/subagents.en.vtt",
+      "seconds": 35.433333,
+      "recorded": {
+        "content_sha": "5ad29da99d9e7fb42b4c37c609ecfe69d9424930",
+        "package_tree": "bb9365987e2af18ccf405f754767bf84fecfa7b5"
+      },
+      "webm": {
+        "key": "videos/extensions/subagents/b9d8eded44.webm",
+        "bytes": 1228715
+      },
+      "mp4": {
+        "key": "videos/extensions/subagents/48d0641fcf.mp4",
+        "bytes": 1179465
+      },
+      "poster": {
+        "key": "videos/extensions/subagents/a5c6dfe575.jpg",
+        "bytes": 57193
+      }
+    },
+    "/extensions/web-fetch/": {
+      "captions": "video/captions/extensions/web-fetch.en.vtt",
+      "seconds": 34.266667,
+      "recorded": {
+        "content_sha": "5ad29da99d9e7fb42b4c37c609ecfe69d9424930",
+        "package_tree": "8b2d257bb6ec30c947856f3018be4f6f096dac60"
+      },
+      "webm": {
+        "key": "videos/extensions/web-fetch/3a2d2deca9.webm",
+        "bytes": 1083033
+      },
+      "mp4": {
+        "key": "videos/extensions/web-fetch/92e2f5bdc0.mp4",
+        "bytes": 1024734
+      },
+      "poster": {
+        "key": "videos/extensions/web-fetch/b35400236f.jpg",
+        "bytes": 55626
+      }
     }
   }
 }

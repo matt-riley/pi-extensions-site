@@ -1,0 +1,29 @@
+WEBVTT
+
+1
+00:00:00.400 --> 00:00:05.440
+When a helper changes, an example or
+explanation can miss the same update.
+
+2
+00:00:07.400 --> 00:00:09.713
+This guide names the greeting helper.
+
+3
+00:00:09.713 --> 00:00:14.150
+Docs drift compares their history and
+finds a newer commit on the code.
+
+4
+00:00:14.150 --> 00:00:17.400
+You get both the document
+and the change to look at.
+
+5
+00:00:26.567 --> 00:00:29.506
+Read the guide against
+the code before editing.
+
+6
+00:00:29.506 --> 00:00:32.007
+The report gives you the place to start.

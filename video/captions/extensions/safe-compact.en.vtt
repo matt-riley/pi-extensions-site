@@ -1,0 +1,30 @@
+WEBVTT
+
+1
+00:00:00.400 --> 00:00:01.673
+When a session grows,
+
+2
+00:00:01.673 --> 00:00:06.160
+you can check what’s taking up space
+before you decide whether to compact.
+
+3
+00:00:07.400 --> 00:00:11.815
+Slash safe compact info shows how
+much context the session is using,
+
+4
+00:00:11.815 --> 00:00:16.360
+the thresholds for compaction, and
+estimates for what’s in the prompt.
+
+5
+00:00:24.033 --> 00:00:27.233
+Use the numbers to understand
+the current session.
+
+6
+00:00:27.233 --> 00:00:30.433
+The info command leaves
+the conversation in place.
