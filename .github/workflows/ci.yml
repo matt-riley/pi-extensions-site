@@ -18,7 +18,7 @@ jobs:
     concurrency:
       group: ${{ github.workflow }}:${{ github.ref }}:check
       cancel-in-progress: true
-    uses: matt-riley/matt-riley-ci/.github/workflows/aube-ci.yml@002d16c00bc74ebced433f0a16187c9b13451194 # v4.2.0
+    uses: matt-riley/matt-riley-ci/.github/workflows/aube-ci.yml@e8a2503259d33b925cad2bc018e052a2579f441d # v4.2.0
     with:
       node-version: "26"
       # No lint script in this repo. Unit tests use Vitest; `build` runs
@@ -59,7 +59,7 @@ jobs:
       contents: read
     needs: [check, browser]
     if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
-    uses: matt-riley/matt-riley-ci/.github/workflows/request-app-deploy.yml@002d16c00bc74ebced433f0a16187c9b13451194 # v4.2.0
+    uses: matt-riley/matt-riley-ci/.github/workflows/request-app-deploy.yml@e8a2503259d33b925cad2bc018e052a2579f441d # v4.2.0
     with:
       dispatch-app-id: ${{ vars.INFRA_DISPATCH_APP_ID }}
       app: pi-extensions
